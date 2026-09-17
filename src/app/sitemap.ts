@@ -8,6 +8,7 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/cdgcommerce/online-payments", priority: 0.85, changeFrequency: "monthly" },
   { path: "/cdgcommerce/retail", priority: 0.85, changeFrequency: "monthly" },
   { path: "/cdgcommerce/recurring-billing", priority: 0.85, changeFrequency: "monthly" },
+  { path: "/cdgcommerce/b2b", priority: 0.85, changeFrequency: "monthly" },
   { path: "/cdgcommerce/wireless", priority: 0.85, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.9, changeFrequency: "weekly" },
   { path: "/get-started", priority: 0.7, changeFrequency: "monthly" },

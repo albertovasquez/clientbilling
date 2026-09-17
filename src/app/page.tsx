@@ -6,40 +6,32 @@ import { getFeaturedPosts } from "@/lib/posts";
 import { cdgClaims, softCtaCopy, siteConfig } from "@/lib/site";
 
 const volumeCards = [
-  {
-    ...cdgClaims.volumeBands.simple,
-    href: `/cdgcommerce#${cdgClaims.volumeBands.simple.anchor}`,
-  },
-  {
-    ...cdgClaims.volumeBands.interchangePlus,
-    href: `/cdgcommerce#${cdgClaims.volumeBands.interchangePlus.anchor}`,
-  },
-  {
-    ...cdgClaims.volumeBands.wholesale,
-    href: `/cdgcommerce#${cdgClaims.volumeBands.wholesale.anchor}`,
-  },
+  cdgClaims.volumeBands.under10k,
+  cdgClaims.volumeBands.from10kTo25k,
+  cdgClaims.volumeBands.from25kTo200k,
+  cdgClaims.volumeBands.over200k,
 ];
 
 const businessChips = [
   { label: "Online", href: "/cdgcommerce/online-payments" },
   { label: "Retail", href: "/cdgcommerce/retail" },
-  { label: "B2B", href: "/cdgcommerce#fit" },
-  { label: "Service", href: "/cdgcommerce#fit" },
-  { label: "Subscription", href: "/cdgcommerce/recurring-billing" },
+  { label: "Mobile", href: "/cdgcommerce/wireless" },
+  { label: "Recurring", href: "/cdgcommerce/recurring-billing" },
+  { label: "B2B", href: "/cdgcommerce/b2b" },
 ];
 
 const faqs = [
   {
     q: "Is ClientBilling a payment processor?",
-    a: "No. We publish independent guides and partner with CDG Commerce as an affiliate. You apply and contract directly with CDG if you choose them.",
+    a: "No. We publish independent payments and billing guidance and partner with CDG Commerce as an affiliate. You apply and contract directly with CDG if you choose them.",
   },
   {
     q: "Where do the pricing numbers come from?",
-    a: "Volume bands and interchange-plus markups on this site are attributed to what CDG publishes. Interchange and card-network fees are separate. Always confirm current rates with CDG.",
+    a: "Markups and feature claims on this site are attributed to what CDG publishes. CDG offers flat-rate, interchange-plus, and wholesale — the best structure depends partly on volume. Always confirm current rates with a free quote.",
   },
   {
     q: "What should I do first?",
-    a: "Start with our CDG Commerce guide and volume selector, then check eligibility on CDG’s secure application when you are ready.",
+    a: "Browse CDG options on our guide, or request a free CDG quote when you are ready. Hard apply / eligibility CTAs sit lower on pages after you have context.",
   },
 ];
 
@@ -56,18 +48,21 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-12 lg:items-center lg:px-8 lg:py-24">
           <div className="lg:col-span-7">
             <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-              Merchant payment decision guide
+              Payments &amp; billing guidance
             </p>
             <h1 className="mt-3 font-[family-name:var(--font-source-serif)] text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.25rem] lg:leading-tight">
-              Find the Right Payment Processing Setup for Your Business
+              Payments and billing guidance for businesses that want to get paid
+              better.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
-              Compare merchant accounts, processing costs, recurring billing,
-              payment gateways, invoicing and POS options — then decide whether
-              CDG Commerce is worth a closer look.
+              {siteConfig.subtitle}
+            </p>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600">
+              Practical, editorial decision guides — then decide whether{" "}
+              {siteConfig.partnerName} is worth a closer look.
             </p>
             <div className="mt-8">
-              <SoftCdgCta />
+              <SoftCdgCta ctaPosition="home_hero" />
             </div>
             <p className="mt-4 text-xs text-slate-500">
               Affiliate disclosure: we may earn a commission from{" "}
@@ -112,34 +107,36 @@ export default function HomePage() {
           Start with your monthly volume
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
-          CDG publishes different pricing approaches by volume band. Pick the
-          range that matches you to jump into the guide.
+          {cdgClaims.pricingModelsNote}
         </p>
-        <div className="mt-8 grid gap-5 sm:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {volumeCards.map((card) => (
-            <Link
+            <div
               key={card.anchor}
-              href={card.href}
-              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-300 hover:shadow-md"
+              id={card.anchor}
+              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
             >
               <p className="text-xs font-semibold uppercase tracking-wide text-teal-800">
                 {card.model}
               </p>
-              <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-teal-800">
+              <h3 className="mt-2 text-lg font-semibold text-slate-900">
                 {card.label}
               </h3>
-              <p className="mt-2 text-sm text-slate-600">{card.note}</p>
-              <span className="mt-4 inline-flex text-sm font-semibold text-teal-800">
-                See details →
-              </span>
-            </Link>
+              <p className="mt-2 flex-1 text-sm text-slate-600">{card.note}</p>
+              <TrackedAffiliateLink
+                ctaPosition="home_volume"
+                ctaText={softCtaCopy.getFreeQuote}
+                ctaType="soft"
+                className="mt-4 inline-flex text-sm font-semibold text-teal-800 hover:text-teal-700"
+              >
+                {softCtaCopy.getFreeQuote} →
+              </TrackedAffiliateLink>
+            </div>
           ))}
         </div>
 
         <div className="mt-10">
-          <p className="text-sm font-semibold text-slate-800">
-            Business type
-          </p>
+          <p className="text-sm font-semibold text-slate-800">Business type</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {businessChips.map((chip) => (
               <Link
@@ -160,8 +157,8 @@ export default function HomePage() {
             Trust signals (as CDG states)
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
-            We attribute these claims to CDG’s own published messaging — we do
-            not invent independent statistics.
+            We attribute these claims to CDG&apos;s own published messaging — we
+            do not invent independent statistics.
           </p>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cdgClaims.trust.map((item) => (
@@ -176,7 +173,7 @@ export default function HomePage() {
               {cdgClaims.contract.noLongTerm}
             </li>
             <li className="rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm leading-relaxed text-slate-700 shadow-sm">
-              {cdgClaims.approval}
+              {cdgClaims.contract.noTerminationFee}
             </li>
           </ul>
         </div>
@@ -225,25 +222,32 @@ export default function HomePage() {
           </dl>
 
           <div className="mt-12 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Next step
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900">Next step</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              Prefer to research first? Open the CDG Commerce guide. Ready to
-              see if you qualify? Check eligibility on CDG’s secure application.
+              Prefer to research first? See CDG options on our guide. Ready for
+              numbers? Request a free CDG quote. Eligibility / apply sits as a
+              secondary hard convert when you are ready.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href="/cdgcommerce"
                 className="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
               >
-                {softCtaCopy.seePricing}
+                {softCtaCopy.seeOptions}
               </Link>
               <TrackedAffiliateLink
                 ctaPosition="home_faq"
+                ctaText={softCtaCopy.getFreeQuote}
+                ctaType="soft"
+                className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+              >
+                {softCtaCopy.getFreeQuote}
+              </TrackedAffiliateLink>
+              <TrackedAffiliateLink
+                ctaPosition="home_faq_hard"
                 ctaText={softCtaCopy.checkEligibility}
                 ctaType="eligibility"
-                className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+                className="inline-flex px-2 py-2.5 text-xs font-semibold text-slate-500 underline-offset-2 hover:text-teal-800 hover:underline"
               >
                 {softCtaCopy.checkEligibility}
               </TrackedAffiliateLink>

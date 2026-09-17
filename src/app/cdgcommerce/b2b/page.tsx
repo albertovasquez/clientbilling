@@ -4,13 +4,15 @@ import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
 import { softCtaCopy, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "CDG Commerce Wireless & Mobile Payments",
-  description: "When CDG Commerce wireless / mobile payment options may fit field teams, pop-ups, and on-the-go card acceptance.",
-  alternates: { canonical: "/cdgcommerce/wireless" },
+  title: "CDG Commerce for B2B Payments",
+  description:
+    "When CDG Commerce may fit B2B invoicing, virtual terminal, and Level 2/3 card scenarios — then get a free quote.",
+  alternates: { canonical: "/cdgcommerce/b2b" },
   openGraph: {
-    title: "CDG Commerce Wireless & Mobile Payments | ClientBilling",
-    description: "When CDG Commerce wireless / mobile payment options may fit field teams, pop-ups, and on-the-go card acceptance.",
-    url: "/cdgcommerce/wireless",
+    title: "CDG Commerce for B2B Payments | ClientBilling",
+    description:
+      "B2B invoicing, virtual terminal, and Level 2/3 scenarios with CDG Commerce — research first, then free quote.",
+    url: "/cdgcommerce/b2b",
   },
   robots: { index: true, follow: true },
 };
@@ -33,34 +35,75 @@ export default function Page() {
           </li>
           <li aria-hidden>/</li>
           <li className="text-slate-700" aria-current="page">
-            Wireless / Mobile
+            B2B payments
           </li>
         </ol>
       </nav>
 
       <header className="mt-6 border-b border-slate-200 pb-8">
         <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-          {siteConfig.partnerName} · Wireless / Mobile
+          {siteConfig.partnerName} · B2B payments
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          CDG Commerce Wireless & Mobile Payments
+          CDG Commerce for B2B Payments
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          When CDG Commerce wireless / mobile payment options may fit field teams, pop-ups, and on-the-go card acceptance.
+          Invoicing, virtual terminal, and Level 2/3 scenarios common when
+          businesses sell to other businesses — researched on ClientBilling,
+          then a free quote when you are ready.
         </p>
       </header>
 
       <div className="mt-8 space-y-5">
-          <p className="text-base leading-relaxed text-slate-600">Field sales, delivery, markets, and event pop-ups need card acceptance away from a fixed register. CDG Commerce positions wireless / mobile payment options for merchants who close deals on the go.</p>
-          <p className="text-base leading-relaxed text-slate-600">Mobile acceptance still requires underwriting, hardware or app choices, and clear settlement expectations. Treat this page as a channel overview — confirm devices, connectivity, and fees with CDG during eligibility.</p>
-          <p className="text-base leading-relaxed text-slate-600">If you also sell online or in a storefront, start from the main CDG guide so you do not optimize for only one channel.</p>
+        <p className="text-base leading-relaxed text-slate-600">
+          B2B payments rarely look like one-click consumer checkout. Finance
+          teams email invoices, key cards over the phone, chase purchase orders,
+          and sometimes qualify for Level 2/3 interchange when enough line-item
+          and tax data travels with the authorization.
+        </p>
+        <p className="text-base leading-relaxed text-slate-600">
+          CDG Commerce lists invoicing and virtual terminal among its merchant
+          features, alongside online acceptance and gateway options. That
+          combination can matter if you want card processing plus billed
+          receivables under one partner conversation — without inventing a
+          fake CDG &quot;B2B landing type.&quot;
+        </p>
+        <p className="text-base leading-relaxed text-slate-600">
+          Level 2/3 outcomes depend on card type, data quality, and
+          underwriting — treat them as a research topic, not a promised rate.
+          Confirm eligibility and pricing with CDG directly.
+        </p>
       </div>
 
       <ul className="mt-8 space-y-3 text-sm text-slate-700">
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Wireless / mobile merchant options (as CDG positions)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Useful for field teams, markets, and pop-up retail</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Complements retail POS when staff leave the counter</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Confirm hardware and fee details directly with CDG</li>
+        <li className="flex gap-3">
+          <span
+            aria-hidden
+            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
+          />
+          Invoicing listed by CDG among merchant features
+        </li>
+        <li className="flex gap-3">
+          <span
+            aria-hidden
+            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
+          />
+          Virtual terminal for keyed / remote card entry (as CDG lists)
+        </li>
+        <li className="flex gap-3">
+          <span
+            aria-hidden
+            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
+          />
+          Online merchant accounts and gateways CDG lists (Quantum, Authorize.Net)
+        </li>
+        <li className="flex gap-3">
+          <span
+            aria-hidden
+            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
+          />
+          Level 2/3 scenarios: research with CDG — do not assume automatic qualification
+        </li>
       </ul>
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
@@ -73,9 +116,9 @@ export default function Page() {
           {softCtaCopy.getFreeQuote}
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          Prefer a soft next step? Request a free CDG quote through our tracked
-          affiliate link. Check eligibility / apply remains secondary when you
-          are ready to convert.
+          Ready for numbers on invoicing and virtual-terminal acceptance? Open
+          CDG&apos;s secure flow through our tracked affiliate link. Check
+          eligibility / apply remains available as a secondary hard convert.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <TrackedAffiliateLink

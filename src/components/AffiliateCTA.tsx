@@ -18,8 +18,8 @@ type AffiliateCTAProps = {
 
 export function AffiliateCTA({
   variant = "banner",
-  headline = "Curious how CDG Commerce pricing fits your volume?",
-  body = `Review our independent CDG Commerce guide for published volume bands, features, and fit — then check eligibility when you are ready. We may earn a commission if you apply through our link.`,
+  headline = "Curious how CDG Commerce options fit your volume?",
+  body = `Review our independent CDG Commerce guide for pricing models, features, and fit — then get a free quote when you are ready. We may earn a commission if you apply through our link.`,
   channel,
   articleSlug,
 }: AffiliateCTAProps) {
@@ -77,12 +77,12 @@ export function AffiliateCTA({
           </Link>
           <TrackedAffiliateLink
             ctaPosition="cta_inline"
-            ctaText={softCtaCopy.checkEligibility}
-            ctaType="eligibility"
+            ctaText={softCtaCopy.getFreeQuote}
+            ctaType="soft"
             articleSlug={articleSlug}
             className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
           >
-            {softCtaCopy.checkEligibility}
+            {softCtaCopy.getFreeQuote}
           </TrackedAffiliateLink>
           <Link
             href={siteConfig.partnerInternalPaths.hub}
@@ -123,11 +123,11 @@ export function AffiliateCTA({
         </Link>
         <TrackedAffiliateLink
           ctaPosition="cta_banner"
-          ctaText={softCtaCopy.checkEligibility}
-          ctaType="end"
+          ctaText={softCtaCopy.getFreeQuote}
+          ctaType="soft"
           className="inline-flex rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
         >
-          {softCtaCopy.checkEligibility}
+          {softCtaCopy.getFreeQuote}
         </TrackedAffiliateLink>
       </div>
     </aside>

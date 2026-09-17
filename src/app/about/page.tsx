@@ -4,14 +4,14 @@ import { AffiliateCTA } from "@/components/AffiliateCTA";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "About & How it works",
+  title: "About ClientBilling",
   description:
-    "What ClientBilling covers, who it is for, and how our CDG Commerce affiliate partnership works — disclosed clearly.",
+    "ClientBilling is an independent publication covering payments, merchant accounts, recurring billing, invoicing, and POS — with a transparent CDG Commerce affiliate partnership.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About ClientBilling",
     description:
-      "Merchant-payment decision guides with a transparent CDG Commerce affiliate partnership.",
+      "Independent payments and billing guidance with a disclosed CDG Commerce affiliate relationship.",
     url: "/about",
   },
 };
@@ -24,53 +24,65 @@ export default function AboutPage() {
           About
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          How ClientBilling works
+          Independent guidance on payments and billing
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          {siteConfig.name} helps businesses compare merchant accounts,
-          processing costs, recurring billing, gateways, invoicing, and POS
-          options. We partner with {siteConfig.partnerName} as an affiliate and
-          say so when a link is monetized.
+          {siteConfig.name} is an editorial site for operators who need to get
+          paid reliably — merchant accounts, online payments, recurring billing,
+          invoicing, gateways, and POS. We publish practical decision guides,
+          not vendor press releases.
         </p>
       </header>
 
       <div className="prose prose-billing prose-lg mt-10 max-w-none">
-        <h2>What we cover</h2>
+        <h2>What we publish</h2>
         <p>
-          Decision guides for payment processing and billing operations —
-          including our primary{" "}
+          Long-form explainers and comparisons on processing costs, billing
+          operations, and processor fit. Our primary money page is the{" "}
           <Link href="/cdgcommerce">CDG Commerce review &amp; pricing guide</Link>
-          , channel pages for online, retail, recurring, and wireless, plus
-          editorial comparisons and billing best-practice posts.
+          , with channel deep-dives for online, retail, mobile, recurring, and
+          B2B paths, plus a broader blog on invoicing, dunning, and subscription
+          metrics.
         </p>
 
-        <h2>Who this is for</h2>
+        <h2>Who it is for</h2>
         <ul>
-          <li>Online and retail merchants evaluating processor options</li>
-          <li>Subscription and services businesses needing recurring charges</li>
+          <li>Online, retail, and hybrid merchants evaluating processors</li>
+          <li>Subscription and services businesses that need recurring charges</li>
+          <li>B2B teams that invoice, key cards, or care about Level 2/3 scenarios</li>
           <li>Operators who want attributed pricing claims — not invented stats</li>
         </ul>
 
-        <h2>Our affiliate partnership with CDG Commerce</h2>
+        <h2>Our affiliate relationship with CDG Commerce</h2>
         <p>
-          ClientBilling is an affiliate partner of {siteConfig.partnerName}.
-          Money-intent CTAs use a tracked secure application URL. Soft CTAs
-          route to our internal guides first. If you apply through those
-          affiliate links, we may earn a commission at no additional cost to
-          you.
+          ClientBilling is an affiliate partner of {siteConfig.partnerName}. When
+          you click certain CTAs — for example a free quote or eligibility check —
+          you may land on CDG&apos;s secure application through a tracked affiliate
+          link. If you apply through those links, we may earn a commission at no
+          additional cost to you.
         </p>
         <p>
-          Learn more on the{" "}
-          <Link href="/cdgcommerce">CDG Commerce guide</Link>, or read the full{" "}
-          <Link href="/affiliate-disclosure">Affiliate Disclosure</Link>.
+          Soft research CTAs keep you on our guides first. We attribute CDG-published
+          claims carefully and do not invent commission rates or unpublished
+          statistics. Full details live on the{" "}
+          <Link href="/affiliate-disclosure">Affiliate Disclosure</Link> page,
+          which remains part of how we meet FTC expectations for clear disclosure.
+        </p>
+
+        <h2>Editorial standards</h2>
+        <p>
+          We separate research from conversion. Guides explain volume bands,
+          features, and fit using language CDG publishes; bottom-of-funnel CTAs
+          are labeled and tracked. When CDG and other processors differ, we say
+          so rather than forcing a single recommendation.
         </p>
 
         <h2>What we are not</h2>
         <p>
           We are not your attorney, accountant, or payment processor. Content is
-          educational and general. For tax, contract, or compliance decisions,
-          consult qualified professionals. We do not invent commission rates or
-          unpublished CDG statistics.
+          educational and general. For tax, contract, underwriting, or compliance
+          decisions, consult qualified professionals and confirm current terms
+          directly with CDG or whatever provider you choose.
         </p>
       </div>
 

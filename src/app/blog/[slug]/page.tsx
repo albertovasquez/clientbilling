@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MidArticleCdgCard } from "@/components/MidArticleCdgCard";
-import { EndArticleCdgCta } from "@/components/EndArticleCdgCta";
+import {
+  EndArticleCdgCta,
+  type EndArticleAngle,
+} from "@/components/EndArticleCdgCta";
 import {
   formatPostDate,
   getAllPostSlugs,
   getPostBySlug,
 } from "@/lib/posts";
-import { channelForTags, siteConfig } from "@/lib/site";
+import { siteConfig } from "@/lib/site";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,12 +22,43 @@ function topicForTags(
 ): "pricing" | "recurring" | "invoicing" | "fees" | "gateway" | "pos" | "general" {
   const h = tags.map((t) => t.toLowerCase()).join(" ");
   if (/\b(pricing|fees?|interchange|rate)\b/.test(h)) return "fees";
-  if (/\b(recurring|subscription)\b/.test(h)) return "recurring";
-  if (/\b(invoice|invoicing)\b/.test(h)) return "invoicing";
+  if (/\b(recurring|subscription|dunning)\b/.test(h)) return "recurring";
+  if (/\b(invoice|invoicing|b2b)\b/.test(h)) return "invoicing";
   if (/\b(gateway)\b/.test(h)) return "gateway";
   if (/\b(pos|retail)\b/.test(h)) return "pos";
   if (/\b(cdg|review)\b/.test(h)) return "pricing";
   return "general";
+}
+
+function angleForTopic(
+  topic: ReturnType<typeof topicForTags>,
+): EndArticleAngle {
+  if (topic === "invoicing") return "invoicing";
+  if (topic === "recurring") return "recurring";
+  if (topic === "fees" || topic === "pricing") return "pricing";
+  if (topic === "pos") return "pos";
+  return "general";
+}
+
+function angleForSlug(
+  slug: string,
+  topic: ReturnType<typeof topicForTags>,
+): EndArticleAngle {
+  if (
+    slug.includes("invoice") ||
+    slug.includes("choosing-billing-software-for-b2b")
+  ) {
+    return "invoicing";
+  }
+  if (
+    slug.includes("dunning") ||
+    slug.includes("subscription") ||
+    slug.includes("recurring") ||
+    slug.includes("usage-based")
+  ) {
+    return "recurring";
+  }
+  return angleForTopic(topic);
 }
 
 function splitHtmlAtSecondHeading(html: string): [string, string] {
@@ -91,8 +125,8 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const [before, after] = splitHtmlAtSecondHeading(post.contentHtml);
-  const channel = channelForTags(post.tags);
   const topic = topicForTags(post.tags);
+  const angle = angleForSlug(post.slug, topic);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -193,7 +227,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         />
       ) : null}
 
-      <EndArticleCdgCta channel={channel} articleSlug={post.slug} />
+      <EndArticleCdgCta angle={angle} articleSlug={post.slug} />
 
       <p className="mt-8 text-sm text-slate-500">
         <Link

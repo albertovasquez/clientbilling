@@ -70,28 +70,36 @@ export default function Page() {
 
       <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
         <h2 className="text-xl font-semibold text-slate-900">
-          {softCtaCopy.checkEligibility}
+          {softCtaCopy.getFreeQuote}
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          When you are ready, open CDG&apos;s secure merchant application
-          through our tracked affiliate link. We may earn a commission at no
-          extra cost to you.
+          If recurring billing plus card acceptance is on your shortlist, request
+          a free CDG quote through our tracked affiliate link. Check eligibility
+          remains available as a secondary hard convert.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <TrackedAffiliateLink
             ctaPosition="subpage_end"
-            ctaText={softCtaCopy.checkEligibility}
-            ctaType="eligibility"
+            ctaText={softCtaCopy.getFreeQuote}
+            ctaType="soft"
             className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
           >
-            {softCtaCopy.checkEligibility}
+            {softCtaCopy.getFreeQuote}
           </TrackedAffiliateLink>
           <Link
             href="/cdgcommerce"
             className="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
           >
-            {softCtaCopy.seePricing}
+            {softCtaCopy.seeOptions}
           </Link>
+          <TrackedAffiliateLink
+            ctaPosition="subpage_end_hard"
+            ctaText={softCtaCopy.checkEligibility}
+            ctaType="eligibility"
+            className="inline-flex px-2 py-2.5 text-xs font-semibold text-slate-500 underline-offset-2 hover:text-teal-800 hover:underline"
+          >
+            {softCtaCopy.checkEligibility}
+          </TrackedAffiliateLink>
         </div>
       </div>
     </article>
