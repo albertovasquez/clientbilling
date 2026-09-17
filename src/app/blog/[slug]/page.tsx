@@ -139,7 +139,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <AffiliateCTA
         variant="inline"
         headline="Put these billing practices to work"
-        body="When you are ready to evaluate billing software, our partner signup is a practical next step. We may earn a commission if you subscribe — disclosed clearly, at no extra cost to you."
+        body="When you are ready for a merchant account and payment stack, apply with CDG Commerce through our affiliate link. We may earn a commission if you sign up — disclosed clearly, at no extra cost to you."
       />
 
       <p className="mt-8 text-sm text-slate-500">

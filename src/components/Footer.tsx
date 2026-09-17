@@ -15,7 +15,8 @@ export function Footer() {
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-600">
               Independent guidance on customer billing, invoicing, and
               subscription operations for B2B teams. We may earn a commission
-              when you sign up through our partner links.
+              when you apply through our {siteConfig.partnerName} affiliate
+              links.
             </p>
           </div>
 
@@ -39,19 +40,27 @@ export function Footer() {
 
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Partner
+              Partner · {siteConfig.partnerName}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              Looking for billing software? See our partner offer and compare
-              it against your current stack.
+              Looking for a merchant account and payment stack? Apply with{" "}
+              {siteConfig.partnerName} or learn more on our Get started page.
             </p>
-            <Link
-              href={siteConfig.affiliateSignupUrl}
-              className="mt-4 inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-              rel="noopener noreferrer sponsored"
-            >
-              Explore partner signup
-            </Link>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                href={siteConfig.affiliateSignupUrl}
+                className="inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                rel="noopener noreferrer sponsored"
+              >
+                Apply for a merchant account
+              </Link>
+              <Link
+                href="/get-started"
+                className="inline-flex rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              >
+                Get started with CDG Commerce
+              </Link>
+            </div>
           </div>
         </div>
 

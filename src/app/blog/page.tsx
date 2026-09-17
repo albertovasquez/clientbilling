@@ -41,7 +41,7 @@ export default function BlogIndexPage() {
       </div>
 
       <div className="mt-14">
-        <AffiliateCTA variant="compact" headline="Evaluating billing tools while you read?" />
+        <AffiliateCTA variant="compact" headline="Ready for a merchant account? Apply with CDG Commerce." />
       </div>
     </div>
   );

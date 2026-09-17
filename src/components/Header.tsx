@@ -35,7 +35,7 @@ export function Header() {
             className="ml-1 hidden rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:inline-flex"
             rel="noopener noreferrer sponsored"
           >
-            Get started
+            Apply for a merchant account
           </Link>
         </nav>
       </div>

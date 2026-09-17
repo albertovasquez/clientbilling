@@ -34,23 +34,23 @@ export default function HomePage() {
                 className="inline-flex rounded-lg bg-teal-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 rel="noopener noreferrer sponsored"
               >
-                Explore partner signup
+                Apply for a merchant account
               </Link>
               <Link
-                href="/blog"
+                href="/get-started"
                 className="inline-flex rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
               >
-                Read the blog
+                Learn more
               </Link>
             </div>
             <p className="mt-4 text-xs text-slate-500">
-              Affiliate disclosure: we may earn a commission from partner
-              signups.{" "}
+              Affiliate disclosure: we may earn a commission from{" "}
+              {siteConfig.partnerName} applications.{" "}
               <Link
                 href="/affiliate-disclosure"
                 className="underline underline-offset-2 hover:text-slate-700"
               >
-                Learn more
+                Details
               </Link>
               .
             </p>
@@ -88,14 +88,14 @@ export default function HomePage() {
                     aria-hidden
                     className="mt-1 h-2 w-2 shrink-0 rounded-full bg-teal-700"
                   />
-                  Honest notes on affiliate partner recommendations
+                  Transparent {siteConfig.partnerName} affiliate recommendations
                 </li>
               </ul>
               <Link
-                href="/about"
+                href="/get-started"
                 className="mt-6 inline-flex text-sm font-semibold text-teal-800 hover:text-teal-700"
               >
-                How ClientBilling works
+                Get started with CDG Commerce
                 <span aria-hidden className="ml-1">
                   →
                 </span>
@@ -147,7 +147,7 @@ export default function HomePage() {
             },
             {
               title: "Transparency",
-              body: "We explain when a link is affiliate-supported and keep recommendations grounded in operational reality.",
+              body: `We disclose our ${siteConfig.partnerName} affiliate relationship and keep recommendations grounded in operational reality.`,
             },
           ].map((item) => (
             <div key={item.title}>

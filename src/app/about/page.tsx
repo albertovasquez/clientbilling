@@ -6,12 +6,12 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "About & How it works",
   description:
-    "What ClientBilling covers, who it is for, and how affiliate partnerships work — disclosed clearly.",
+    "What ClientBilling covers, who it is for, and how our CDG Commerce affiliate partnership works — disclosed clearly.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About ClientBilling",
     description:
-      "Independent billing best practices for B2B SaaS, with transparent affiliate partner links.",
+      "Independent billing best practices for B2B SaaS, with a transparent CDG Commerce affiliate partnership.",
     url: "/about",
   },
 };
@@ -28,9 +28,9 @@ export default function AboutPage() {
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-slate-600">
           {siteConfig.name} publishes practical guidance on customer billing for
-          B2B SaaS and subscription businesses. We also introduce readers to
-          partner products when those products are a reasonable fit—and we say
-          so when a link is monetized.
+          B2B SaaS and subscription businesses. We also partner with{" "}
+          {siteConfig.partnerName} so readers can apply for a merchant account
+          when that fit makes sense—and we say so when a link is monetized.
         </p>
       </header>
 
@@ -39,9 +39,9 @@ export default function AboutPage() {
         <p>
           Our editorial focus is operational: invoice clarity, collections and
           dunning, subscription metrics, usage-based pricing pitfalls, and how
-          to evaluate billing software. We write for founders, finance
-          operations, customer success, and revenue teams who own the customer
-          bill—not for abstract growth theory.
+          to evaluate billing and payment software. We write for founders,
+          finance operations, customer success, and revenue teams who own the
+          customer bill—not for abstract growth theory.
         </p>
 
         <h2>Who this is for</h2>
@@ -51,23 +51,27 @@ export default function AboutPage() {
           <li>Operators improving cash collection without burning goodwill</li>
         </ul>
 
-        <h2>How affiliate partnerships work</h2>
+        <h2>Our affiliate partnership with CDG Commerce</h2>
         <p>
-          Some calls-to-action on this site link to a partner signup URL
-          configured via{" "}
-          <code>NEXT_PUBLIC_AFFILIATE_SIGNUP_URL</code>. If you sign up through
-          those links, we may earn a commission at no additional cost to you.
+          ClientBilling is an affiliate partner of {siteConfig.partnerName}.
+          Primary calls-to-action on this site link to their merchant
+          application (configured via{" "}
+          <code>NEXT_PUBLIC_AFFILIATE_SIGNUP_URL</code>). If you apply or sign
+          up through those links, we may earn a commission at no additional
+          cost to you.
         </p>
         <p>
           That relationship does not mean every article is a product pitch. We
           aim for checklists and frameworks you can use even if you never click
-          a partner link. When we recommend evaluating software, we encourage
-          you to run your own scorecard—pricing model fit, tax readiness,
-          finance handoff, and implementation risk.
+          a partner link. When we recommend evaluating payment or billing
+          software, we encourage you to run your own scorecard—pricing model
+          fit, tax readiness, finance handoff, and implementation risk.
         </p>
         <p>
-          Full details live on our{" "}
-          <Link href="/affiliate-disclosure">Affiliate Disclosure</Link> page.
+          Learn more on{" "}
+          <Link href="/get-started">Get started with CDG Commerce</Link>, or
+          read the full{" "}
+          <Link href="/affiliate-disclosure">Affiliate Disclosure</Link>.
           Privacy practices are summarized in{" "}
           <Link href="/privacy">Privacy</Link>.
         </p>
@@ -76,22 +80,24 @@ export default function AboutPage() {
         <p>
           We are not your attorney, accountant, or payment processor. Content is
           educational and general in nature. For tax, contract, or compliance
-          decisions, consult qualified professionals and your own counsel.
+          decisions, consult qualified professionals and your own counsel. We do
+          not invent or publish commission rates for this partnership.
         </p>
 
         <h2>Contact</h2>
         <p>
           For editorial or partnership questions related to{" "}
           {siteConfig.domain}, use the contact channel published when the site
-          goes fully live on production hosting. Until then, treat this page as
-          the source of truth for how the product and affiliate model work.
+          goes fully live on production hosting. Until then, treat this page and
+          the Affiliate Disclosure as the source of truth for how the editorial
+          and affiliate model work.
         </p>
       </div>
 
       <div className="mt-12">
         <AffiliateCTA
-          headline="Curious about the partner platform?"
-          body="Review the signup flow yourself. Affiliate support helps fund this editorial work; it should never replace your diligence."
+          headline="Curious about CDG Commerce?"
+          body="Review the merchant application yourself. Affiliate support helps fund this editorial work; it should never replace your diligence."
         />
       </div>
     </div>

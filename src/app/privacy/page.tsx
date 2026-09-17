@@ -53,8 +53,8 @@ export default function PrivacyPage() {
 
         <h2>Affiliate links</h2>
         <p>
-          Outbound links to partner signup pages may include affiliate
-          tracking parameters controlled by the partner. See our{" "}
+          Outbound links to CDG Commerce merchant application pages may include
+          affiliate tracking parameters controlled by the partner. See our{" "}
           <Link href="/affiliate-disclosure">Affiliate Disclosure</Link> for
           how those relationships work.
         </p>

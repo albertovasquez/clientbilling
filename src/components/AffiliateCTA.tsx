@@ -10,7 +10,7 @@ type AffiliateCTAProps = {
 export function AffiliateCTA({
   variant = "banner",
   headline = "Ready to modernize how you bill customers?",
-  body = "Explore a partner platform built for subscription and invoice workflows. We may earn a commission if you sign up — at no extra cost to you.",
+  body = `Apply for a merchant account with ${siteConfig.partnerName} — gateways, recurring billing, invoicing, and more. We may earn a commission if you sign up — at no extra cost to you.`,
 }: AffiliateCTAProps) {
   if (variant === "compact") {
     return (
@@ -21,7 +21,7 @@ export function AffiliateCTA({
           className="mt-3 inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
           rel="noopener noreferrer sponsored"
         >
-          View partner signup
+          Apply for a merchant account
         </Link>
       </aside>
     );
@@ -31,7 +31,7 @@ export function AffiliateCTA({
     return (
       <aside className="my-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-          Partner offer
+          {siteConfig.partnerName} partner offer
         </p>
         <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
           {headline}
@@ -45,13 +45,13 @@ export function AffiliateCTA({
             className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
             rel="noopener noreferrer sponsored"
           >
-            Get started with our partner
+            Apply for a merchant account
           </Link>
           <Link
-            href="/affiliate-disclosure"
+            href="/get-started"
             className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
           >
-            How our affiliate links work
+            Learn more about CDG Commerce
           </Link>
         </div>
       </aside>
@@ -69,7 +69,7 @@ export function AffiliateCTA({
         className="pointer-events-none absolute -bottom-20 left-10 h-48 w-48 rounded-full bg-amber-400/10 blur-3xl"
       />
       <p className="relative text-xs font-semibold uppercase tracking-wider text-teal-200">
-        Affiliate partner
+        Affiliate partner · {siteConfig.partnerName}
       </p>
       <h2 className="relative mt-2 max-w-2xl text-2xl font-semibold tracking-tight sm:text-3xl">
         {headline}
@@ -83,13 +83,13 @@ export function AffiliateCTA({
           className="inline-flex rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
           rel="noopener noreferrer sponsored"
         >
-          Start free signup
+          Get started with CDG Commerce
         </Link>
         <Link
-          href="/about"
+          href="/get-started"
           className="text-sm font-medium text-slate-300 underline-offset-2 hover:text-white hover:underline"
         >
-          Why we recommend partners
+          Why we partner with CDG
         </Link>
       </div>
     </aside>
