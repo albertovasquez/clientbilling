@@ -31,6 +31,16 @@ Default apply URL:
 
 `https://secure.cdgcommerce.com/onlineapp/onlineapp-ht-newV2.php?agentid=470&appcode=CLIENTBILLING&utm_source=clientbilling&utm_medium=cta&utm_campaign=site`
 
+Mid-funnel channel landings (agent `R=470`), centralized in `src/lib/site.ts`:
+
+| Channel | URL |
+| --- | --- |
+| Internet | `https://www.cdgcommerce.com/my_landing/?R=470&type=internet` (+ UTM) |
+| Retail | `https://www.cdgcommerce.com/my_landing/?R=470&type=retail` (+ UTM) |
+| Wireless | `https://www.cdgcommerce.com/my_landing/?R=470&type=wireless` (+ UTM) |
+
+Header/footer/home primary CTAs stay on the apply URL. `/get-started` cards and topic-matched blog end CTAs link landings for research, with apply as the convert path.
+
 ## Scripts
 
 | Command | Purpose |

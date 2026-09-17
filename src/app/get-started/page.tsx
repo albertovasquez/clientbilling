@@ -5,12 +5,12 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Get started with CDG Commerce",
   description:
-    "Partner with CDG Commerce for merchant accounts, payment gateways, recurring billing, invoicing, chargeback help, POS, and mobile payments — apply through ClientBilling.",
+    "Choose Internet, Retail, or Wireless landings from CDG Commerce — then apply for a merchant account through ClientBilling.",
   alternates: { canonical: "/get-started" },
   openGraph: {
     title: "Get started with CDG Commerce | ClientBilling",
     description:
-      "Apply for a merchant account with CDG Commerce — payment processing built for growing businesses.",
+      "Explore CDG Commerce channel landings (Internet, Retail, Wireless) or apply for a merchant account.",
     url: "/get-started",
   },
 };
@@ -92,31 +92,78 @@ export default function GetStartedPage() {
 
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
         <h2 className="font-[family-name:var(--font-source-serif)] text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          What CDG Commerce helps with
+          Choose how you accept payments
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-          Highlights based on how {siteConfig.partnerName} positions its
-          solutions for merchants. Always confirm capabilities, pricing, and
-          fit directly with them.
+          Start with a mid-funnel landing for your channel—Internet, Retail, or
+          Wireless—then apply when you are ready to convert.
         </p>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {highlights.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
-            >
-              <h3 className="text-base font-semibold text-slate-900">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                {item.body}
-              </p>
-            </div>
-          ))}
+          {siteConfig.partnerChannels.map((channel) => {
+            const landingHref = siteConfig.partnerLandings[channel.id];
+            return (
+              <article
+                key={channel.id}
+                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              >
+                <h3 className="text-lg font-semibold text-slate-900">
+                  {channel.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
+                  {channel.description}
+                </p>
+                <div className="mt-5 flex flex-col gap-2">
+                  <a
+                    href={landingHref}
+                    className="inline-flex items-center justify-center rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    rel="noopener noreferrer sponsored"
+                    target="_blank"
+                  >
+                    Explore {channel.title} options
+                  </a>
+                  <Link
+                    href={siteConfig.affiliateSignupUrl}
+                    className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    rel="noopener noreferrer sponsored"
+                  >
+                    Apply now
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      <section className="border-y border-slate-200 bg-white">
+      <section className="border-y border-slate-200 bg-slate-50">
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+          <h2 className="font-[family-name:var(--font-source-serif)] text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+            What CDG Commerce helps with
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+            Highlights based on how {siteConfig.partnerName} positions its
+            solutions for merchants. Always confirm capabilities, pricing, and
+            fit directly with them.
+          </p>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {highlights.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="text-base font-semibold text-slate-900">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {item.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
           <h2 className="font-[family-name:var(--font-source-serif)] text-2xl font-semibold tracking-tight text-slate-900">
             Ready to apply?

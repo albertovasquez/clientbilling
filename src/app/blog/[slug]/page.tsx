@@ -7,7 +7,7 @@ import {
   getAllPostSlugs,
   getPostBySlug,
 } from "@/lib/posts";
-import { siteConfig } from "@/lib/site";
+import { channelForTags, siteConfig } from "@/lib/site";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -138,8 +138,9 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       <AffiliateCTA
         variant="inline"
+        channel={channelForTags(post.tags)}
         headline="Put these billing practices to work"
-        body="When you are ready for a merchant account and payment stack, apply with CDG Commerce through our affiliate link. We may earn a commission if you sign up — disclosed clearly, at no extra cost to you."
+        body="Explore the CDG Commerce channel that fits how you accept payments, or apply for a merchant account when you are ready to convert. We may earn a commission if you sign up — disclosed clearly, at no extra cost to you."
       />
 
       <p className="mt-8 text-sm text-slate-500">

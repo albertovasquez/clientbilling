@@ -1,28 +1,54 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import {
+  type PartnerChannel,
+  landingUrlForChannel,
+  siteConfig,
+} from "@/lib/site";
 
 type AffiliateCTAProps = {
   variant?: "inline" | "banner" | "compact";
   headline?: string;
   body?: string;
+  /** Mid-funnel landing channel for research CTA (blog topic mapping). */
+  channel?: PartnerChannel;
 };
 
 export function AffiliateCTA({
   variant = "banner",
   headline = "Ready to modernize how you bill customers?",
   body = `Apply for a merchant account with ${siteConfig.partnerName} — gateways, recurring billing, invoicing, and more. We may earn a commission if you sign up — at no extra cost to you.`,
+  channel,
 }: AffiliateCTAProps) {
+  const landingHref = channel
+    ? landingUrlForChannel(channel)
+    : undefined;
+  const channelMeta = channel
+    ? siteConfig.partnerChannels.find((c) => c.id === channel)
+    : undefined;
+
   if (variant === "compact") {
     return (
       <aside className="rounded-xl border border-teal-200 bg-teal-50/80 p-4 sm:p-5">
         <p className="text-sm font-semibold text-teal-950">{headline}</p>
-        <Link
-          href={siteConfig.affiliateSignupUrl}
-          className="mt-3 inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-          rel="noopener noreferrer sponsored"
-        >
-          Apply for a merchant account
-        </Link>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Link
+            href={siteConfig.affiliateSignupUrl}
+            className="inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+            rel="noopener noreferrer sponsored"
+          >
+            Apply for a merchant account
+          </Link>
+          {landingHref && channelMeta && (
+            <a
+              href={landingHref}
+              className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline"
+              rel="noopener noreferrer sponsored"
+              target="_blank"
+            >
+              Explore {channelMeta.title}
+            </a>
+          )}
+        </div>
       </aside>
     );
   }
@@ -40,13 +66,33 @@ export function AffiliateCTA({
           {body}
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Link
-            href={siteConfig.affiliateSignupUrl}
-            className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-            rel="noopener noreferrer sponsored"
-          >
-            Apply for a merchant account
-          </Link>
+          {landingHref && channelMeta ? (
+            <>
+              <a
+                href={landingHref}
+                className="inline-flex rounded-lg border border-teal-800 bg-white px-4 py-2.5 text-sm font-semibold text-teal-800 shadow-sm transition hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                rel="noopener noreferrer sponsored"
+                target="_blank"
+              >
+                Explore {channelMeta.title} options
+              </a>
+              <Link
+                href={siteConfig.affiliateSignupUrl}
+                className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                rel="noopener noreferrer sponsored"
+              >
+                Apply for a merchant account
+              </Link>
+            </>
+          ) : (
+            <Link
+              href={siteConfig.affiliateSignupUrl}
+              className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+              rel="noopener noreferrer sponsored"
+            >
+              Apply for a merchant account
+            </Link>
+          )}
           <Link
             href="/get-started"
             className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
