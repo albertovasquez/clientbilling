@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
+import { softCtaCopy, siteConfig } from "@/lib/site";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -13,10 +14,9 @@ export function Footer() {
               {siteConfig.name}
             </p>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-600">
-              Independent guidance on customer billing, invoicing, and
-              subscription operations for B2B teams. We may earn a commission
-              when you apply through our {siteConfig.partnerName} affiliate
-              links.
+              Independent guides to merchant accounts, processing costs, and
+              billing operations. We may earn a commission when you apply
+              through our {siteConfig.partnerName} affiliate links.
             </p>
           </div>
 
@@ -26,7 +26,7 @@ export function Footer() {
             </p>
             <ul className="mt-3 space-y-2">
               {siteConfig.footerNav.map((item) => (
-                <li key={item.href}>
+                <li key={item.href + item.label}>
                   <Link
                     href={item.href}
                     className="text-sm text-slate-700 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
@@ -43,23 +43,24 @@ export function Footer() {
               Partner · {siteConfig.partnerName}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              Looking for a merchant account and payment stack? Apply with{" "}
-              {siteConfig.partnerName} or learn more on our Get started page.
+              Compare pricing and features on our CDG Commerce guide, then check
+              eligibility when you are ready.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link
-                href={siteConfig.affiliateSignupUrl}
-                className="inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                rel="noopener noreferrer sponsored"
-              >
-                Apply for a merchant account
-              </Link>
-              <Link
-                href="/get-started"
+                href="/cdgcommerce"
                 className="inline-flex rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
               >
-                Get started with CDG Commerce
+                {softCtaCopy.seePricing}
               </Link>
+              <TrackedAffiliateLink
+                ctaPosition="footer"
+                ctaText={softCtaCopy.checkEligibility}
+                ctaType="footer"
+                className="inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+              >
+                {softCtaCopy.checkEligibility}
+              </TrackedAffiliateLink>
             </div>
           </div>
         </div>

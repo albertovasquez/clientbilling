@@ -1,13 +1,13 @@
 # ClientBilling (clientbilling.com)
 
-Production-ready Next.js site for **ClientBilling** — a blog on customer billing best practices for B2B SaaS / subscription / invoicing teams, with affiliate conversion CTAs for **CDG Commerce**.
+Next.js App Router site that helps businesses **choose a payment processing setup**, with a transparent affiliate funnel into **CDG Commerce**.
 
 ## Stack
 
 - Next.js App Router + TypeScript
 - Tailwind CSS v4
 - Markdown posts in `content/blog` (gray-matter + remark)
-- No auth, no database, no paid APIs for MVP
+- No auth, no database, no paid analytics required for MVP
 
 ## Getting started
 
@@ -19,27 +19,34 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Environment variables
+## Environment
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `NEXT_PUBLIC_AFFILIATE_SIGNUP_URL` | Recommended | CDG Commerce merchant apply URL used by CTAs. Defaults to the ClientBilling agent link with UTM params if unset. |
+| `NEXT_PUBLIC_AFFILIATE_SIGNUP_URL` | Recommended | Bottom-of-funnel CDG merchant apply URL. Defaults to the ClientBilling agent link with UTMs. |
 
-See `.env.example`.
-
-Default apply URL:
+Default apply URL (only tracked conversion URL for money intent):
 
 `https://secure.cdgcommerce.com/onlineapp/onlineapp-ht-newV2.php?agentid=470&appcode=CLIENTBILLING&utm_source=clientbilling&utm_medium=cta&utm_campaign=site`
 
-Mid-funnel channel landings (agent `R=470`), centralized in `src/lib/site.ts`:
+Optional mid-funnel landings live in `src/lib/site.ts` (`partnerLandings`) but **Explore** paths use internal `/cdgcommerce/*` pages first.
 
-| Channel | URL |
-| --- | --- |
-| Internet | `https://www.cdgcommerce.com/my_landing/?R=470&type=internet` (+ UTM) |
-| Retail | `https://www.cdgcommerce.com/my_landing/?R=470&type=retail` (+ UTM) |
-| Wireless | `https://www.cdgcommerce.com/my_landing/?R=470&type=wireless` (+ UTM) |
+## Funnel model
 
-Header/footer/home primary CTAs stay on the apply URL. `/get-started` cards and topic-matched blog end CTAs link landings for research, with apply as the convert path.
+1. Soft CTAs → internal guides (`/cdgcommerce`, channel pages)
+2. Mid-article cards → soft research CTAs
+3. Bottom-of-funnel → tracked affiliate apply URL only
+4. No nav/footer links to bare `cdgcommerce.com` marketing pages
+
+## Key routes
+
+- `/` — Decision homepage (volume selector, soft CTAs)
+- `/cdgcommerce` — Primary money page (pricing, features, fit, FAQ)
+- `/cdgcommerce/online-payments` | `/retail` | `/recurring-billing` | `/wireless`
+- `/get-started` — Light path into internal CDG guides
+- `/blog`, `/blog/[slug]` — Reviews + guides with mid + end CTAs
+- `/about`, `/affiliate-disclosure`, `/privacy`
+- `/sitemap.xml`, `/robots.txt`
 
 ## Scripts
 
@@ -50,36 +57,12 @@ Header/footer/home primary CTAs stay on the apply URL. `/get-started` cards and 
 | `npm run start` | Serve production build |
 | `npm run lint` | ESLint |
 
-## Deploy (Vercel)
+## Deploy
 
-This repository is configured so **Vercel deploys from `main`**.
+Vercel deploys from `main` on `albertovasquez/clientbilling`.
 
-1. Import `albertovasquez/clientbilling` in Vercel
-2. Optionally set `NEXT_PUBLIC_AFFILIATE_SIGNUP_URL` in project env (defaults are already CDG)
-3. Deploy from the `main` branch (production)
+## Deferred / not in this pass
 
-No special build command overrides are required (`next build` / `next start` defaults).
-
-## Project structure
-
-```
-content/blog/          Markdown posts
-src/app/               App Router pages (home, blog, get-started, about, privacy, disclosure)
-src/components/        Header, Footer, CTAs, PostCard
-src/lib/               site config + post helpers
-```
-
-## Routes
-
-- `/` — Home (value prop, featured posts, primary apply CTA)
-- `/blog` — Blog index
-- `/blog/[slug]` — Post pages with end-of-post affiliate CTA
-- `/get-started` — Partner with CDG Commerce (highlights + apply)
-- `/about` — About & how affiliate model works
-- `/privacy` — Privacy stub
-- `/affiliate-disclosure` — Affiliate disclosure (names CDG Commerce)
-- `/sitemap.xml` / `/robots.txt` — SEO
-
-## License
-
-Private/public repo per GitHub settings; content © ClientBilling.
+- Deterministic fit quiz page
+- Full compare hub
+- Sticky mobile CTA

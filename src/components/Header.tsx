@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { softCtaCopy, siteConfig } from "@/lib/site";
 
 export function Header() {
   return (
@@ -21,21 +21,27 @@ export function Header() {
         </Link>
 
         <nav aria-label="Primary" className="flex items-center gap-1 sm:gap-2">
-          {siteConfig.nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-md px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-3"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {siteConfig.nav.map((item) => {
+            const isCdg = item.href === "/cdgcommerce";
+            return (
+              <Link
+                key={`${item.href}-${item.label}`}
+                href={item.href}
+                className={
+                  isCdg
+                    ? "rounded-md px-2.5 py-2 text-sm font-semibold text-teal-800 transition hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-3"
+                    : "rounded-md px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-3"
+                }
+              >
+                {item.label}
+              </Link>
+            );
+          })}
           <Link
-            href={siteConfig.affiliateSignupUrl}
+            href="/cdgcommerce"
             className="ml-1 hidden rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:inline-flex"
-            rel="noopener noreferrer sponsored"
           >
-            Apply for a merchant account
+            {softCtaCopy.checkCdgOptions}
           </Link>
         </nav>
       </div>

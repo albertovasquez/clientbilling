@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About ClientBilling",
     description:
-      "Independent billing best practices for B2B SaaS, with a transparent CDG Commerce affiliate partnership.",
+      "Merchant-payment decision guides with a transparent CDG Commerce affiliate partnership.",
     url: "/about",
   },
 };
@@ -27,77 +27,57 @@ export default function AboutPage() {
           How ClientBilling works
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          {siteConfig.name} publishes practical guidance on customer billing for
-          B2B SaaS and subscription businesses. We also partner with{" "}
-          {siteConfig.partnerName} so readers can apply for a merchant account
-          when that fit makes sense—and we say so when a link is monetized.
+          {siteConfig.name} helps businesses compare merchant accounts,
+          processing costs, recurring billing, gateways, invoicing, and POS
+          options. We partner with {siteConfig.partnerName} as an affiliate and
+          say so when a link is monetized.
         </p>
       </header>
 
       <div className="prose prose-billing prose-lg mt-10 max-w-none">
         <h2>What we cover</h2>
         <p>
-          Our editorial focus is operational: invoice clarity, collections and
-          dunning, subscription metrics, usage-based pricing pitfalls, and how
-          to evaluate billing and payment software. We write for founders,
-          finance operations, customer success, and revenue teams who own the
-          customer bill—not for abstract growth theory.
+          Decision guides for payment processing and billing operations —
+          including our primary{" "}
+          <Link href="/cdgcommerce">CDG Commerce review &amp; pricing guide</Link>
+          , channel pages for online, retail, recurring, and wireless, plus
+          editorial comparisons and billing best-practice posts.
         </p>
 
         <h2>Who this is for</h2>
         <ul>
-          <li>B2B SaaS teams running subscriptions, seats, or usage pricing</li>
-          <li>Services firms that invoice on milestones or retainers</li>
-          <li>Operators improving cash collection without burning goodwill</li>
+          <li>Online and retail merchants evaluating processor options</li>
+          <li>Subscription and services businesses needing recurring charges</li>
+          <li>Operators who want attributed pricing claims — not invented stats</li>
         </ul>
 
         <h2>Our affiliate partnership with CDG Commerce</h2>
         <p>
           ClientBilling is an affiliate partner of {siteConfig.partnerName}.
-          Primary calls-to-action on this site link to their merchant
-          application (configured via{" "}
-          <code>NEXT_PUBLIC_AFFILIATE_SIGNUP_URL</code>). If you apply or sign
-          up through those links, we may earn a commission at no additional
-          cost to you.
+          Money-intent CTAs use a tracked secure application URL. Soft CTAs
+          route to our internal guides first. If you apply through those
+          affiliate links, we may earn a commission at no additional cost to
+          you.
         </p>
         <p>
-          That relationship does not mean every article is a product pitch. We
-          aim for checklists and frameworks you can use even if you never click
-          a partner link. When we recommend evaluating payment or billing
-          software, we encourage you to run your own scorecard—pricing model
-          fit, tax readiness, finance handoff, and implementation risk.
-        </p>
-        <p>
-          Learn more on{" "}
-          <Link href="/get-started">Get started with CDG Commerce</Link>, or
-          read the full{" "}
+          Learn more on the{" "}
+          <Link href="/cdgcommerce">CDG Commerce guide</Link>, or read the full{" "}
           <Link href="/affiliate-disclosure">Affiliate Disclosure</Link>.
-          Privacy practices are summarized in{" "}
-          <Link href="/privacy">Privacy</Link>.
         </p>
 
         <h2>What we are not</h2>
         <p>
           We are not your attorney, accountant, or payment processor. Content is
-          educational and general in nature. For tax, contract, or compliance
-          decisions, consult qualified professionals and your own counsel. We do
-          not invent or publish commission rates for this partnership.
-        </p>
-
-        <h2>Contact</h2>
-        <p>
-          For editorial or partnership questions related to{" "}
-          {siteConfig.domain}, use the contact channel published when the site
-          goes fully live on production hosting. Until then, treat this page and
-          the Affiliate Disclosure as the source of truth for how the editorial
-          and affiliate model work.
+          educational and general. For tax, contract, or compliance decisions,
+          consult qualified professionals. We do not invent commission rates or
+          unpublished CDG statistics.
         </p>
       </div>
 
       <div className="mt-12">
         <AffiliateCTA
           headline="Curious about CDG Commerce?"
-          body="Review the merchant application yourself. Affiliate support helps fund this editorial work; it should never replace your diligence."
+          body="Start with our independent guide. Affiliate support helps fund this editorial work; it should never replace your diligence."
         />
       </div>
     </div>

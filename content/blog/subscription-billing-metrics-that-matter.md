@@ -4,7 +4,7 @@ description: "Move beyond vanity MRR dashboards. Track recognition, failed payme
 date: "2026-08-26"
 author: "ClientBilling"
 tags: ["subscriptions", "metrics", "SaaS"]
-featured: true
+featured: false
 ---
 
 Subscription businesses drown in charts. Monthly recurring revenue looks healthy while cash collection stalls, or churn looks flat while failed renewals quietly erase expansion gains.

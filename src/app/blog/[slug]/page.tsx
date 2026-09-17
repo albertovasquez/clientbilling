@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AffiliateCTA } from "@/components/AffiliateCTA";
+import { MidArticleCdgCard } from "@/components/MidArticleCdgCard";
+import { EndArticleCdgCta } from "@/components/EndArticleCdgCta";
 import {
   formatPostDate,
   getAllPostSlugs,
@@ -12,6 +13,37 @@ import { channelForTags, siteConfig } from "@/lib/site";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+function topicForTags(
+  tags: string[],
+): "pricing" | "recurring" | "invoicing" | "fees" | "gateway" | "pos" | "general" {
+  const h = tags.map((t) => t.toLowerCase()).join(" ");
+  if (/\b(pricing|fees?|interchange|rate)\b/.test(h)) return "fees";
+  if (/\b(recurring|subscription)\b/.test(h)) return "recurring";
+  if (/\b(invoice|invoicing)\b/.test(h)) return "invoicing";
+  if (/\b(gateway)\b/.test(h)) return "gateway";
+  if (/\b(pos|retail)\b/.test(h)) return "pos";
+  if (/\b(cdg|review)\b/.test(h)) return "pricing";
+  return "general";
+}
+
+function splitHtmlAtSecondHeading(html: string): [string, string] {
+  const re = /<h2[\s>]/gi;
+  let match: RegExpExecArray | null;
+  let count = 0;
+  let secondIndex = -1;
+  while ((match = re.exec(html)) !== null) {
+    count += 1;
+    if (count === 2) {
+      secondIndex = match.index;
+      break;
+    }
+  }
+  if (secondIndex === -1) {
+    return [html, ""];
+  }
+  return [html.slice(0, secondIndex), html.slice(secondIndex)];
+}
 
 export async function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
@@ -28,6 +60,7 @@ export async function generateMetadata({
       description: post.description,
       alternates: { canonical: `/blog/${post.slug}` },
       authors: [{ name: post.author }],
+      robots: { index: true, follow: true },
       openGraph: {
         type: "article",
         title: post.title,
@@ -56,6 +89,10 @@ export default async function BlogPostPage({ params }: PageProps) {
   } catch {
     notFound();
   }
+
+  const [before, after] = splitHtmlAtSecondHeading(post.contentHtml);
+  const channel = channelForTags(post.tags);
+  const topic = topicForTags(post.tags);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -129,22 +166,40 @@ export default async function BlogPostPage({ params }: PageProps) {
             ))}
           </ul>
         )}
+        <p className="mt-4 text-xs text-slate-500">
+          Affiliate disclosure: we may earn a commission from{" "}
+          {siteConfig.partnerName}.{" "}
+          <Link
+            href="/affiliate-disclosure"
+            className="underline underline-offset-2 hover:text-slate-700"
+          >
+            Details
+          </Link>
+          .
+        </p>
       </header>
 
       <div
         className="prose prose-billing prose-lg mt-10 max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+        dangerouslySetInnerHTML={{ __html: before }}
       />
 
-      <AffiliateCTA
-        variant="inline"
-        channel={channelForTags(post.tags)}
-        headline="Put these billing practices to work"
-        body="Explore the CDG Commerce channel that fits how you accept payments, or apply for a merchant account when you are ready to convert. We may earn a commission if you sign up — disclosed clearly, at no extra cost to you."
-      />
+      <MidArticleCdgCard topic={topic} articleSlug={post.slug} />
+
+      {after ? (
+        <div
+          className="prose prose-billing prose-lg max-w-none"
+          dangerouslySetInnerHTML={{ __html: after }}
+        />
+      ) : null}
+
+      <EndArticleCdgCta channel={channel} articleSlug={post.slug} />
 
       <p className="mt-8 text-sm text-slate-500">
-        <Link href="/blog" className="font-semibold text-teal-800 hover:text-teal-700">
+        <Link
+          href="/blog"
+          className="font-semibold text-teal-800 hover:text-teal-700"
+        >
           ← Back to all posts
         </Link>
       </p>

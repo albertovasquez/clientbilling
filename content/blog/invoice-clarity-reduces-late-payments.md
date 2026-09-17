@@ -4,7 +4,7 @@ description: "How clear line items, due dates, and payment instructions cut days
 date: "2026-08-12"
 author: "ClientBilling"
 tags: ["invoicing", "collections", "B2B"]
-featured: true
+featured: false
 ---
 
 Late payments rarely start as a collections problem. More often, they start as a **clarity** problem: the customer does not know exactly what they owe, when it is due, or how to pay.

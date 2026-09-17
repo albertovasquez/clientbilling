@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
 import {
   type PartnerChannel,
-  landingUrlForChannel,
+  internalPathForChannel,
+  softCtaCopy,
   siteConfig,
 } from "@/lib/site";
 
@@ -9,19 +11,21 @@ type AffiliateCTAProps = {
   variant?: "inline" | "banner" | "compact";
   headline?: string;
   body?: string;
-  /** Mid-funnel landing channel for research CTA (blog topic mapping). */
+  /** Maps to internal explore page (not outbound landing by default). */
   channel?: PartnerChannel;
+  articleSlug?: string;
 };
 
 export function AffiliateCTA({
   variant = "banner",
-  headline = "Ready to modernize how you bill customers?",
-  body = `Apply for a merchant account with ${siteConfig.partnerName} — gateways, recurring billing, invoicing, and more. We may earn a commission if you sign up — at no extra cost to you.`,
+  headline = "Curious how CDG Commerce pricing fits your volume?",
+  body = `Review our independent CDG Commerce guide for published volume bands, features, and fit — then check eligibility when you are ready. We may earn a commission if you apply through our link.`,
   channel,
+  articleSlug,
 }: AffiliateCTAProps) {
-  const landingHref = channel
-    ? landingUrlForChannel(channel)
-    : undefined;
+  const exploreHref = channel
+    ? internalPathForChannel(channel)
+    : siteConfig.partnerInternalPaths.hub;
   const channelMeta = channel
     ? siteConfig.partnerChannels.find((c) => c.id === channel)
     : undefined;
@@ -32,21 +36,18 @@ export function AffiliateCTA({
         <p className="text-sm font-semibold text-teal-950">{headline}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Link
-            href={siteConfig.affiliateSignupUrl}
+            href={siteConfig.partnerInternalPaths.hub}
             className="inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-            rel="noopener noreferrer sponsored"
           >
-            Apply for a merchant account
+            {softCtaCopy.comparePricing}
           </Link>
-          {landingHref && channelMeta && (
-            <a
-              href={landingHref}
+          {channelMeta && (
+            <Link
+              href={exploreHref}
               className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline"
-              rel="noopener noreferrer sponsored"
-              target="_blank"
             >
               Explore {channelMeta.title}
-            </a>
+            </Link>
           )}
         </div>
       </aside>
@@ -66,38 +67,28 @@ export function AffiliateCTA({
           {body}
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          {landingHref && channelMeta ? (
-            <>
-              <a
-                href={landingHref}
-                className="inline-flex rounded-lg border border-teal-800 bg-white px-4 py-2.5 text-sm font-semibold text-teal-800 shadow-sm transition hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                rel="noopener noreferrer sponsored"
-                target="_blank"
-              >
-                Explore {channelMeta.title} options
-              </a>
-              <Link
-                href={siteConfig.affiliateSignupUrl}
-                className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                rel="noopener noreferrer sponsored"
-              >
-                Apply for a merchant account
-              </Link>
-            </>
-          ) : (
-            <Link
-              href={siteConfig.affiliateSignupUrl}
-              className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-              rel="noopener noreferrer sponsored"
-            >
-              Apply for a merchant account
-            </Link>
-          )}
           <Link
-            href="/get-started"
+            href={exploreHref}
+            className="inline-flex rounded-lg border border-teal-800 bg-white px-4 py-2.5 text-sm font-semibold text-teal-800 shadow-sm transition hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+          >
+            {channelMeta
+              ? `Explore ${channelMeta.title} options`
+              : softCtaCopy.seePricing}
+          </Link>
+          <TrackedAffiliateLink
+            ctaPosition="cta_inline"
+            ctaText={softCtaCopy.checkEligibility}
+            ctaType="eligibility"
+            articleSlug={articleSlug}
+            className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+          >
+            {softCtaCopy.checkEligibility}
+          </TrackedAffiliateLink>
+          <Link
+            href={siteConfig.partnerInternalPaths.hub}
             className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
           >
-            Learn more about CDG Commerce
+            Full CDG guide
           </Link>
         </div>
       </aside>
@@ -125,18 +116,19 @@ export function AffiliateCTA({
       </p>
       <div className="relative mt-6 flex flex-wrap items-center gap-3">
         <Link
-          href={siteConfig.affiliateSignupUrl}
+          href={siteConfig.partnerInternalPaths.hub}
           className="inline-flex rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
-          rel="noopener noreferrer sponsored"
         >
-          Get started with CDG Commerce
+          {softCtaCopy.seePricing}
         </Link>
-        <Link
-          href="/get-started"
-          className="text-sm font-medium text-slate-300 underline-offset-2 hover:text-white hover:underline"
+        <TrackedAffiliateLink
+          ctaPosition="cta_banner"
+          ctaText={softCtaCopy.checkEligibility}
+          ctaType="end"
+          className="inline-flex rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
         >
-          Why we partner with CDG
-        </Link>
+          {softCtaCopy.checkEligibility}
+        </TrackedAffiliateLink>
       </div>
     </aside>
   );

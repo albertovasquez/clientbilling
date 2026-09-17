@@ -4,7 +4,7 @@ description: "Design failed-payment recovery that recovers revenue while staying
 date: "2026-09-02"
 author: "ClientBilling"
 tags: ["dunning", "payments", "customer experience"]
-featured: true
+featured: false
 ---
 
 Dunning is the sequence of reminders and retries that follow a failed payment. Done poorly, it feels like harassment. Done well, it feels like helpful account maintenance.
