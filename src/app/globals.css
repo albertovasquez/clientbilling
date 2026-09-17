@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --muted: #64748b;
+  --accent: #115e59;
+  --accent-warm: #d97706;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-source-sans);
+  --font-display: var(--font-source-serif);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.prose-billing {
+  --tw-prose-body: #334155;
+  --tw-prose-headings: #0f172a;
+  --tw-prose-links: #115e59;
+  --tw-prose-bold: #0f172a;
+  --tw-prose-quotes: #334155;
+  --tw-prose-quote-borders: #99f6e4;
+  --tw-prose-counters: #64748b;
+  --tw-prose-bullets: #0f766e;
+  --tw-prose-hr: #e2e8f0;
+  --tw-prose-th-borders: #cbd5e1;
+  --tw-prose-td-borders: #e2e8f0;
+  --tw-prose-code: #0f172a;
+}
+
+.prose-billing :where(a):hover {
+  color: #0f766e;
+}
+
+.prose-billing :where(h2) {
+  scroll-margin-top: 5rem;
+}
