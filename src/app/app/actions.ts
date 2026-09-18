@@ -455,9 +455,11 @@ export async function setInvoiceStatusAction(formData: FormData) {
   const user = await requireUser();
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
-  const result = await setInvoiceStatus(user.id, id, status, "app");
+  const reason = String(formData.get("reason") ?? "");
+  const result = await setInvoiceStatus(user.id, id, status, "app", reason);
   if (!result.ok) {
     if (result.code === "transition") redirect(`/app/invoices/${id}?error=transition`);
+    if (status === "void" && result.code === "invalid") redirect(`/app/invoices/${id}?error=void_reason`);
     return;
   }
   revalidatePath(`/app/invoices/${id}`);
