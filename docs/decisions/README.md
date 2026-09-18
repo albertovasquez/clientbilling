@@ -21,3 +21,4 @@ Format: `NNNN-short-title.md` with sections Status, Context, Decision, Reasons, 
 | 0013 | Payer card intent is the activation signal; honest, rate limited, never a payment | Accepted 2026-09-18 |
 | 0014 | Proceed without asking CDG; merchants paste their own pay link; no integration, no claims | Accepted 2026-09-18 |
 | 0015 | Overdue is set by a daily sweep; reminders are manual, one a day, to the client on file | Accepted 2026-09-18 |
+| 0016 | Invoice PDFs are rendered server-side from the same data as the page, with built-in fonts | Accepted 2026-09-18 |

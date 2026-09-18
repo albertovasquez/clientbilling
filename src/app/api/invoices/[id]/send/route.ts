@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { formatCents } from "@/lib/money";
 import { allow } from "@/lib/rate-limit";
+import { pdfFilename, renderInvoicePdf } from "@/lib/invoices/pdf";
 import { siteConfig } from "@/lib/site";
 
 /**
@@ -35,7 +36,7 @@ export async function POST(
   const { id } = await ctx.params;
   const invoice = await prisma.invoice.findFirst({
     where: { id, userId: session.user.id },
-    include: { client: true, user: { include: { business: true } } },
+    include: { client: true, lineItems: { orderBy: { sortOrder: "asc" } }, user: { include: { business: true } } },
   });
   if (!invoice) {
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
@@ -66,12 +67,22 @@ export async function POST(
     `Hi${invoice.client.name ? ` ${invoice.client.name}` : ""},`,
     "",
     `${fromName} sent you invoice #${invoice.number} for ${formatCents(invoice.totalCents, invoice.currency)}.`,
-    `View and print it here: ${publicUrl}`,
+    `View it here: ${publicUrl}`,
+    "A PDF copy is attached.",
     "",
     `Questions about this invoice go to ${invoice.user.business?.email ?? fromName}.`,
     "",
     `Sent with ${siteConfig.name}.`,
   ].join("\n");
+
+  const pdfData = { ...invoice, business: invoice.user.business };
+  let attachments: { filename: string; content: string }[] = [];
+  try {
+    const pdf = await renderInvoicePdf(pdfData);
+    attachments = [{ filename: pdfFilename(pdfData), content: pdf.toString("base64") }];
+  } catch (error) {
+    console.error("[invoice-send] pdf render failed; sending without attachment", error instanceof Error ? error.message : error);
+  }
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -85,6 +96,7 @@ export async function POST(
       reply_to: invoice.user.business?.email || undefined,
       subject,
       text,
+      attachments,
     }),
   });
 

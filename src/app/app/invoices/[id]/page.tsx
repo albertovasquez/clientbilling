@@ -68,6 +68,9 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
             Public view
           </Link>
           <CopyLinkButton url={publicUrl} />
+          <a href={`/api/invoices/${invoice.id}/pdf`} className={buttonClass("secondary", "md")}>
+            Download PDF
+          </a>
         </div>
       </div>
 
