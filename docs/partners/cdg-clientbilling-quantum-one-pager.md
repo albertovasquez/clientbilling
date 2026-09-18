@@ -41,9 +41,24 @@ We are **not** becoming a payfac, MoR, or money transmitter.
 | 4 | Any requirements for return URLs, branding (“Powered by Quantum / CDG”), or prohibited claims? | Risk / marketing |
 | 5 | Who is the right technical contact for a sandbox `gwlogin` + RestrictKey test? | Build |
 
-## What we are testing first (no Quantum keys yet)
+## What is live today (no Quantum keys)
 
-A **fake-door** on ClientBilling: “Create an invoice” → waitlist / interest capture. We measure clicks and emails before building the full product. If interest is weak, we will not ask you for engineering time.
+The invoice app is live at https://www.clientbilling.com/invoices: merchants create, send, and track invoices for free, and payers see the merchant's payment instructions. When a payer says they would prefer to pay by card, the merchant is notified and shown your quote form (`applynow/?R=470`). We count those requests. That number is what we will bring to you before asking for engineering time.
+
+## What we would share and what we would not
+
+- We would see invoice amounts, invoice numbers, and the merchant's Quantum account identifier needed to build a hosted pay link. We would not see, request, or store card data, bank details, or gateway passwords.
+- We would not share merchant or payer data with anyone else, and we would not share your commercial terms publicly.
+
+## PCI and technical scope
+
+- Pay runs on a Quantum hosted page or iframe served from your origin. Card fields never render on clientbilling.com, so our origin stays out of card-data scope (SAQ A for the merchant when hosted).
+- Payment status reaches us through a post-back or signed callback carrying a reference and amount only.
+
+## Relationship and support
+
+- The merchant contracts with CDG. Underwriting, funding, chargebacks, refunds, and rate questions are yours; invoice software questions are ours. We will say so on every page.
+- Either party can end the integration with 30 days notice; merchants keep their CDG accounts and their invoices.
 
 ## What we will not do
 

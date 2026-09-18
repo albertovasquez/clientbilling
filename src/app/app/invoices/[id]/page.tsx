@@ -41,6 +41,7 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
     select: { id: true, name: true },
   });
 
+  const cardIntent = invoice.events.find((e) => e.type === "card_intent");
   const publicUrl = `${siteConfig.url}/i/${invoice.publicId}`;
   const editable = invoice.status !== "paid" && invoice.status !== "void";
 
@@ -68,6 +69,11 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
 
       <section className="rounded-2xl border border-rule bg-paper p-6">
         <Heading level={2}>Status</Heading>
+        {cardIntent ? (
+          <p className="mt-2 text-small text-ink">
+            A client asked to pay this invoice by card on {cardIntent.createdAt.toISOString().slice(0, 10)}.
+          </p>
+        ) : null}
         {query.error === "transition" ? (
           <p className="mt-2 text-small text-verdict" role="alert">
             That status change is not allowed from the invoice&apos;s current state.

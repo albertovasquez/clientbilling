@@ -14,3 +14,8 @@ Format: `NNNN-short-title.md` with sections Status, Context, Decision, Reasons, 
 | 0006 | Password reset before public sign-up; email verification deferred | Accepted 2026-09-18 |
 | 0007 | First-party event table for measurement; no third-party analytics | Accepted 2026-09-18 |
 | 0008 | The public invoice is payer-first: merchant branding, payment instructions, no affiliate CTAs | Accepted 2026-09-18 |
+| 0009 | Concierge Collect until the pay link exists; the founder runs it with agent assistance | Accepted 2026-09-18 |
+| 0010 | The invoice tool is free, funded by CDG residuals; no paid tier | Accepted 2026-09-18 |
+| 0011 | shadcn/ui for the app, adopted after the P0 features | Accepted 2026-09-18 |
+| 0012 | The accountant channel is a feature, not an acquisition channel, for now | Accepted 2026-09-18 |
+| 0013 | Payer card intent is the activation signal; honest, rate limited, never a payment | Accepted 2026-09-18 |
