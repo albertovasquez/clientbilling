@@ -8,7 +8,7 @@ function landingUrl(type: PartnerChannel, campaign: string): string {
 export const siteConfig = {
   name: "ClientBilling",
   domain: "clientbilling.com",
-  url: "https://clientbilling.com",
+  url: "https://www.clientbilling.com",
   description:
     "Plain-language guides to merchant accounts, processing fees, recurring billing, invoicing, and POS for U.S. businesses. Independent editorial with a disclosed CDG Commerce affiliate partnership.",
   tagline: "Get paid better",
