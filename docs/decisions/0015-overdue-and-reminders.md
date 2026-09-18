@@ -10,7 +10,7 @@ Chasing unpaid invoices is the second most valuable thing an invoice tool does. 
 
 - A daily cron at 06:00 UTC flips invoices in `sent` or `viewed` whose due date has passed to `overdue`, recording an event per invoice. It requires `CRON_SECRET` and refuses without it.
 - A merchant sends a reminder from the invoice page. It goes only to the client on file, at most once per invoice per 24 hours, and counts against the same 20-per-hour email limit as sends. The reminder states the number, amount, due date, public link, the pay link if one exists, and the payment instructions. No fees, no interest, no collections language.
-- Automatic reminders are deferred to P1 and will be opt-in per merchant with the same content rules.
+- Automatic reminders are opt-in per merchant (`autoReminders` on the business profile, off by default). A daily cron at 06:30 UTC sends the same reminder content at 3 and 10 days past due, once each, respecting the 24-hour cooldown and hourly email cap.
 - The dashboard shows outstanding and overdue totals and paid this month, and labels statuses in merchant words (Opened, Overdue).
 
 ## Reasons

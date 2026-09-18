@@ -6,6 +6,7 @@
 import { compare } from "bcryptjs";
 import { prisma } from "../src/lib/db";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
+import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminders";
 import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
 import { fetchLogoForPdf, isAllowedLogoUrl } from "../src/lib/invoices/logo";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
@@ -94,6 +95,14 @@ async function main() {
   assert(!isAllowedLogoUrl("http://cdn.example.com/logo.png"), "http logo rejected");
   assert(!isAllowedLogoUrl(""), "empty logo rejected");
   assert((await fetchLogoForPdf("http://example.com/x.png")) === null, "fetch rejects http without requesting");
+
+  // Auto-reminder kind selection (decision 0015)
+  assert(nextAutoReminderKind(2, new Set()) === null, "before day 3 no auto reminder");
+  assert(nextAutoReminderKind(3, new Set()) === 3, "day 3 picks +3");
+  assert(nextAutoReminderKind(9, new Set([3])) === null, "between 3 and 10 with +3 done waits");
+  assert(nextAutoReminderKind(10, new Set([3])) === 10, "day 10 picks +10");
+  assert(nextAutoReminderKind(15, new Set()) === 3, "catch-up prefers +3 before +10");
+  assert(nextAutoReminderKind(15, new Set([3, 10])) === null, "both sent means done");
 
   // Pay links (decision 0014 amendment)
   assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "paypal.me gets the balance");
