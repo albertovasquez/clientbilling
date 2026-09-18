@@ -8,6 +8,7 @@ import { prisma } from "../src/lib/db";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
 import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
 import { setInvoiceStatus } from "../src/lib/invoices/service";
+import { payLinkForInvoice, payLinkKind } from "../src/lib/pay-link";
 import { allow } from "../src/lib/rate-limit";
 
 function assert(cond: unknown, msg: string) {
@@ -19,6 +20,15 @@ function assert(cond: unknown, msg: string) {
 }
 
 async function main() {
+  // Pay links (decision 0014 amendment)
+  assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "paypal.me gets the balance");
+  assert(payLinkForInvoice("https://www.paypal.me/acmeplumbing/5USD", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "typed amount replaced");
+  assert(payLinkForInvoice("https://www.paypal.com/paypalme/acmeplumbing", 50) === "https://paypal.me/acmeplumbing/0.50USD", "paypal.com/paypalme form");
+  assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 0) === "https://paypal.me/acmeplumbing", "zero balance keeps the bare link");
+  assert(payLinkForInvoice("https://pay.example.com/acme?x=1", 1234) === "https://pay.example.com/acme?x=1", "other links pass through");
+  assert(payLinkForInvoice("https://paypal.me/bad name/", 1234) === "https://paypal.me/bad name/", "unparseable username passes through");
+  assert(payLinkKind("https://paypal.me/acme") === "paypal" && payLinkKind("https://pay.example.com") === "generic", "kind detection");
+
   const email = `test-${Date.now()}@example.com`;
   const user = await prisma.user.create({
     data: { email, name: "T", passwordHash: "x", business: { create: { name: "T Co", email } } },

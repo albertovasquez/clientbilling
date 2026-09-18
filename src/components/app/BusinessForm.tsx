@@ -79,8 +79,9 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
         />
         <p className="text-caption text-muted">
           If you already have a hosted payment page, for example from your CDG Commerce Quantum
-          account or another pay link you use, paste it here. It appears as a Pay online button on
-          unpaid invoices. Card details are entered on that page, never on ClientBilling.
+          account, or a PayPal.me link, paste it here. It appears as a Pay online button on unpaid
+          invoices. PayPal.me links open with the balance due filled in. Card details are entered
+          on that page, never on ClientBilling.
         </p>
       </div>
       {state.error ? (

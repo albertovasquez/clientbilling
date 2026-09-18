@@ -30,3 +30,7 @@ The founder decided not to ask CDG the one-pager questions. Decision 0002 gated 
 ## Revisit when
 
 The founder chooses to open a conversation with CDG, or a merchant asks for automatic paid status from their Quantum account.
+
+## Amendment 2026-09-18: PayPal.me links carry the balance
+
+The pay link already accepted any https URL, including PayPal.me. From today, when the link is a PayPal.me address, the public invoice, the PDF, and reminder emails open it with the invoice balance appended in PayPal's own format (`paypal.me/name/12.34USD`), so the payer does not retype the amount. Any other link passes through unchanged. This is the low-volume answer: merchants under CDG's fit line get a working online payment without a merchant account, and the fee calculator still shows when CDG becomes cheaper. PayPal checkout buttons with automatic paid status remain a separate decision because they need a PayPal developer account, which is a stop-and-ask item.

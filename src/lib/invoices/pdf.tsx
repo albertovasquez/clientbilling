@@ -1,6 +1,7 @@
 import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { BusinessProfile, Client, Invoice, InvoiceLineItem } from "@prisma/client";
 import { balanceCents } from "@/lib/invoices/payments";
+import { payLinkForInvoice } from "@/lib/pay-link";
 import { payerStatusLabel } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents, lineTotalCents } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
@@ -62,7 +63,7 @@ export function InvoicePdf({ invoice }: { invoice: InvoiceForPdf }) {
   const partial = !paid && invoice.paidCents > 0;
   const address = [b?.address1, b?.address2, [b?.city, b?.state, b?.postalCode].filter(Boolean).join(", ")].filter(Boolean);
   const instructions = b?.paymentInstructions?.trim();
-  const payLink = b?.payLinkUrl?.trim();
+  const payLink = payLinkForInvoice(b?.payLinkUrl, balance, invoice.currency);
 
   return (
     <Document title={`Invoice ${invoice.number} from ${merchant}`} author={merchant} producer={siteConfig.name}>

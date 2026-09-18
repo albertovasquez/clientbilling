@@ -4,6 +4,7 @@ import { Button } from "@/components/shadcn/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { Heading } from "@/components/ui";
 import { cdgBusinessTypes, cdgPlans } from "@/lib/cdg";
+import { payLinkKind } from "@/lib/pay-link";
 import { getBusinessForUser, requireUser } from "@/lib/session";
 import { siteConfig } from "@/lib/site";
 
@@ -56,13 +57,15 @@ export default async function PaymentsSettingsPage() {
         <CardContent>
           {payLink ? (
             <p className="break-all text-small text-ink-soft">
-              Payers see a Pay online button that opens {payLink}. Mark invoices paid once the money arrives.
+              Payers see a Pay online button that opens {payLink}.
+              {payLinkKind(payLink) === "paypal" ? " PayPal.me opens with the balance due filled in." : ""} Record
+              payments as the money arrives.
             </p>
           ) : (
             <p className="text-small text-ink-soft">
               None yet. If you have a hosted payment page, for example from a CDG Commerce Quantum
-              account or another pay link you already use, add it and unpaid invoices get a Pay online
-              button. Card details are entered on that page, never on ClientBilling.
+              account, or a PayPal.me link, add it and unpaid invoices get a Pay online button.
+              Card details are entered on that page, never on ClientBilling.
             </p>
           )}
           <Button asChild variant="outline" className="mt-4">
