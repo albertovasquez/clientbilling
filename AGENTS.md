@@ -11,3 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Style guide
 
 Read `docs/STYLE_GUIDE.md` before editing any page, component, or post. It defines tokens, primitives (`src/components/ui`), the CTA ladder (`src/lib/cta.ts`), voice, attribution, and page templates. `npm run check` runs typecheck, lint, and the style check; it must pass before a commit. No em dashes or en dashes anywhere.
+
+# Mission
+
+Before any change, read `docs/mission/README.md` and follow its reading order. It owns the product thesis, the compliance boundary (no card data, no funds, not merchant of record), the CDG affiliate rules (R=470 on every CDG link), the agent operating manual with its stop-and-ask triggers, and the definition of done. Cite the mission files in a PR that touches Collect, CDG copy, fees, legal pages, auth, or email.
