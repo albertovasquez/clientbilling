@@ -44,7 +44,7 @@ URLs are site-relative. Planned pages are marked `planned`.
 
 | Query cluster | Intent | Priority | URL | Status |
 | --- | --- | --- | --- | --- |
-| Credit card processing fee calculator, interchange plus calculator | tool | P1 | `/tools/fee-calculator` | Planned |
+| Credit card processing fee calculator, interchange plus calculator, Stripe fee calculator | tool | P1 | `/tools/fee-calculator` | Live |
 | CDG chargeback fee, CDG ACH fee, full fee schedule | pricing | P1 | `/blog/cdg-commerce-fees-schedule` or hub section | Planned; attribute Merchant Maverick where CDG does not publish |
 | Wholesale membership explained ($49 to $199) | pricing | P1 | `/blog/cdg-wholesale-membership-explained` | Planned |
 

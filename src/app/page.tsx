@@ -107,6 +107,13 @@ export default function HomePage() {
             ))}
           </div>
           <SourceNote source={cdgSources.pricing} checked={CDG_CHECKED} className="mt-8" />
+          <p className="mt-6 text-small text-ink-soft">
+            Want a volume-based estimate against Stripe, Square, or PayPal public
+            schedules?{" "}
+            <Button href="/tools/fee-calculator" variant="quiet">
+              Open the fee calculator
+            </Button>
+          </p>
         </Container>
       </Section>
 

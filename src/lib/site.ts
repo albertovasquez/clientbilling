@@ -30,6 +30,7 @@ export const siteConfig = {
   } as const satisfies Record<PartnerChannel, string>,
   nav: [
     { href: "/cdgcommerce", label: "CDG Commerce" },
+    { href: "/tools/fee-calculator", label: "Fee calculator" },
     { href: "/blog", label: "Guides" },
     { href: "/about", label: "About" },
   ],
@@ -41,6 +42,7 @@ export const siteConfig = {
     { href: "/cdgcommerce/recurring-billing", label: "Recurring billing" },
     { href: "/cdgcommerce/b2b", label: "B2B payments" },
     { href: "/get-started", label: "Get started" },
+    { href: "/tools/fee-calculator", label: "Fee calculator" },
     { href: "/blog", label: "All guides" },
     { href: "/about", label: "About" },
   ],
