@@ -62,9 +62,17 @@ export default async function AppHomePage() {
             Draft, send, and track. Payers see your payment instructions on every invoice.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/app/invoices/new">New invoice</Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <a href="/app/export/invoices">Download invoices CSV</a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href="/app/export/payments">Download payments CSV</a>
+          </Button>
+          <Button asChild>
+            <Link href="/app/invoices/new">New invoice</Link>
+          </Button>
+        </div>
       </div>
 
       {invoices.length > 0 ? (
