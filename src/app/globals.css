@@ -84,5 +84,7 @@ body {
 }
 
 .prose-billing :where(table) {
+  display: block;
+  overflow-x: auto;
   font-variant-numeric: tabular-nums;
 }

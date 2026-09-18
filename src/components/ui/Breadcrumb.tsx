@@ -29,14 +29,14 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
         {items.map((item, i) => {
           const last = i === items.length - 1;
           return (
-            <li key={`${item.label}-${i}`} className="flex items-center gap-2">
+            <li key={`${item.label}-${i}`} className="flex min-w-0 items-center gap-2">
               {item.href && !last ? (
                 <Link href={item.href} className="hover:text-action">
                   {item.label}
                 </Link>
               ) : (
                 <span
-                  className={last ? "truncate text-ink-soft" : ""}
+                  className={last ? "min-w-0 truncate text-ink-soft" : ""}
                   aria-current={last ? "page" : undefined}
                 >
                   {item.label}
