@@ -1,3 +1,4 @@
+import { InvoiceFakeDoorLink } from "@/components/InvoiceFakeDoorLink";
 import { PostCard } from "@/components/PostCard";
 import {
   Button,
@@ -114,6 +115,25 @@ export default function HomePage() {
               Open the fee calculator
             </Button>
           </p>
+          <div className="mt-10">
+            <DecisionCard
+              title="Create an invoice"
+              actions={
+                <>
+                  <InvoiceFakeDoorLink href="/app/sign-up">
+                    Create an invoice
+                  </InvoiceFakeDoorLink>
+                  <Button href="/tools/fee-calculator" variant="secondary">
+                    Fee calculator
+                  </Button>
+                </>
+              }
+              note="Free invoice create and send. Collect online via CDG Quantum when you are ready."
+            >
+              Draft and send from ClientBilling, then collect online through
+              CDG Commerce Quantum. No card data on our servers.
+            </DecisionCard>
+          </div>
         </Container>
       </Section>
 

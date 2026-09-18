@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         destination: "/cdgcommerce/:path*",
         permanent: true,
       },
+      {
+        source: "/create-invoice",
+        destination: "/app/sign-up",
+        permanent: false,
+      },
     ];
   },
 };

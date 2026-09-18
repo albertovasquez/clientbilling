@@ -67,3 +67,63 @@ export function trackCalculatorComplete(
     /* ignore */
   }
 }
+
+export type InvoiceFakeDoorClickPayload = {
+  page: string;
+  cta_text: string;
+};
+
+/** Homepage (or other) CTA that opens the invoice fake-door landing. */
+export function trackInvoiceFakeDoorClick(
+  payload: InvoiceFakeDoorClickPayload,
+): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.dispatchEvent(
+      new CustomEvent("invoice_fake_door_click", { detail: payload }),
+    );
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    const w = window as Window & {
+      dataLayer?: Record<string, unknown>[];
+    };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: "invoice_fake_door_click", ...payload });
+  } catch {
+    /* ignore */
+  }
+}
+
+export type InvoiceWaitlistSignupPayload = {
+  page: string;
+  email_domain?: string;
+};
+
+/** Fires just before the waitlist form submits (FormSubmit or API). */
+export function trackInvoiceWaitlistSignup(
+  payload: InvoiceWaitlistSignupPayload,
+): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.dispatchEvent(
+      new CustomEvent("invoice_waitlist_signup", { detail: payload }),
+    );
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    const w = window as Window & {
+      dataLayer?: Record<string, unknown>[];
+    };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: "invoice_waitlist_signup", ...payload });
+  } catch {
+    /* ignore */
+  }
+}
