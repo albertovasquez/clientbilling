@@ -39,6 +39,9 @@ export default async function ClientsPage() {
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-3">
                     <Button asChild variant="outline">
+                      <Link href={`/app/clients/${client.id}`}>Statement</Link>
+                    </Button>
+                    <Button asChild variant="outline">
                       <Link href={`/app/clients/${client.id}/edit`}>Edit</Link>
                     </Button>
                     <form action={deleteClientAction}>

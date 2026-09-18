@@ -22,7 +22,7 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | Recurring invoices (shipped 2026-09-18) | Service businesses bill monthly. Schedules generate drafts; the merchant approves or auto-sends. | Yes. | None. |
 | Partial payments and payment records (shipped 2026-09-18, decision 0019) | Record deposits, installments, and offline payments against an invoice; balance due on the document. | Yes. | None. |
 | Credit notes and voids with reason (void reason shipped 2026-09-18; credit-note documents later) | Corrections without deleting history. | Yes. | None. |
-| Client statements | One page per client: open invoices, paid, balance. Emailable. | Yes. | None. |
+| Client statements (page shipped 2026-09-18; email later) | One page per client: open invoices, paid, balance. Emailable. | Yes. | None. |
 | CSV export (shipped 2026-09-18) | Invoices and payments for a bookkeeper. | Yes. | None. |
 | Team roles | Owner, member, read-only. Needed before agencies adopt. | Yes. | None. |
 | Invoice templates and default terms (defaults shipped 2026-09-18; line-item presets later) | Net terms, default notes, line-item presets. | Yes. | None. |
