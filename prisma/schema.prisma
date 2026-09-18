@@ -107,6 +107,9 @@ model BusinessProfile {
   defaultTaxRateBps Int @default(0)
   defaultNotes String? @db.Text
 
+  /// Opt-in automatic reminders at +3 and +10 days past due (decision 0015).
+  autoReminders Boolean @default(false)
+
   // Quantum connection fields are unused until decision 0002 is revisited.
   // Never store gateway passwords or RestrictKeys.
   quantumConnected     Boolean @default(false)

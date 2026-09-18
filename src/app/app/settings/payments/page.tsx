@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { setAutoRemindersAction } from "@/app/app/reminder-actions";
 import { CollectRequestForm } from "@/components/app/CollectRequestForm";
 import { Button } from "@/components/shadcn/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
@@ -15,6 +16,7 @@ export default async function PaymentsSettingsPage() {
   const business = await getBusinessForUser(user.id);
   const instructions = business?.paymentInstructions?.trim();
   const payLink = business?.payLinkUrl?.trim();
+  const autoReminders = business?.autoReminders ?? false;
 
   return (
     <div className="space-y-8">
@@ -26,6 +28,36 @@ export default async function PaymentsSettingsPage() {
           of record.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Heading level={2}>Automatic reminders</Heading>
+          </CardTitle>
+          <CardDescription>
+            Optional. When on, we email the client on file once at 3 days past due and once at 10
+            days past due, using the same reminder text as the button on each invoice. Off by
+            default.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={setAutoRemindersAction} className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex items-center gap-2 text-small text-ink">
+              <input
+                type="checkbox"
+                name="autoReminders"
+                value="on"
+                defaultChecked={autoReminders}
+                className="size-4 rounded border-input"
+              />
+              Send automatic reminders at 3 and 10 days past due
+            </label>
+            <Button type="submit" variant="outline" size="sm">
+              Save
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
