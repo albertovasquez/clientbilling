@@ -13,11 +13,15 @@ import { siteConfig } from "@/lib/site";
 
 export const metadata = { title: "Invoice" };
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ error?: string }>;
+};
 
-export default async function InvoiceDetailPage({ params }: Props) {
+export default async function InvoiceDetailPage({ params, searchParams }: Props) {
   const user = await requireUser();
   const { id } = await params;
+  const query = searchParams ? await searchParams : {};
   const invoice = await prisma.invoice.findFirst({
     where: { id, userId: user.id },
     include: {
@@ -64,6 +68,11 @@ export default async function InvoiceDetailPage({ params }: Props) {
 
       <section className="rounded-2xl border border-rule bg-paper p-6">
         <Heading level={2}>Status</Heading>
+        {query.error === "transition" ? (
+          <p className="mt-2 text-small text-verdict" role="alert">
+            That status change is not allowed from the invoice&apos;s current state.
+          </p>
+        ) : null}
         <div className="mt-4">
           <InvoiceStatusActions invoiceId={invoice.id} status={invoice.status} />
         </div>
@@ -73,13 +82,16 @@ export default async function InvoiceDetailPage({ params }: Props) {
         <Heading level={2}>Share</Heading>
         <p className="mt-2 text-small text-ink-soft break-all">{publicUrl}</p>
         <div className="mt-4">
-          <SendInvoiceForm invoiceId={invoice.id} clientEmail={invoice.client.email} />
+          <SendInvoiceForm
+            invoiceId={invoice.id}
+            clientId={invoice.clientId}
+            clientEmail={invoice.client.email}
+          />
         </div>
       </section>
 
       <CollectOnlinePanel
-        quantumConnected={business?.quantumConnected ?? false}
-        quantumMerchantLabel={business?.quantumMerchantLabel}
+        hasPaymentInstructions={Boolean(business?.paymentInstructions?.trim())}
         invoiceTotalLabel={formatCents(invoice.totalCents, invoice.currency)}
       />
 

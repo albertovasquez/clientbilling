@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum InvoiceStatus {
@@ -61,6 +62,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+/// Password reset tokens (decision 0006). identifier = email, token = sha256 of the raw token.
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -84,7 +86,11 @@ model BusinessProfile {
   logoUrl   String?
   nextInvoiceNumber Int @default(1001)
 
-  // Quantum connection stub: never store gateway passwords or RestrictKeys.
+  /// Shown to payers in the Pay section of the public invoice (decision 0008).
+  paymentInstructions String? @db.Text
+
+  // Quantum connection fields are unused until decision 0002 is revisited.
+  // Never store gateway passwords or RestrictKeys.
   quantumConnected     Boolean @default(false)
   quantumMerchantLabel String?
   quantumGwLoginRef    String?
@@ -143,6 +149,7 @@ model Invoice {
   lineItems InvoiceLineItem[]
   events    InvoiceEvent[]
 
+  @@unique([userId, number])
   @@index([userId])
   @@index([clientId])
   @@index([status])
@@ -171,4 +178,25 @@ model InvoiceEvent {
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
+}
+
+/// First-party product events (decision 0007). No cookies, no fingerprinting.
+model Event {
+  id        String   @id @default(cuid())
+  name      String
+  path      String?
+  userId    String?
+  payload   String?  @db.Text
+  country   String?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([userId])
+}
+
+/// Fixed-window counters for rate limiting auth and email actions (decisions 0004, 0006).
+model RateLimit {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
 }

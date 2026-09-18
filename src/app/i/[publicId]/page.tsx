@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { buttonClass, Heading } from "@/components/ui";
+import { ViewBeacon } from "@/components/ViewBeacon";
+import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
-import { bpsToPercentLabel, formatCents } from "@/lib/money";
+import { flags } from "@/lib/flags";
+import { payerStatusLabel } from "@/lib/invoices/status";
+import { bpsToPercentLabel, formatCents, lineTotalCents } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -18,13 +21,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * The payer's document (decision 0008): merchant first, plain status, payment
+ * instructions, no affiliate links. Views are recorded by a client beacon, not on GET.
+ */
 export default async function PublicInvoicePage({ params }: Props) {
   if (!process.env.DATABASE_URL) {
     return (
       <main className="mx-auto max-w-article px-4 py-14">
         <Heading level={1}>Invoice unavailable</Heading>
         <p className="mt-4 text-body text-ink-soft">
-          The invoice database is not configured on this deployment yet.
+          This invoice cannot be shown right now. Contact the sender directly.
         </p>
       </main>
     );
@@ -41,61 +48,66 @@ export default async function PublicInvoicePage({ params }: Props) {
   });
   if (!invoice || invoice.status === "void") notFound();
 
-  if (!invoice.viewedAt && invoice.status === "sent") {
-    await prisma.invoice.update({
-      where: { id: invoice.id },
-      data: {
-        status: "viewed",
-        viewedAt: new Date(),
-        events: { create: { type: "viewed" } },
-      },
-    });
-  } else if (!invoice.viewedAt) {
-    await prisma.invoice.update({
-      where: { id: invoice.id },
-      data: {
-        viewedAt: new Date(),
-        events: { create: { type: "viewed" } },
-      },
-    });
-  }
-
   const business = invoice.user.business;
-  const quantumConnected = business?.quantumConnected ?? false;
+  const merchantName = business?.name || "Your vendor";
+  const statusLabel = payerStatusLabel(invoice.status, invoice.dueDate);
+  const paid = invoice.status === "paid";
+  const instructions = business?.paymentInstructions?.trim();
+  const addressLine = [business?.city, business?.state, business?.postalCode].filter(Boolean).join(", ");
 
   return (
     <main className="mx-auto max-w-article px-4 py-10 sm:py-14 print:py-4">
-      <p className="text-caption text-muted">{siteConfig.name}</p>
-      <Heading level={1} className="mt-2">
-        Invoice #{invoice.number}
-      </Heading>
-      <p className="mt-2 text-small text-ink-soft">Status: {invoice.status}</p>
+      <ViewBeacon publicId={publicId} />
 
-      <div className="mt-8 grid gap-6 sm:grid-cols-2">
+      <header className="flex flex-wrap items-start justify-between gap-6">
+        <div className="flex items-center gap-4">
+          {business?.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={business.logoUrl} alt="" className="h-12 w-12 rounded-lg object-contain" />
+          ) : null}
+          <div>
+            <p className="font-display text-display-sm font-semibold text-ink">{merchantName}</p>
+            {business?.email ? <p className="text-small text-ink-soft">{business.email}</p> : null}
+            {business?.phone ? <p className="text-small text-ink-soft">{business.phone}</p> : null}
+          </div>
+        </div>
+        <div className="text-right">
+          <Heading level={1} size="md">
+            Invoice #{invoice.number}
+          </Heading>
+          <p className={`mt-1 text-small font-semibold ${paid ? "text-action" : "text-ink-soft"}`}>
+            {statusLabel}
+          </p>
+        </div>
+      </header>
+
+      <div className="mt-8 grid gap-6 border-t border-rule pt-6 sm:grid-cols-3">
         <div>
-          <h2 className="text-small font-semibold text-ink">From</h2>
+          <h2 className="text-caption font-semibold text-muted">From</h2>
           <p className="mt-1 text-small text-ink-soft">
-            {business?.name || "Business"}
-            <br />
-            {business?.email}
+            {merchantName}
             {business?.address1 ? (
               <>
                 <br />
                 {business.address1}
               </>
             ) : null}
-            {business?.city ? (
+            {business?.address2 ? (
               <>
                 <br />
-                {[business.city, business.state, business.postalCode]
-                  .filter(Boolean)
-                  .join(", ")}
+                {business.address2}
+              </>
+            ) : null}
+            {addressLine ? (
+              <>
+                <br />
+                {addressLine}
               </>
             ) : null}
           </p>
         </div>
         <div>
-          <h2 className="text-small font-semibold text-ink">Bill to</h2>
+          <h2 className="text-caption font-semibold text-muted">Bill to</h2>
           <p className="mt-1 text-small text-ink-soft">
             {invoice.client.name}
             {invoice.client.company ? (
@@ -112,106 +124,102 @@ export default async function PublicInvoicePage({ params }: Props) {
             ) : null}
           </p>
         </div>
+        <dl className="text-small">
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">Issued</dt>
+            <dd className="text-ink-soft">{invoice.issueDate.toISOString().slice(0, 10)}</dd>
+          </div>
+          <div className="mt-1 flex justify-between gap-4">
+            <dt className="text-muted">Due</dt>
+            <dd className="text-ink-soft">
+              {invoice.dueDate ? invoice.dueDate.toISOString().slice(0, 10) : "On receipt"}
+            </dd>
+          </div>
+          {paid && invoice.paidAt ? (
+            <div className="mt-1 flex justify-between gap-4">
+              <dt className="text-muted">Paid</dt>
+              <dd className="text-ink-soft">{invoice.paidAt.toISOString().slice(0, 10)}</dd>
+            </div>
+          ) : null}
+        </dl>
       </div>
-
-      <dl className="mt-6 grid gap-2 text-small sm:grid-cols-2">
-        <div>
-          <dt className="text-muted">Issued</dt>
-          <dd>{invoice.issueDate.toISOString().slice(0, 10)}</dd>
-        </div>
-        <div>
-          <dt className="text-muted">Due</dt>
-          <dd>
-            {invoice.dueDate ? invoice.dueDate.toISOString().slice(0, 10) : "On receipt"}
-          </dd>
-        </div>
-      </dl>
 
       <table className="mt-8 w-full border-collapse text-small">
         <thead>
           <tr className="border-b border-rule-strong text-left">
             <th className="py-2 font-semibold">Description</th>
-            <th className="py-2 font-semibold">Qty</th>
-            <th className="py-2 font-semibold">Price</th>
+            <th className="py-2 text-right font-semibold">Qty</th>
+            <th className="py-2 text-right font-semibold">Price</th>
             <th className="py-2 text-right font-semibold">Amount</th>
           </tr>
         </thead>
         <tbody>
           {invoice.lineItems.map((line) => (
             <tr key={line.id} className="border-b border-rule">
-              <td className="py-2">{line.description}</td>
-              <td className="py-2">{String(line.quantity)}</td>
-              <td className="py-2">{formatCents(line.unitPriceCents)}</td>
-              <td className="py-2 text-right">
-                {formatCents(Math.round(Number(line.quantity) * line.unitPriceCents))}
+              <td className="py-2 pr-4">{line.description}</td>
+              <td className="py-2 text-right tabular-nums">{String(line.quantity)}</td>
+              <td className="py-2 text-right tabular-nums">{formatCents(line.unitPriceCents)}</td>
+              <td className="py-2 text-right tabular-nums">
+                {formatCents(lineTotalCents(String(line.quantity), line.unitPriceCents))}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <dl className="mt-4 ml-auto max-w-xs space-y-1 text-small">
+      <dl className="ml-auto mt-4 max-w-xs space-y-1 text-small">
         <div className="flex justify-between">
           <dt className="text-muted">Subtotal</dt>
-          <dd>{formatCents(invoice.subtotalCents)}</dd>
+          <dd className="tabular-nums">{formatCents(invoice.subtotalCents)}</dd>
         </div>
-        <div className="flex justify-between">
-          <dt className="text-muted">Tax ({bpsToPercentLabel(invoice.taxRateBps)})</dt>
-          <dd>{formatCents(invoice.taxCents)}</dd>
-        </div>
-        <div className="flex justify-between text-body font-semibold">
-          <dt>Total</dt>
-          <dd>{formatCents(invoice.totalCents, invoice.currency)}</dd>
+        {invoice.taxRateBps > 0 ? (
+          <div className="flex justify-between">
+            <dt className="text-muted">Tax ({bpsToPercentLabel(invoice.taxRateBps)})</dt>
+            <dd className="tabular-nums">{formatCents(invoice.taxCents)}</dd>
+          </div>
+        ) : null}
+        <div className="flex justify-between border-t border-rule-strong pt-2 text-body font-semibold">
+          <dt>{paid ? "Total paid" : "Total due"}</dt>
+          <dd className="tabular-nums">{formatCents(invoice.totalCents, invoice.currency)}</dd>
         </div>
       </dl>
 
       {invoice.notes ? (
         <div className="mt-8">
-          <h2 className="text-small font-semibold text-ink">Notes</h2>
-          <p className="mt-1 whitespace-pre-wrap text-small text-ink-soft">
-            {invoice.notes}
-          </p>
+          <h2 className="text-caption font-semibold text-muted">Notes</h2>
+          <p className="mt-1 whitespace-pre-wrap text-small text-ink-soft">{invoice.notes}</p>
         </div>
       ) : null}
 
-      <section className="mt-10 rounded-2xl border border-rule bg-field p-6 print:hidden">
-        <Heading level={2}>Pay</Heading>
-        {invoice.status === "paid" ? (
-          <p className="mt-2 text-small text-ink-soft">This invoice is marked paid.</p>
-        ) : quantumConnected ? (
-          <div className="mt-2 space-y-3">
-            <p className="text-small text-ink-soft">
-              Online card pay via Quantum hosted checkout is coming soon for this
-              merchant. No card fields are shown on ClientBilling.
+      {!paid ? (
+        <section className="mt-10 rounded-2xl border border-rule bg-field p-6 print:border-0 print:bg-paper print:p-0">
+          <h2 className="font-display text-display-sm font-semibold text-ink">How to pay</h2>
+          {flags.collectOnline && business?.quantumConnected ? (
+            <p className="mt-2 text-small text-ink-soft">
+              Online card payment for this invoice is being set up by {merchantName}.
             </p>
-            <p className="text-caption text-muted">
-              Connected merchant: {business?.quantumMerchantLabel || "Quantum"}
+          ) : null}
+          {instructions ? (
+            <p className="mt-2 whitespace-pre-wrap text-small text-ink-soft">{instructions}</p>
+          ) : (
+            <p className="mt-2 text-small text-ink-soft">
+              Contact {merchantName}
+              {business?.email ? ` at ${business.email}` : ""} for payment options.
             </p>
-          </div>
-        ) : (
-          <div className="mt-2 space-y-3">
-            <p className="text-small text-ink-soft">
-              The sender has not connected online card collection yet. You can
-              still settle by the method they note above, or they can enable
-              Quantum through CDG Commerce.
-            </p>
-            <TrackedAffiliateLink
-              href={siteConfig.affiliateSignupUrl}
-              ctaPosition="card"
-              ctaText="Start a CDG application"
-              ctaType="apply"
-              className={buttonClass("secondary", "md")}
-            >
-              Sender: start a CDG application
-            </TrackedAffiliateLink>
-          </div>
-        )}
-      </section>
+          )}
+        </section>
+      ) : null}
 
-      <p className="mt-8 text-caption text-muted print:hidden">
-        Print this page for a PDF. ClientBilling provides invoice software only.
-        Card processing, when used, is provided by CDG Commerce / Quantum Gateway.
-      </p>
+      <footer className="mt-10 flex flex-wrap items-center justify-between gap-2 border-t border-rule pt-4 text-caption text-muted print:hidden">
+        <span>Print this page to save a PDF.</span>
+        <span>
+          Invoice software by{" "}
+          <Link href="/" className="underline underline-offset-2 hover:text-ink">
+            {siteConfig.name}
+          </Link>
+          . Card data is never collected on this page.
+        </span>
+      </footer>
     </main>
   );
 }

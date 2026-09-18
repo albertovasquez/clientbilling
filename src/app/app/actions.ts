@@ -1,14 +1,19 @@
 "use server";
 
 import { hash } from "bcryptjs";
+import { Prisma, type InvoiceStatus } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn, signOut } from "@/auth";
 import { newPublicInvoiceId } from "@/lib/invoices/ids";
+import { canTransition } from "@/lib/invoices/status";
 import { assertDatabase, prisma } from "@/lib/db";
-import { computeInvoiceTotals, dollarsToCents, percentToBps } from "@/lib/money";
+import { recordEvent } from "@/lib/events";
+import { computeInvoiceTotals, dollarsToCents, normalizeQuantity, percentToBps } from "@/lib/money";
+import { allow } from "@/lib/rate-limit";
 import { requireBusiness, requireUser } from "@/lib/session";
 
 const signUpSchema = z.object({
@@ -19,6 +24,15 @@ const signUpSchema = z.object({
 });
 
 export type ActionState = { error?: string; ok?: boolean };
+
+async function clientIp(): Promise<string> {
+  const h = await headers();
+  return (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+}
 
 export async function signUpAction(
   _prev: ActionState,
@@ -40,26 +54,37 @@ export async function signUpAction(
     return { error: "Check your name, email, business name, and password (8+ characters)." };
   }
 
-  const email = parsed.data.email.toLowerCase().trim();
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { error: "An account with that email already exists. Sign in instead." };
+  const ip = await clientIp();
+  if (!(await allow(`signup:${ip}`, 10, 3600))) {
+    return { error: "Too many sign-ups from this network. Try again in an hour." };
   }
 
+  const email = parsed.data.email.toLowerCase().trim();
   const passwordHash = await hash(parsed.data.password, 12);
-  await prisma.user.create({
-    data: {
-      email,
-      name: parsed.data.name.trim(),
-      passwordHash,
-      business: {
-        create: {
-          name: parsed.data.businessName.trim(),
-          email,
+  let userId: string;
+  try {
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name: parsed.data.name.trim(),
+        passwordHash,
+        business: {
+          create: {
+            name: parsed.data.businessName.trim(),
+            email,
+          },
         },
       },
-    },
-  });
+    });
+    userId = user.id;
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      return { error: "An account with that email already exists. Sign in instead." };
+    }
+    throw error;
+  }
+
+  await recordEvent({ name: "signup", path: "/app/sign-up", userId });
 
   try {
     await signIn("credentials", {
@@ -76,23 +101,38 @@ export async function signUpAction(
   return { ok: true };
 }
 
+/** Only same-origin app paths are safe redirect targets. */
+function safeNext(raw: string): string {
+  return /^\/app(\/[A-Za-z0-9_\-/?=&]*)?$/.test(raw) ? raw : "/app";
+}
+
 export async function signInAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   const email = String(formData.get("email") ?? "").toLowerCase().trim();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/app");
+  const next = safeNext(String(formData.get("next") ?? "/app"));
   if (!email || !password) {
     return { error: "Email and password are required." };
   }
   try {
     assertDatabase();
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: next.startsWith("/app") ? next : "/app",
-    });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Database not configured" };
+  }
+
+  const ip = await clientIp();
+  const [ipOk, emailOk] = await Promise.all([
+    allow(`signin:ip:${ip}`, 30, 900),
+    allow(`signin:email:${email}`, 10, 900),
+  ]);
+  if (!ipOk || !emailOk) {
+    return { error: "Too many attempts. Wait 15 minutes and try again." };
+  }
+
+  try {
+    await signIn("credentials", { email, password, redirectTo: next });
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: "Invalid email or password." };
@@ -116,6 +156,7 @@ const businessSchema = z.object({
   state: z.string().max(40).optional(),
   postalCode: z.string().max(20).optional(),
   logoUrl: z.string().url().optional().or(z.literal("")),
+  paymentInstructions: z.string().max(2000).optional(),
 });
 
 export async function updateBusinessAction(
@@ -133,6 +174,7 @@ export async function updateBusinessAction(
     state: formData.get("state") || undefined,
     postalCode: formData.get("postalCode") || undefined,
     logoUrl: formData.get("logoUrl") || "",
+    paymentInstructions: formData.get("paymentInstructions") || undefined,
   });
   if (!parsed.success) {
     return { error: "Check the business profile fields." };
@@ -148,6 +190,7 @@ export async function updateBusinessAction(
     state: parsed.data.state?.trim() || null,
     postalCode: parsed.data.postalCode?.trim() || null,
     logoUrl: parsed.data.logoUrl?.trim() || null,
+    paymentInstructions: parsed.data.paymentInstructions?.trim() || null,
   };
 
   await prisma.businessProfile.upsert({
@@ -200,7 +243,7 @@ export async function createClientAction(
     data: {
       userId: user.id,
       name: parsed.data.name.trim(),
-      email: parsed.data.email?.trim() || null,
+      email: parsed.data.email?.trim().toLowerCase() || null,
       phone: parsed.data.phone?.trim() || null,
       company: parsed.data.company?.trim() || null,
       address1: parsed.data.address1?.trim() || null,
@@ -231,7 +274,7 @@ export async function updateClientAction(
     where: { id },
     data: {
       name: parsed.data.name.trim(),
-      email: parsed.data.email?.trim() || null,
+      email: parsed.data.email?.trim().toLowerCase() || null,
       phone: parsed.data.phone?.trim() || null,
       company: parsed.data.company?.trim() || null,
       address1: parsed.data.address1?.trim() || null,
@@ -259,7 +302,11 @@ export async function deleteClientAction(formData: FormData) {
   redirect("/app/clients");
 }
 
-function parseLineItems(formData: FormData) {
+type ParsedLines =
+  | { ok: true; lines: { description: string; quantity: number; unitPriceCents: number }[] }
+  | { ok: false; error: string };
+
+function parseLineItems(formData: FormData): ParsedLines {
   const descriptions = formData.getAll("line_description").map(String);
   const quantities = formData.getAll("line_quantity").map(String);
   const prices = formData.getAll("line_unit_price").map(String);
@@ -267,12 +314,24 @@ function parseLineItems(formData: FormData) {
   for (let i = 0; i < descriptions.length; i++) {
     const description = descriptions[i]?.trim() ?? "";
     if (!description) continue;
-    const quantity = Number(quantities[i] ?? "1");
+    const quantity = normalizeQuantity(quantities[i] ?? "1");
     const unitPriceCents = dollarsToCents(prices[i] ?? "0");
-    if (!Number.isFinite(quantity) || quantity <= 0) continue;
-    lines.push({ description, quantity, unitPriceCents });
+    if (quantity <= 0) {
+      return { ok: false, error: `Quantity for "${description}" must be greater than zero.` };
+    }
+    if (unitPriceCents < 0) {
+      return { ok: false, error: `Unit price for "${description}" cannot be negative.` };
+    }
+    lines.push({ description: description.slice(0, 500), quantity, unitPriceCents });
   }
-  return lines;
+  if (lines.length === 0) return { ok: false, error: "Add at least one line item." };
+  return { ok: true, lines };
+}
+
+function parseDueDate(raw: string): Date | null {
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 export async function createInvoiceAction(
@@ -287,20 +346,14 @@ export async function createInvoiceAction(
   let newClient: { name: string; email: string | null } | null = null;
   if (useNewClient) {
     const newClientName = String(formData.get("newClientName") ?? "").trim();
-    const newClientEmailRaw = String(formData.get("newClientEmail") ?? "").trim();
+    const newClientEmailRaw = String(formData.get("newClientEmail") ?? "").trim().toLowerCase();
     if (!newClientName) {
       return { error: "Enter a client name, or pick an existing client." };
     }
-    if (newClientEmailRaw) {
-      const emailOk = z.string().email().safeParse(newClientEmailRaw);
-      if (!emailOk.success) {
-        return { error: "New client email must be a valid email address." };
-      }
+    if (newClientEmailRaw && !z.string().email().safeParse(newClientEmailRaw).success) {
+      return { error: "New client email must be a valid email address." };
     }
-    newClient = {
-      name: newClientName,
-      email: newClientEmailRaw || null,
-    };
+    newClient = { name: newClientName.slice(0, 160), email: newClientEmailRaw || null };
   } else {
     const existing = await prisma.client.findFirst({
       where: { id: clientIdRaw, userId: user.id },
@@ -310,39 +363,44 @@ export async function createInvoiceAction(
     }
   }
 
-  const lines = parseLineItems(formData);
-  if (lines.length === 0) {
-    return { error: "Add at least one line item." };
-  }
+  const parsedLines = parseLineItems(formData);
+  if (!parsedLines.ok) return { error: parsedLines.error };
+  const lines = parsedLines.lines;
 
   const taxRateBps = percentToBps(String(formData.get("taxRate") ?? "0"));
+  if (taxRateBps < 0 || taxRateBps > 10_000) {
+    return { error: "Tax rate must be between 0% and 100%." };
+  }
   const totals = computeInvoiceTotals(lines, taxRateBps);
-  const dueRaw = String(formData.get("dueDate") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim() || null;
+  const dueDate = parseDueDate(String(formData.get("dueDate") ?? ""));
+  const notes = String(formData.get("notes") ?? "").trim().slice(0, 4000) || null;
   const publicId = newPublicInvoiceId();
-  const number = String(business.nextInvoiceNumber);
 
   const invoice = await prisma.$transaction(async (tx) => {
     let resolvedClientId = clientIdRaw;
     if (newClient) {
       const createdClient = await tx.client.create({
-        data: {
-          userId: user.id,
-          name: newClient.name,
-          email: newClient.email,
-        },
+        data: { userId: user.id, name: newClient.name, email: newClient.email },
       });
       resolvedClientId = createdClient.id;
     }
 
-    const created = await tx.invoice.create({
+    // Atomic increment inside the transaction so concurrent creates never share a number.
+    const counter = await tx.businessProfile.update({
+      where: { id: business.id },
+      data: { nextInvoiceNumber: { increment: 1 } },
+      select: { nextInvoiceNumber: true },
+    });
+    const number = String(counter.nextInvoiceNumber - 1);
+
+    return tx.invoice.create({
       data: {
         publicId,
         userId: user.id,
         clientId: resolvedClientId,
         number,
         status: "draft",
-        dueDate: dueRaw ? new Date(dueRaw) : null,
+        dueDate,
         notes,
         taxRateBps,
         ...totals,
@@ -354,17 +412,12 @@ export async function createInvoiceAction(
             sortOrder: index,
           })),
         },
-        events: {
-          create: { type: "created", meta: "draft" },
-        },
+        events: { create: { type: "created", meta: "draft" } },
       },
     });
-    await tx.businessProfile.update({
-      where: { id: business.id },
-      data: { nextInvoiceNumber: business.nextInvoiceNumber + 1 },
-    });
-    return created;
   });
+
+  await recordEvent({ name: "invoice_created", userId: user.id, payload: { totalCents: invoice.totalCents } });
 
   revalidatePath("/app");
   revalidatePath("/app/clients");
@@ -392,13 +445,17 @@ export async function updateInvoiceAction(
   });
   if (!client) return { error: "Pick a client." };
 
-  const lines = parseLineItems(formData);
-  if (lines.length === 0) return { error: "Add at least one line item." };
+  const parsedLines = parseLineItems(formData);
+  if (!parsedLines.ok) return { error: parsedLines.error };
+  const lines = parsedLines.lines;
 
   const taxRateBps = percentToBps(String(formData.get("taxRate") ?? "0"));
+  if (taxRateBps < 0 || taxRateBps > 10_000) {
+    return { error: "Tax rate must be between 0% and 100%." };
+  }
   const totals = computeInvoiceTotals(lines, taxRateBps);
-  const dueRaw = String(formData.get("dueDate") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim() || null;
+  const dueDate = parseDueDate(String(formData.get("dueDate") ?? ""));
+  const notes = String(formData.get("notes") ?? "").trim().slice(0, 4000) || null;
 
   await prisma.$transaction(async (tx) => {
     await tx.invoiceLineItem.deleteMany({ where: { invoiceId: id } });
@@ -406,7 +463,7 @@ export async function updateInvoiceAction(
       where: { id },
       data: {
         clientId: client.id,
-        dueDate: dueRaw ? new Date(dueRaw) : null,
+        dueDate,
         notes,
         taxRateBps,
         ...totals,
@@ -418,9 +475,7 @@ export async function updateInvoiceAction(
             sortOrder: index,
           })),
         },
-        events: {
-          create: { type: "updated" },
-        },
+        events: { create: { type: "updated" } },
       },
     });
   });
@@ -430,20 +485,19 @@ export async function updateInvoiceAction(
   redirect(`/app/invoices/${id}`);
 }
 
+const manualStatuses: InvoiceStatus[] = ["sent", "paid", "void"];
+
 export async function setInvoiceStatusAction(formData: FormData) {
   const user = await requireUser();
   const id = String(formData.get("id") ?? "");
-  const status = String(formData.get("status") ?? "") as
-    | "sent"
-    | "paid"
-    | "void"
-    | "draft";
-  if (!["sent", "paid", "void", "draft"].includes(status)) return;
+  const status = String(formData.get("status") ?? "") as InvoiceStatus;
+  if (!manualStatuses.includes(status)) return;
 
-  const invoice = await prisma.invoice.findFirst({
-    where: { id, userId: user.id },
-  });
+  const invoice = await prisma.invoice.findFirst({ where: { id, userId: user.id } });
   if (!invoice) return;
+  if (!canTransition(invoice.status, status)) {
+    redirect(`/app/invoices/${id}?error=transition`);
+  }
 
   const now = new Date();
   await prisma.invoice.update({
@@ -451,57 +505,15 @@ export async function setInvoiceStatusAction(formData: FormData) {
     data: {
       status,
       sentAt: status === "sent" ? (invoice.sentAt ?? now) : invoice.sentAt,
-      paidAt: status === "paid" ? now : status === "void" ? invoice.paidAt : null,
-      voidedAt: status === "void" ? now : null,
-      events: {
-        create: { type: `status_${status}` },
-      },
+      paidAt: status === "paid" ? now : invoice.paidAt,
+      voidedAt: status === "void" ? now : invoice.voidedAt,
+      events: { create: { type: `status_${status}`, meta: "manual" } },
     },
   });
+  await recordEvent({ name: `invoice_${status}`, userId: user.id, payload: { manual: true } });
 
   revalidatePath(`/app/invoices/${id}`);
   revalidatePath(`/i/${invoice.publicId}`);
   revalidatePath("/app");
   redirect(`/app/invoices/${id}`);
-}
-
-export async function connectQuantumStubAction(
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const user = await requireUser();
-  const business = await requireBusiness(user.id);
-  const label = String(formData.get("quantumMerchantLabel") ?? "").trim();
-  const ref = String(formData.get("quantumGwLoginRef") ?? "").trim();
-  if (!label) {
-    return { error: "Add a merchant label so you can recognize this connection." };
-  }
-
-  await prisma.businessProfile.update({
-    where: { id: business.id },
-    data: {
-      quantumConnected: true,
-      quantumMerchantLabel: label.slice(0, 120),
-      // Store only a non-secret reference label (e.g. "acct-display-name"), never passwords or RestrictKeys.
-      quantumGwLoginRef: ref ? ref.slice(0, 120) : null,
-    },
-  });
-
-  revalidatePath("/app/settings/payments");
-  return { ok: true };
-}
-
-export async function disconnectQuantumAction() {
-  const user = await requireUser();
-  const business = await requireBusiness(user.id);
-  await prisma.businessProfile.update({
-    where: { id: business.id },
-    data: {
-      quantumConnected: false,
-      quantumMerchantLabel: null,
-      quantumGwLoginRef: null,
-    },
-  });
-  revalidatePath("/app/settings/payments");
-  redirect("/app/settings/payments");
 }

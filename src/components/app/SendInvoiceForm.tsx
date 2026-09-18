@@ -1,17 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { buttonClass } from "@/components/ui";
-import { fieldClass, labelClass } from "@/components/app/form-styles";
 
-export function SendInvoiceForm({
-  invoiceId,
-  clientEmail,
-}: {
+type Props = {
   invoiceId: string;
+  clientId: string;
   clientEmail?: string | null;
-}) {
-  const [to, setTo] = useState(clientEmail ?? "");
+};
+
+/** Emails the public link to the client on file. The recipient is not editable here (decision 0004). */
+export function SendInvoiceForm({ invoiceId, clientId, clientEmail }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -20,47 +20,47 @@ export function SendInvoiceForm({
     setPending(true);
     setMessage(null);
     try {
-      const res = await fetch(`/api/invoices/${invoiceId}/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to }),
-      });
-      const data = (await res.json()) as { ok?: boolean; error?: string; mode?: string };
+      const res = await fetch(`/api/invoices/${invoiceId}/send`, { method: "POST" });
+      const data = (await res.json()) as { ok?: boolean; error?: string; to?: string };
       if (!res.ok) {
         setMessage(data.error || "Could not send.");
-      } else if (data.mode === "resend") {
-        setMessage("Email sent via Resend.");
       } else {
-        setMessage(
-          "Email provider not configured. Use Copy public link, or set RESEND_API_KEY.",
-        );
+        setMessage(`Sent to ${data.to}.`);
+        window.location.reload();
       }
     } catch {
-      setMessage("Network error while sending.");
+      setMessage("Network error while sending. Try again.");
     } finally {
       setPending(false);
     }
   }
 
+  if (!clientEmail) {
+    return (
+      <p className="text-small text-ink-soft">
+        This client has no email on file.{" "}
+        <Link href={`/app/clients/${clientId}/edit`} className="text-action underline-offset-4 hover:underline">
+          Add one
+        </Link>{" "}
+        to email the invoice, or copy the public link above.
+      </p>
+    );
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      <div>
-        <label htmlFor="send-to" className={labelClass}>
-          Send to
-        </label>
-        <input
-          id="send-to"
-          type="email"
-          required
-          value={to}
-          onChange={(e) => setTo(e.target.value)}
-          className={fieldClass}
-        />
-      </div>
+      <p className="text-small text-ink-soft">
+        Emails the public link to <span className="font-semibold text-ink">{clientEmail}</span>.
+        To send elsewhere, edit the client first.
+      </p>
       <button type="submit" disabled={pending} className={buttonClass("primary", "md")}>
-        {pending ? "Sending…" : "Email invoice link"}
+        {pending ? "Sending" : "Email invoice link"}
       </button>
-      {message ? <p className="text-small text-ink-soft">{message}</p> : null}
+      {message ? (
+        <p className="text-small text-ink-soft" role="status">
+          {message}
+        </p>
+      ) : null}
     </form>
   );
 }

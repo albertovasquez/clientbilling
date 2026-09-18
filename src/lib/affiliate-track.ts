@@ -8,33 +8,6 @@ export type AffiliateClickPayload = {
   cta_type: CtaType;
 };
 
-/**
- * Affiliate click instrumentation. Fires a DOM event and pushes to a
- * dataLayer so a tag manager or analytics tool can pick clicks up later
- * without page changes. No analytics script is loaded by the site itself.
- */
-export function trackAffiliateClick(payload: AffiliateClickPayload): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.dispatchEvent(
-      new CustomEvent("affiliate_cta_click", { detail: payload }),
-    );
-  } catch {
-    /* ignore */
-  }
-
-  try {
-    const w = window as Window & {
-      dataLayer?: Record<string, unknown>[];
-    };
-    w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({ event: "affiliate_cta_click", ...payload });
-  } catch {
-    /* ignore */
-  }
-}
-
 export type CalculatorCompletePayload = {
   page: string;
   processor: string;
@@ -43,87 +16,45 @@ export type CalculatorCompletePayload = {
   volume: number;
 };
 
+/**
+ * Browser-side event emitter (decision 0007). Posts to the first-party events
+ * endpoint, and also fires a DOM event and a dataLayer push for anyone who later
+ * wires a tag manager. Never throws.
+ */
+function emit(name: string, payload: Record<string, unknown>): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    fetch("/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, path: window.location.pathname, payload }),
+      keepalive: true,
+    }).catch(() => undefined);
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    window.dispatchEvent(new CustomEvent(name, { detail: payload }));
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    const w = window as Window & { dataLayer?: Record<string, unknown>[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: name, ...payload });
+  } catch {
+    /* ignore */
+  }
+}
+
+export function trackAffiliateClick(payload: AffiliateClickPayload): void {
+  emit("affiliate_cta_click", payload);
+}
+
 /** Fires when the fee calculator has enough inputs to show a result. */
-export function trackCalculatorComplete(
-  payload: CalculatorCompletePayload,
-): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.dispatchEvent(
-      new CustomEvent("calculator_complete", { detail: payload }),
-    );
-  } catch {
-    /* ignore */
-  }
-
-  try {
-    const w = window as Window & {
-      dataLayer?: Record<string, unknown>[];
-    };
-    w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({ event: "calculator_complete", ...payload });
-  } catch {
-    /* ignore */
-  }
-}
-
-export type InvoiceFakeDoorClickPayload = {
-  page: string;
-  cta_text: string;
-};
-
-/** Homepage (or other) CTA that opens the invoice fake-door landing. */
-export function trackInvoiceFakeDoorClick(
-  payload: InvoiceFakeDoorClickPayload,
-): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.dispatchEvent(
-      new CustomEvent("invoice_fake_door_click", { detail: payload }),
-    );
-  } catch {
-    /* ignore */
-  }
-
-  try {
-    const w = window as Window & {
-      dataLayer?: Record<string, unknown>[];
-    };
-    w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({ event: "invoice_fake_door_click", ...payload });
-  } catch {
-    /* ignore */
-  }
-}
-
-export type InvoiceWaitlistSignupPayload = {
-  page: string;
-  email_domain?: string;
-};
-
-/** Fires just before the waitlist form submits (FormSubmit or API). */
-export function trackInvoiceWaitlistSignup(
-  payload: InvoiceWaitlistSignupPayload,
-): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.dispatchEvent(
-      new CustomEvent("invoice_waitlist_signup", { detail: payload }),
-    );
-  } catch {
-    /* ignore */
-  }
-
-  try {
-    const w = window as Window & {
-      dataLayer?: Record<string, unknown>[];
-    };
-    w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({ event: "invoice_waitlist_signup", ...payload });
-  } catch {
-    /* ignore */
-  }
+export function trackCalculatorComplete(payload: CalculatorCompletePayload): void {
+  emit("calculator_complete", payload);
 }

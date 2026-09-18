@@ -27,12 +27,23 @@ export function bpsToPercentLabel(bps: number): string {
   return `${(bps / 100).toFixed(2)}%`;
 }
 
+/** Quantities are stored as Decimal(12,4). Round before computing so display matches storage. */
+export function normalizeQuantity(raw: string | number): number {
+  const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[,\s]/g, ""));
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n * 10_000) / 10_000;
+}
+
+export function lineTotalCents(quantity: number | string, unitPriceCents: number): number {
+  return Math.round(normalizeQuantity(quantity) * unitPriceCents);
+}
+
 export function computeInvoiceTotals(
   lines: { quantity: number; unitPriceCents: number }[],
   taxRateBps: number,
 ): { subtotalCents: number; taxCents: number; totalCents: number } {
   const subtotalCents = lines.reduce((sum, line) => {
-    return sum + Math.round(line.quantity * line.unitPriceCents);
+    return sum + lineTotalCents(line.quantity, line.unitPriceCents);
   }, 0);
   const taxCents = Math.round((subtotalCents * taxRateBps) / 10_000);
   return {

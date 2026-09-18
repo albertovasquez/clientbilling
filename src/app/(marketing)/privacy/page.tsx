@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "How ClientBilling handles server logs, analytics, cookies, and affiliate links.",
+    "What ClientBilling collects for the website and the invoice app, how long it is kept, and what is never collected.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -17,40 +17,38 @@ export default function PrivacyPage() {
     <>
       <Section>
         <Container width="article">
-          <Kicker>Updated September 17, 2026</Kicker>
+          <Kicker>Updated September 18, 2026</Kicker>
           <Heading level={1} className="mt-2">
             Privacy
           </Heading>
           <p className="mt-6 text-body text-ink-soft">
-            {siteConfig.name} ({siteConfig.domain}) is an editorial site about
-            merchant accounts and billing. It collects very little about you,
-            and this page says exactly what. It is a starting policy, and we
-            will have counsel review it before the site collects personal data
-            at any scale.
+            {siteConfig.name} ({siteConfig.domain}) is two things: a website about
+            merchant accounts and billing, and an invoice app at /app. This page
+            says what each one collects and what neither one does. It is a plain
+            starting policy and will be reviewed by counsel before the app is
+            promoted at scale.
           </p>
         </Container>
       </Section>
 
       <Section band="field" rule>
         <Container width="article">
-          <Heading level={2}>What we collect</Heading>
+          <Heading level={2}>The website</Heading>
           <FactRows
             className="mt-6"
             rows={[
               {
                 label: "Server logs",
-                value:
-                  "Our hosting provider records the standard request log: IP address, user agent, and the path you requested.",
+                value: "Our hosting provider records the standard request log: IP address, user agent, and the path requested.",
               },
               {
-                label: "Analytics",
+                label: "Product events",
                 value:
-                  "None today. If we enable page view and referrer measurement later, we will update this page when that happens.",
+                  "We record a small number of first-party events, such as a click on a CDG Commerce link or a completed fee calculation, with the page and a coarse country. No cookies, no cross-site identifiers, no third-party analytics.",
               },
               {
                 label: "Email",
-                value:
-                  "Whatever you choose to send us if you contact us directly.",
+                value: "Whatever you choose to send us if you contact us directly.",
               },
             ]}
           />
@@ -59,22 +57,40 @@ export default function PrivacyPage() {
 
       <Section rule>
         <Container width="article">
-          <Heading level={2}>What we do not do</Heading>
+          <Heading level={2}>The invoice app</Heading>
           <FactRows
             className="mt-6"
             rows={[
               {
-                label: "Accounts",
-                value: "No user accounts or sign-in on this site.",
+                label: "Your account",
+                value: "Name, email, and a hashed password. We never see or store the password itself.",
               },
               {
-                label: "Billing data",
+                label: "Your business profile",
+                value: "Business name, contact details, address, an optional logo URL, and the payment instructions you choose to show on invoices.",
+              },
+              {
+                label: "Your clients and invoices",
                 value:
-                  "No customer billing database. Your merchant application goes to CDG Commerce, not to us.",
+                  "Client names and contact details you enter, invoice line items, amounts, dates, status, and an event log (created, sent, opened, paid). This is your data; export or deletion is available on request while we build it into the app.",
               },
               {
-                label: "Selling data",
-                value: "We do not sell personal information.",
+                label: "Payers",
+                value:
+                  "When someone opens a public invoice link we record that it was opened and when. We do not track payers across sites and we set no cookies on invoice pages.",
+              },
+              {
+                label: "Email delivery",
+                value:
+                  "Invoice emails are sent through a transactional email provider. The provider receives the recipient address, subject, and message body in order to deliver it.",
+              },
+              {
+                label: "Session cookie",
+                value: "Signing in sets one strictly necessary cookie that keeps you signed in. It is not used for advertising.",
+              },
+              {
+                label: "Rate limiting",
+                value: "We keep short-lived counters keyed by IP address and email to limit sign-in and email sending abuse. They expire within an hour.",
               },
             ]}
           />
@@ -83,42 +99,58 @@ export default function PrivacyPage() {
 
       <Section band="field" rule>
         <Container width="article">
-          <Heading level={2}>Cookies</Heading>
-          <p className="mt-4 text-body text-ink-soft">
-            The site sets no first-party marketing cookies. Hosting and
-            security tooling may set strictly necessary cookies, and any future
-            analytics tool may set measurement cookies. We will list them here
-            when they are introduced.
-          </p>
+          <Heading level={2}>What we never collect</Heading>
+          <FactRows
+            className="mt-6"
+            rows={[
+              {
+                label: "Card data",
+                value:
+                  "No card numbers, expiry dates, or security codes, on any page, ever. Card payments, when they exist, will run on a CDG Commerce merchant account and a gateway that is not ours.",
+              },
+              {
+                label: "Bank credentials",
+                value: "Payment instructions you enter are free text you control. We do not connect to your bank.",
+              },
+              {
+                label: "Selling data",
+                value: "We do not sell personal information and we do not share invoice data with CDG Commerce or anyone else.",
+              },
+            ]}
+          />
         </Container>
       </Section>
 
       <Section rule>
         <Container width="article">
-          <Heading level={2}>Affiliate links</Heading>
+          <Heading level={2}>Retention and deletion</Heading>
           <p className="mt-4 text-body text-ink-soft">
-            Outbound links to CDG Commerce carry parameters that tell CDG the
-            application came from ClientBilling. CDG controls what it records
-            on its own pages. The{" "}
-            <Link href="/affiliate-disclosure" className={link}>
-              affiliate disclosure
+            Account, client, and invoice data is kept while your account exists.
+            Product events are kept for 180 days. To delete your account and its
+            data, email the address on the{" "}
+            <Link href="/about" className={link}>
+              about
             </Link>{" "}
-            explains how that relationship works and what it does not change.
+            page from the email on the account and we will confirm within a few days.
           </p>
         </Container>
       </Section>
 
       <Section band="field" rule>
         <Container width="article">
-          <Heading level={2}>Contact</Heading>
+          <Heading level={2}>Affiliate links</Heading>
           <p className="mt-4 text-body text-ink-soft">
-            For privacy questions about {siteConfig.domain}, contact the site
-            operator through the address we will publish on the{" "}
-            <Link href="/about" className={link}>
-              about
+            Outbound links to CDG Commerce carry parameters that tell CDG the
+            application came from ClientBilling. CDG controls what it records on
+            its own pages. The{" "}
+            <Link href="/affiliate-disclosure" className={link}>
+              affiliate disclosure
             </Link>{" "}
-            page once one is set up. This policy will be replaced with a full
-            one as the site grows.
+            explains that relationship. See also the{" "}
+            <Link href="/terms" className={link}>
+              terms of service
+            </Link>
+            .
           </p>
         </Container>
       </Section>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/migrate-if-db.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "style:check": "node scripts/style-check.mjs",

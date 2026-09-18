@@ -8,6 +8,10 @@ export const metadata = { title: "Your invoices" };
 
 export default async function AppHomePage() {
   const user = await requireUser();
+  const business = await prisma.businessProfile.findUnique({
+    where: { userId: user.id },
+    select: { paymentInstructions: true },
+  });
   const invoices = await prisma.invoice.findMany({
     where: { userId: user.id },
     include: { client: true },
@@ -21,7 +25,7 @@ export default async function AppHomePage() {
         <div>
           <Heading level={1}>Invoices</Heading>
           <p className="mt-2 text-small text-ink-soft">
-            Draft, send, and track. Collect online is optional and runs on Quantum.
+            Draft, send, and track. Payers see your payment instructions on every invoice.
           </p>
         </div>
         <Link href="/app/invoices/new" className={buttonClass("primary", "md")}>
@@ -29,12 +33,22 @@ export default async function AppHomePage() {
         </Link>
       </div>
 
+      {!business?.paymentInstructions?.trim() ? (
+        <p className="mt-6 rounded-lg border border-verdict-rule bg-verdict-tint px-4 py-3 text-small text-ink-soft">
+          Payers currently see &quot;contact us for payment options&quot;.{" "}
+          <Link href="/app/settings" className="font-semibold text-action underline-offset-4 hover:underline">
+            Add payment instructions
+          </Link>{" "}
+          so they know how to pay you.
+        </p>
+      ) : null}
+
       {invoices.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-rule bg-paper p-8">
           <Heading level={2}>No invoices yet</Heading>
           <p className="mt-2 text-small text-ink-soft">
-            You can add the client while creating the invoice. Share the public
-            link before payments are connected.
+            You can add the client while creating the invoice, then email or copy
+            the public link.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/app/invoices/new" className={buttonClass("primary", "md")}>

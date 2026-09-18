@@ -35,6 +35,7 @@ export default async function SettingsPage({ searchParams }: Props) {
           state: business?.state ?? "",
           postalCode: business?.postalCode ?? "",
           logoUrl: business?.logoUrl ?? "",
+          paymentInstructions: business?.paymentInstructions ?? "",
         }}
       />
     </div>
