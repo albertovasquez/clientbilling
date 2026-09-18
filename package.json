@@ -9,6 +9,7 @@
     "lint": "eslint",
     "style:check": "node scripts/style-check.mjs",
     "check": "tsc --noEmit && eslint && node scripts/style-check.mjs",
+    "test:db": "tsx scripts/test-db-flows.ts",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -47,6 +48,7 @@
     "eslint-config-next": "16.3.5",
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }

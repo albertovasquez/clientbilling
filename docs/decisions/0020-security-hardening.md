@@ -18,8 +18,9 @@ A security review of auth, authorization, public endpoints, API keys, cron, rate
 
 ## Not done yet
 
-- A full Content Security Policy. Inline scripts and image sources need an inventory first; the existing frame-ancestors, nosniff, frame options, referrer, and permissions headers stay.
 - Email verification at sign-up (decision 0006 still defers it). Brand impersonation through unverified accounts remains an accepted risk for now.
+
+Superseded by decision 0021: the full Content Security Policy and the CI harness.
 
 ## Consequences
 
@@ -28,4 +29,4 @@ A security review of auth, authorization, public endpoints, API keys, cron, rate
 
 ## Revisit when
 
-A second review, a real abuse incident, or the CSP inventory is done.
+A second review or a real abuse incident. CSP follow-up lives in decision 0021.
