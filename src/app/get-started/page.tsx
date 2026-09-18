@@ -1,182 +1,193 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { FitNotFit } from "@/components/FitNotFit";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { cdgClaims, softCtaCopy, siteConfig } from "@/lib/site";
+import {
+  Badge,
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  FactRows,
+  Heading,
+  Kicker,
+  Section,
+  SourceNote,
+} from "@/components/ui";
+import {
+  CDG_CHECKED,
+  cdgBusinessTypes,
+  cdgFit,
+  cdgPlans,
+  cdgSources,
+} from "@/lib/cdg";
+import type { CtaKey } from "@/lib/cta";
 
 export const metadata: Metadata = {
-  title: "Get started with CDG Commerce",
+  title: "Get a quote from CDG Commerce",
   description:
-    "Why businesses consider CDG Commerce — then explore Online, In-Person, Mobile, Recurring & Invoicing, or B2B paths and request a free quote.",
+    "What CDG Commerce's quote form asks, which volume band you fall in, and what happens after you send it. Three steps, then a phone call from CDG.",
   alternates: { canonical: "/get-started" },
   openGraph: {
-    title: "Get started with CDG Commerce | ClientBilling",
+    title: "Get a quote from CDG Commerce | ClientBilling",
     description:
-      "Five intent paths into CDG Commerce options, with free-quote and eligibility CTAs.",
+      "What CDG Commerce's quote form asks, which volume band you fall in, and what happens after you send it.",
     url: "/get-started",
   },
 };
 
+const channels: { title: string; body: string; cta: CtaKey }[] = [
+  {
+    title: "Online",
+    body: "You take cards through a website, a checkout page, or an invoice link, with the Quantum or Authorize.Net gateway included.",
+    cta: "exploreOnline",
+  },
+  {
+    title: "In person",
+    body: "You swipe, dip, or tap cards at a counter with a terminal or a point of sale system.",
+    cta: "exploreRetail",
+  },
+  {
+    title: "Mobile",
+    body: "You take cards away from a fixed location with a phone or tablet and a card reader.",
+    cta: "exploreMobile",
+  },
+];
+
 export default function GetStartedPage() {
+  const bandRows = cdgPlans.map((plan) => ({
+    label: plan.band,
+    value: `${plan.name}, ${plan.monthlyFee}`,
+  }));
+
   return (
     <>
-      <section className="relative overflow-hidden border-b border-slate-200 bg-white">
-        <div className="relative mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-            Partner with {siteConfig.partnerName}
+      <Section>
+        <Container width="article">
+          <Kicker>Updated September 17, 2026</Kicker>
+          <Heading level={1} className="mt-2">
+            Get a quote from CDG Commerce
+          </Heading>
+          <p className="mt-6 text-body text-ink-soft">
+            CDG&apos;s quote form asks four things: your business type, your
+            name, your email, and your phone number. A CDG representative then
+            calls you, asks about your monthly volume and how you take cards,
+            and sends a rate sheet. The three steps below get you ready for
+            that call.
           </p>
-          <h1 className="mt-3 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Get started with CDG Commerce
-          </h1>
+          <Disclosure className="mt-4" />
+        </Container>
+      </Section>
 
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-7">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Why businesses consider CDG Commerce
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              Attributed to CDG&apos;s published claims — we do not invent
-              independent statistics.
-            </p>
-            <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-slate-700">
-              {cdgClaims.whyConsider.map((item) => (
-                <li key={item} className="flex gap-3">
-                  <span
-                    aria-hidden
-                    className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
-                  />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <p className="mt-6 text-lg leading-relaxed text-slate-600">
-            Choose the path that matches how you get paid. Explore mid-funnel
-            options first; request a free quote when you want numbers. Apply /
-            check eligibility stays secondary.
+      <Section band="field" rule id="business-type">
+        <Container width="article">
+          <Kicker>Step 1</Kicker>
+          <Heading level={2} className="mt-2">
+            Pick your business type
+          </Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            CDG&apos;s form uses these exact labels, so pick the one that
+            matches how you describe your business.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/cdgcommerce"
-              className="inline-flex rounded-lg bg-teal-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
-            >
-              {softCtaCopy.seeOptions}
-            </Link>
-            <TrackedAffiliateLink
-              ctaPosition="get_started_hero"
-              ctaText={softCtaCopy.getFreeQuote}
-              ctaType="soft"
-              className="inline-flex rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-            >
-              {softCtaCopy.getFreeQuote}
-            </TrackedAffiliateLink>
-          </div>
-          <p className="mt-4 text-xs text-slate-500">
-            Affiliate disclosure: ClientBilling may earn a commission if you
-            apply through our link.{" "}
-            <Link
-              href="/affiliate-disclosure"
-              className="underline underline-offset-2 hover:text-slate-700"
-            >
-              Learn more
-            </Link>
-            .
+          <ul className="mt-6 flex flex-wrap gap-2">
+            {cdgBusinessTypes.map((type) => (
+              <li key={type}>
+                <Badge tone="neutral">{type}</Badge>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </Section>
+
+      <Section rule id="volume-band">
+        <Container width="article">
+          <Kicker>Step 2</Kicker>
+          <Heading level={2} className="mt-2">
+            Find your volume band
+          </Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            CDG builds each plan around a monthly card volume. Know your band
+            before the call so you can ask for the plan that matches it.
           </p>
-        </div>
-      </section>
+          <FactRows rows={bandRows} className="mt-6" />
+          <SourceNote source={cdgSources.pricing} checked={CDG_CHECKED} className="mt-6" />
+        </Container>
+      </Section>
 
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
-        <h2 className="font-[family-name:var(--font-source-serif)] text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          Choose your path
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-          Online, In-Person, and Mobile Explore links use CDG&apos;s tracked
-          R=470 landings. Recurring &amp; Invoicing and B2B stay on ClientBilling
-          guides that end with free-quote CTAs.
-        </p>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {siteConfig.intentPaths.map((path) => {
-            const landingHref =
-              path.landingKey != null
-                ? siteConfig.partnerLandings[path.landingKey]
-                : null;
-
-            return (
-              <article
-                key={path.id}
-                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-              >
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {path.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
-                  {path.description}
-                </p>
-                <div className="mt-5 flex flex-col gap-2">
-                  {landingHref ? (
-                    <TrackedAffiliateLink
-                      href={landingHref}
-                      ctaPosition="get_started_explore"
-                      ctaText={path.exploreLabel}
-                      ctaType="mid"
-                      className="inline-flex items-center justify-center rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
-                    >
-                      {path.exploreLabel}
-                    </TrackedAffiliateLink>
-                  ) : (
-                    <Link
-                      href={path.exploreHref}
-                      className="inline-flex items-center justify-center rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
-                    >
-                      {path.exploreLabel}
-                    </Link>
-                  )}
-                  <TrackedAffiliateLink
-                    ctaPosition="get_started_card_quote"
-                    ctaText={softCtaCopy.getFreeQuote}
-                    ctaType="soft"
-                    className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-                  >
-                    {softCtaCopy.getFreeQuote}
-                  </TrackedAffiliateLink>
-                  <TrackedAffiliateLink
-                    ctaPosition="get_started_card"
-                    ctaText={softCtaCopy.checkEligibility}
-                    ctaType="eligibility"
-                    className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-xs font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-teal-800"
-                  >
-                    {softCtaCopy.checkEligibility}
-                  </TrackedAffiliateLink>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
-          <FitNotFit id="prequalify" />
-          <div className="mt-10 flex flex-wrap gap-3">
-            <TrackedAffiliateLink
-              ctaPosition="get_started_fit_quote"
-              ctaText={softCtaCopy.getFreeQuote}
-              ctaType="soft"
-              className="inline-flex rounded-lg bg-teal-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
-            >
-              {softCtaCopy.getFreeQuote}
-            </TrackedAffiliateLink>
-            <TrackedAffiliateLink
-              ctaPosition="get_started_fit_apply"
-              ctaText={softCtaCopy.applyMerchant}
-              ctaType="eligibility"
-              className="inline-flex rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-            >
-              {softCtaCopy.applyMerchant}
-            </TrackedAffiliateLink>
+      <Section band="field" rule id="channel">
+        <Container>
+          <Kicker>Step 3</Kicker>
+          <Heading level={2} className="mt-2">
+            Explore the channel you sell through
+          </Heading>
+          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
+            CDG prices online, in-person, and mobile differently. Read the
+            page for the way you take most of your cards.
+          </p>
+          <div className="mt-10 grid gap-8 sm:grid-cols-3">
+            {channels.map((channel) => (
+              <div key={channel.title}>
+                <Heading level={3}>{channel.title}</Heading>
+                <p className="mt-2 text-small text-ink-soft">{channel.body}</p>
+                <CtaButton
+                  cta={channel.cta}
+                  position="card"
+                  variant="secondary"
+                  className="mt-4"
+                />
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
+            <CtaButton cta="exploreRecurring" position="inline" variant="quiet" />
+            <CtaButton cta="exploreB2b" position="inline" variant="quiet" />
+          </div>
+        </Container>
+      </Section>
+
+      <Section rule id="fit">
+        <Container>
+          <Heading level={2}>Is CDG a fit?</Heading>
+          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
+            Check both lists before you send the form. A quote is free, but a
+            phone call is not free of your time.
+          </p>
+          <div className="mt-8 grid gap-8 sm:grid-cols-2">
+            <div>
+              <Heading level={3}>Consider CDG if</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {cdgFit.forList.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <Heading level={3}>Look elsewhere if</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {cdgFit.notForList.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section band="field" rule>
+        <Container width="article">
+          <DecisionCard
+            title="Send the quote request"
+            headingLevel={2}
+            actions={
+              <>
+                <CtaButton cta="quote" position="end" />
+                <CtaButton cta="apply" position="end" variant="quiet" />
+              </>
+            }
+          >
+            You will hear from CDG by phone with a rate sheet for your business
+            type and volume. If you have already decided, you can start the
+            application instead.
+          </DecisionCard>
+        </Container>
+      </Section>
     </>
   );
 }

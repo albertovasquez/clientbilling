@@ -58,7 +58,7 @@ export type CdgPlan = {
   source: { label: string; href: string };
 };
 
-/** The three plans as CDG publishes them. Bands are CDG's, not ours. */
+/** The three plans from CDG's pricing pages. Bands are CDG's, not ours. */
 export const cdgPlans: CdgPlan[] = [
   {
     key: "flatRate",

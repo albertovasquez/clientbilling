@@ -1,150 +1,168 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { softCtaCopy, siteConfig } from "@/lib/site";
+import {
+  Breadcrumb,
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  FactRows,
+  Heading,
+  Kicker,
+  RateLockup,
+  Section,
+  SourceNote,
+} from "@/components/ui";
+import { CDG_CHECKED, cdgCompany, cdgPlan, cdgSources } from "@/lib/cdg";
 
 export const metadata: Metadata = {
   title: "CDG Commerce for B2B Payments",
   description:
-    "When CDG Commerce may fit B2B invoicing, virtual terminal, and Level 2/3 card scenarios — then get a free quote.",
+    "When CDG Commerce may fit B2B invoicing, virtual terminal, and Level 2/3 card scenarios, then get a free quote.",
   alternates: { canonical: "/cdgcommerce/b2b" },
   openGraph: {
     title: "CDG Commerce for B2B Payments | ClientBilling",
     description:
-      "B2B invoicing, virtual terminal, and Level 2/3 scenarios with CDG Commerce — research first, then free quote.",
+      "B2B invoicing, virtual terminal, and Level 2/3 scenarios with CDG Commerce: research first, then free quote.",
     url: "/cdgcommerce/b2b",
   },
   robots: { index: true, follow: true },
 };
 
+const interchangePlus = cdgPlan("interchangePlus");
+const flatRate = cdgPlan("flatRate");
+const onlineMarkup = interchangePlus.rates.find((r) => r.label.startsWith("Online"))!;
+const nonprofitMarkup = interchangePlus.rates.find((r) => r.label.startsWith("Nonprofit"))!;
+const onlineFlat = flatRate.rates.find((r) => r.label.startsWith("Online"))!;
+
+const rates = [
+  {
+    figure: onlineMarkup.figure,
+    label: "Above interchange, invoiced and keyed",
+    detail: `Interchange plus, ${interchangePlus.bandShort.toLowerCase()}`,
+  },
+  {
+    figure: nonprofitMarkup.figure,
+    label: "Above interchange, nonprofit",
+    detail: "Interchange plus, registered nonprofits",
+  },
+  {
+    figure: onlineFlat.figure,
+    label: "Flat rate, online",
+    detail: `${flatRate.bandShort}, ${flatRate.monthlyFee}`,
+  },
+];
+
+const included = [
+  { label: "Invoicing", value: "Email an invoice with a pay link; the customer pays by card without calling you" },
+  { label: "Virtual terminal", value: "Key in a card from a browser for phone orders and purchase orders" },
+  { label: "Level 2 and 3 data", value: "Interchange plus passes the lower interchange through when your gateway sends line-item and tax data; the discount depends on card type and data quality" },
+  { label: "Gateway", value: `${cdgCompany.gateways}, included with no per-transaction gateway fee on interchange plus` },
+  { label: "Recurring billing", value: "Retainers and monthly service contracts charged on a schedule" },
+];
+
+const fits = [
+  "You invoice other businesses and want card payments on the invoice without a separate tool",
+  "Your average ticket is large and you want interchange at cost so Level 2 and 3 savings reach you",
+  "You are a nonprofit taking donations and pledges by card",
+];
+
+const notFits = [
+  "You need net terms, credit checks, or trade financing from the payments provider",
+  "You mostly collect by ACH and card is an afterthought",
+  "You are outside the U.S.",
+];
+
 export default function Page() {
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
-        <ol className="flex flex-wrap items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-teal-800">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li>
-            <Link href="/cdgcommerce" className="hover:text-teal-800">
-              CDG Commerce
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li className="text-slate-700" aria-current="page">
-            B2B payments
-          </li>
-        </ol>
-      </nav>
-
-      <header className="mt-6 border-b border-slate-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-          {siteConfig.partnerName} · B2B payments
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          CDG Commerce for B2B Payments
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          Invoicing, virtual terminal, and Level 2/3 scenarios common when
-          businesses sell to other businesses — researched on ClientBilling,
-          then a free quote when you are ready.
-        </p>
-      </header>
-
-      <div className="mt-8 space-y-5">
-        <p className="text-base leading-relaxed text-slate-600">
-          B2B payments rarely look like one-click consumer checkout. Finance
-          teams email invoices, key cards over the phone, chase purchase orders,
-          and sometimes qualify for Level 2/3 interchange when enough line-item
-          and tax data travels with the authorization.
-        </p>
-        <p className="text-base leading-relaxed text-slate-600">
-          CDG Commerce lists invoicing and virtual terminal among its merchant
-          features, alongside online acceptance and gateway options. That
-          combination can matter if you want card processing plus billed
-          receivables under one partner conversation — without inventing a
-          fake CDG &quot;B2B landing type.&quot;
-        </p>
-        <p className="text-base leading-relaxed text-slate-600">
-          Level 2/3 outcomes depend on card type, data quality, and
-          underwriting — treat them as a research topic, not a promised rate.
-          Confirm eligibility and pricing with CDG directly.
-        </p>
-      </div>
-
-      <ul className="mt-8 space-y-3 text-sm text-slate-700">
-        <li className="flex gap-3">
-          <span
-            aria-hidden
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
+    <>
+      <Section>
+        <Container width="article">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "CDG Commerce", href: "/cdgcommerce" },
+              { label: "B2B payments" },
+            ]}
           />
-          Invoicing listed by CDG among merchant features
-        </li>
-        <li className="flex gap-3">
-          <span
-            aria-hidden
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
-          />
-          Virtual terminal for keyed / remote card entry (as CDG lists)
-        </li>
-        <li className="flex gap-3">
-          <span
-            aria-hidden
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
-          />
-          Online merchant accounts and gateways CDG lists (Quantum, Authorize.Net)
-        </li>
-        <li className="flex gap-3">
-          <span
-            aria-hidden
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700"
-          />
-          Level 2/3 scenarios: research with CDG — do not assume automatic qualification
-        </li>
-      </ul>
+          <Kicker className="mt-8">Updated September 17, 2026</Kicker>
+          <Heading level={1} className="mt-2">
+            CDG Commerce for B2B payments
+          </Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            Business customers pay by emailed invoice, by card over the phone,
+            or against a purchase order, and on interchange plus the lower
+            Level 2 and 3 interchange passes through to you. This page covers
+            the rates that apply and what CDG includes for billed receivables.
+          </p>
+          <Disclosure className="mt-4" />
+        </Container>
+      </Section>
 
-      <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        Features and claims are attributed to how CDG publishes its offerings.
-        Confirm current capabilities and pricing directly with CDG.
-      </p>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>Rates that apply to invoiced and keyed sales</Heading>
+          <div className="mt-8 grid gap-8 sm:grid-cols-3">
+            {rates.map((rate) => (
+              <RateLockup key={rate.label} figure={rate.figure} label={rate.label} detail={rate.detail} />
+            ))}
+          </div>
+          <SourceNote
+            source={cdgSources.interchangePlus}
+            checked={CDG_CHECKED}
+            note="The flat rate figure is from CDG's flat rate pricing page. Interchange and network fees are separate."
+            className="mt-6"
+          />
+        </Container>
+      </Section>
 
-      <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-slate-900">
-          {softCtaCopy.getFreeQuote}
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          Ready for numbers on invoicing and virtual-terminal acceptance? Open
-          CDG&apos;s secure flow through our tracked affiliate link. Check
-          eligibility / apply remains available as a secondary hard convert.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end"
-            ctaText={softCtaCopy.getFreeQuote}
-            ctaType="soft"
-            className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+      <Section rule>
+        <Container width="article">
+          <Heading level={2}>What is included</Heading>
+          <FactRows rows={included} className="mt-6" />
+          <SourceNote source={cdgSources.about} checked={CDG_CHECKED} className="mt-4" />
+        </Container>
+      </Section>
+
+      <Section band="field" rule>
+        <Container width="article">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <Heading level={2} size="sm">Who it fits</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {fits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <Heading level={2} size="sm">Who it does not</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {notFits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section rule>
+        <Container width="article">
+          <DecisionCard
+            title="Want a B2B rate on your own ticket size?"
+            actions={
+              <>
+                <CtaButton cta="quote" position="end" />
+                <CtaButton cta="exploreOnline" position="end" variant="secondary" />
+                <CtaButton cta="apply" position="end" variant="quiet" />
+              </>
+            }
           >
-            {softCtaCopy.getFreeQuote}
-          </TrackedAffiliateLink>
-          <Link
-            href="/cdgcommerce"
-            className="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-          >
-            {softCtaCopy.seeOptions}
-          </Link>
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end_hard"
-            ctaText={softCtaCopy.checkEligibility}
-            ctaType="eligibility"
-            className="inline-flex px-2 py-2.5 text-xs font-semibold text-slate-500 underline-offset-2 hover:text-teal-800 hover:underline"
-          >
-            {softCtaCopy.checkEligibility}
-          </TrackedAffiliateLink>
-        </div>
-      </div>
-    </article>
+            Tell CDG your average invoice and how many are paid by card. Ask
+            whether your gateway setup will send Level 2 and 3 data.
+          </DecisionCard>
+        </Container>
+      </Section>
+    </>
   );
 }

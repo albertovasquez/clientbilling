@@ -8,7 +8,7 @@ type RateLockupProps = {
 
 /**
  * A published rate set large: "0.35% + $0.15" with what it applies to.
- * The memorable element on money pages. Always pair a group with a SourceNote.
+ * The memorable element on pricing pages. Always pair a group with a SourceNote.
  */
 export function RateLockup({
   figure,

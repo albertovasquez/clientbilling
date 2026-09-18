@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Container, Heading, Kicker, Section } from "@/components/ui";
+import { Container, Disclosure, Heading, Kicker, Section } from "@/components/ui";
 import { author } from "@/lib/author";
 import { getAllPosts } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
@@ -37,6 +37,7 @@ export default function AuthorPage() {
             {author.name}
           </Heading>
           <p className="mt-4 text-body text-ink-soft">{author.bio}</p>
+          <Disclosure compact className="mt-4" />
           <p className="mt-4 text-small text-muted">
             Read{" "}
             <Link href="/methodology" className="text-action underline-offset-4 hover:underline">

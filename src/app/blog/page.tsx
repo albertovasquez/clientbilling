@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
-import { AffiliateCTA } from "@/components/AffiliateCTA";
+import {
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  Heading,
+  Kicker,
+  Section,
+} from "@/components/ui";
 import { getAllPosts } from "@/lib/posts";
 
 export const metadata: Metadata = {
@@ -20,32 +28,42 @@ export default function BlogIndexPage() {
   const posts = getAllPosts();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <header className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-          Blog & reviews
+    <Section>
+      <Container width="article">
+        <Kicker>Guides</Kicker>
+        <Heading level={1} className="mt-2">
+          Guides to merchant accounts and getting paid
+        </Heading>
+        <p className="mt-4 text-body text-ink-soft">
+          Reviews, pricing explainers, and comparisons built from published
+          rate sheets, plus guides to recurring billing, invoicing, and
+          dunning. Each one tells you who a provider fits and when to look
+          elsewhere.
         </p>
-        <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          Payment processing & billing guides
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-slate-600">
-          High-intent reviews and pricing explainers first, plus practical
-          billing operations articles for growing teams.
-        </p>
-      </header>
+        <Disclosure className="mt-4" />
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <PostCard key={post.slug} post={post} />
-        ))}
-      </div>
+        <ul className="mt-10 divide-y divide-rule border-y border-rule">
+          {posts.map((post) => (
+            <li key={post.slug}>
+              <PostCard post={post} />
+            </li>
+          ))}
+        </ul>
 
-      <div className="mt-14">
-        <AffiliateCTA
-          variant="compact"
-          headline="Compare CDG Commerce pricing before you apply."
-        />
-      </div>
-    </div>
+        <DecisionCard
+          title="Start with CDG's published pricing"
+          className="mt-10"
+          actions={
+            <>
+              <CtaButton cta="compare" position="end" />
+              <CtaButton cta="quote" position="end" variant="secondary" />
+            </>
+          }
+        >
+          You can read the three plans and their markups before you talk to
+          anyone. A quote request ends in a rate sheet and a phone call.
+        </DecisionCard>
+      </Container>
+    </Section>
   );
 }

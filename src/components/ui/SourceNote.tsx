@@ -18,7 +18,7 @@ export function formatCheckedDate(iso: string): string {
   }
 }
 
-/** Attribution for numbers, once per section. Replaces inline "as CDG states". */
+/** Attribution for numbers, once per section. Replaces inline hedging. */
 export function SourceNote({ source, checked, note, className = "" }: SourceNoteProps) {
   return (
     <p className={`text-caption text-muted ${className}`}>

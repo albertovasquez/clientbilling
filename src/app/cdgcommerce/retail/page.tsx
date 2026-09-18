@@ -1,107 +1,162 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { softCtaCopy, siteConfig } from "@/lib/site";
+import {
+  Breadcrumb,
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  FactRows,
+  Heading,
+  Kicker,
+  RateLockup,
+  Section,
+  SourceNote,
+} from "@/components/ui";
+import { CDG_CHECKED, cdgCompany, cdgPlan, cdgSources } from "@/lib/cdg";
 
 export const metadata: Metadata = {
   title: "CDG Commerce Retail & POS Payments",
-  description: "When CDG Commerce retail merchant accounts and POS options may fit brick-and-mortar and hybrid sellers.",
+  description:
+    "When CDG Commerce retail merchant accounts and POS options may fit brick-and-mortar and hybrid sellers.",
   alternates: { canonical: "/cdgcommerce/retail" },
   openGraph: {
     title: "CDG Commerce Retail & POS Payments | ClientBilling",
-    description: "When CDG Commerce retail merchant accounts and POS options may fit brick-and-mortar and hybrid sellers.",
+    description:
+      "When CDG Commerce retail merchant accounts and POS options may fit brick-and-mortar and hybrid sellers.",
     url: "/cdgcommerce/retail",
   },
   robots: { index: true, follow: true },
 };
 
+const interchangePlus = cdgPlan("interchangePlus");
+const flatRate = cdgPlan("flatRate");
+const retailMarkup = interchangePlus.rates.find((r) => r.label.startsWith("Retail"))!;
+const swipedFlat = flatRate.rates.find((r) => r.label.startsWith("Swiped"))!;
+
+const rates = [
+  {
+    figure: retailMarkup.figure,
+    label: "Above interchange, in person",
+    detail: `Interchange plus, ${interchangePlus.bandShort.toLowerCase()}`,
+  },
+  {
+    figure: swipedFlat.figure,
+    label: "Flat rate, swiped and mobile",
+    detail: `${flatRate.bandShort}, ${flatRate.monthlyFee}`,
+  },
+];
+
+const included = [
+  { label: "Terminal", value: "Countertop terminal placement at $79 a year, no purchase required" },
+  { label: "Gateway", value: `${cdgCompany.gateways}, so the counter and the website share one account` },
+  { label: "Virtual terminal", value: "Key in a card from a browser for phone orders and deposits" },
+  { label: "Mobile reader", value: "A $99 card reader for sales away from the counter" },
+  { label: "Support", value: cdgCompany.support },
+];
+
+const fits = [
+  "You run a shop, a restaurant, or a service counter doing $10K a month or more",
+  "You want to know the markup on every card-present sale and check it on the statement",
+  "You also sell online and want one account, one statement, and one support number",
+];
+
+const notFits = [
+  "You need an all-in-one POS with inventory and staff scheduling from the processor itself",
+  "You process under $1K a month and want a free reader and an instant account",
+  "You are outside the U.S.",
+];
+
 export default function Page() {
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
-        <ol className="flex flex-wrap items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-teal-800">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li>
-            <Link href="/cdgcommerce" className="hover:text-teal-800">
-              CDG Commerce
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li className="text-slate-700" aria-current="page">
-            Retail
-          </li>
-        </ol>
-      </nav>
+    <>
+      <Section>
+        <Container width="article">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "CDG Commerce", href: "/cdgcommerce" },
+              { label: "Retail and POS" },
+            ]}
+          />
+          <Kicker className="mt-8">Updated September 17, 2026</Kicker>
+          <Heading level={1} className="mt-2">
+            CDG Commerce for retail and POS
+          </Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            Card-present sales carry lower interchange than online ones, and
+            CDG publishes a lower markup to match. This page covers the
+            in-person rate, the terminal placement, and who should look at a
+            packaged POS instead.
+          </p>
+          <Disclosure className="mt-4" />
+        </Container>
+      </Section>
 
-      <header className="mt-6 border-b border-slate-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-          {siteConfig.partnerName} · Retail
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          CDG Commerce Retail & POS Payments
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          When CDG Commerce retail merchant accounts and POS options may fit brick-and-mortar and hybrid sellers.
-        </p>
-      </header>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>In-person rates CDG publishes</Heading>
+          <div className="mt-8 grid gap-8 sm:grid-cols-2">
+            {rates.map((rate) => (
+              <RateLockup key={rate.label} figure={rate.figure} label={rate.label} detail={rate.detail} />
+            ))}
+          </div>
+          <SourceNote
+            source={cdgSources.interchangePlus}
+            checked={CDG_CHECKED}
+            note="The flat rate figure is from CDG's flat rate pricing page. Interchange and network fees are separate."
+            className="mt-6"
+          />
+        </Container>
+      </Section>
 
-      <div className="mt-8 space-y-5">
-          <p className="text-base leading-relaxed text-slate-600">Retail payment needs differ from pure e-commerce: counter speed, tip flows, multi-location reconciliation, and card-present rates matter. CDG Commerce publishes retail-oriented merchant options and POS / mobile capabilities for in-person acceptance.</p>
-          <p className="text-base leading-relaxed text-slate-600">CDG publishes a retail interchange-plus markup of 0.30% + $0.10 (interchange and network fees separate). Mid-volume retailers often compare that transparency against flat-rate aggregators — see our pricing explainers for framing.</p>
-          <p className="text-base leading-relaxed text-slate-600">Hybrid businesses (showroom + online) should evaluate both retail and online paths on our CDG hub before applying.</p>
-      </div>
+      <Section rule>
+        <Container width="article">
+          <Heading level={2}>What is included</Heading>
+          <FactRows rows={included} className="mt-6" />
+          <SourceNote source={cdgSources.pricing} checked={CDG_CHECKED} className="mt-4" />
+        </Container>
+      </Section>
 
-      <ul className="mt-8 space-y-3 text-sm text-slate-700">
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Retail / card-present merchant accounts (as CDG positions)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Published retail interchange-plus markup: 0.30% + $0.10 (CDG publishes; interchange separate)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />POS options for in-store acceptance (as CDG lists)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Path into mobile / wireless for floor and pop-up selling</li>
-      </ul>
+      <Section band="field" rule>
+        <Container width="article">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <Heading level={2} size="sm">Who it fits</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {fits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <Heading level={2} size="sm">Who it does not</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {notFits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </Section>
 
-      <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        Features and claims are attributed to how CDG publishes its offerings.
-        Confirm current capabilities and pricing directly with CDG.
-      </p>
-
-      <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-slate-900">
-          {softCtaCopy.getFreeQuote}
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          Prefer a soft next step? Request a free CDG quote through our tracked
-          affiliate link. Check eligibility / apply remains secondary when you
-          are ready to convert.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end"
-            ctaText={softCtaCopy.getFreeQuote}
-            ctaType="soft"
-            className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+      <Section rule>
+        <Container width="article">
+          <DecisionCard
+            title="Want the in-person rate on your own volume?"
+            actions={
+              <>
+                <CtaButton cta="quote" position="end" />
+                <CtaButton cta="exploreRetail" position="end" variant="secondary" />
+                <CtaButton cta="apply" position="end" variant="quiet" />
+              </>
+            }
           >
-            {softCtaCopy.getFreeQuote}
-          </TrackedAffiliateLink>
-          <Link
-            href="/cdgcommerce"
-            className="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-          >
-            {softCtaCopy.seeOptions}
-          </Link>
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end_hard"
-            ctaText={softCtaCopy.checkEligibility}
-            ctaType="eligibility"
-            className="inline-flex px-2 py-2.5 text-xs font-semibold text-slate-500 underline-offset-2 hover:text-teal-800 hover:underline"
-          >
-            {softCtaCopy.checkEligibility}
-          </TrackedAffiliateLink>
-        </div>
-      </div>
-    </article>
+            CDG answers with a rate sheet and a phone call. Ask about terminal
+            placement and the reader at the same time.
+          </DecisionCard>
+        </Container>
+      </Section>
+    </>
   );
 }

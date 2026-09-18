@@ -64,7 +64,7 @@ All in `src/components/ui`, imported from `@/components/ui`.
 | `Container` | width and gutter inside a Section | anything else |
 | `Heading` | all headings; `level` is semantic, `size` is visual | body text |
 | `Kicker` | one sentence-case line above a heading that carries information (updated date, section) | decorative labels, all caps |
-| `Disclosure` | directly under every page h1, and in the article header | anywhere else on the page |
+| `Disclosure` | directly under the h1 of every page that shows CDG numbers or CTAs, and in the article header (the disclosure and privacy pages are exempt) | anywhere else on the page |
 | `SourceNote` | the last line of any block that shows numbers | mid-paragraph hedging |
 | `FactRows` | facts: at a glance, fees, company details | anything with a button |
 | `RateLockup` | a published rate set large; group three or four in a grid, then a SourceNote | invented or estimated numbers |

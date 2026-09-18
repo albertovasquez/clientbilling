@@ -1,25 +1,41 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MidArticleCdgCard } from "@/components/MidArticleCdgCard";
+import Link from "next/link";
 import {
-  EndArticleCdgCta,
-  type EndArticleAngle,
-} from "@/components/EndArticleCdgCta";
-import {
-  formatPostDate,
-  getAllPostSlugs,
-  getPostBySlug,
-} from "@/lib/posts";
+  AuthorCard,
+  Badge,
+  Breadcrumb,
+  Button,
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  Heading,
+  Kicker,
+  RatingBadge,
+  Section,
+  VerdictBox,
+} from "@/components/ui";
+import { author } from "@/lib/author";
+import { cdgBestFor, cdgFit } from "@/lib/cdg";
+import { exploreCtaForTags } from "@/lib/cta";
+import { formatPostDate, getAllPostSlugs, getPostBySlug } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-function topicForTags(
-  tags: string[],
-): "pricing" | "recurring" | "invoicing" | "fees" | "gateway" | "pos" | "general" {
+type Topic =
+  | "pricing"
+  | "recurring"
+  | "invoicing"
+  | "fees"
+  | "gateway"
+  | "pos"
+  | "general";
+
+function topicForTags(tags: string[]): Topic {
   const h = tags.map((t) => t.toLowerCase()).join(" ");
   if (/\b(pricing|fees?|interchange|rate)\b/.test(h)) return "fees";
   if (/\b(recurring|subscription|dunning)\b/.test(h)) return "recurring";
@@ -30,36 +46,15 @@ function topicForTags(
   return "general";
 }
 
-function angleForTopic(
-  topic: ReturnType<typeof topicForTags>,
-): EndArticleAngle {
-  if (topic === "invoicing") return "invoicing";
-  if (topic === "recurring") return "recurring";
-  if (topic === "fees" || topic === "pricing") return "pricing";
-  if (topic === "pos") return "pos";
-  return "general";
-}
-
-function angleForSlug(
-  slug: string,
-  topic: ReturnType<typeof topicForTags>,
-): EndArticleAngle {
-  if (
-    slug.includes("invoice") ||
-    slug.includes("choosing-billing-software-for-b2b")
-  ) {
-    return "invoicing";
-  }
-  if (
-    slug.includes("dunning") ||
-    slug.includes("subscription") ||
-    slug.includes("recurring") ||
-    slug.includes("usage-based")
-  ) {
-    return "recurring";
-  }
-  return angleForTopic(topic);
-}
+const inlineTitles: Record<Topic, string> = {
+  pricing: "Check CDG's published pricing against your volume",
+  fees: "Check CDG's published markup against your volume",
+  recurring: "Run recurring billing on a CDG merchant account",
+  invoicing: "Take invoice payments through a CDG merchant account",
+  gateway: "CDG includes the gateway in its merchant account",
+  pos: "Take cards in person on a CDG merchant account",
+  general: "See what CDG would charge your business",
+};
 
 function splitHtmlAtSecondHeading(html: string): [string, string] {
   const re = /<h2[\s>]/gi;
@@ -93,7 +88,7 @@ export async function generateMetadata({
       title: post.title,
       description: post.description,
       alternates: { canonical: `/blog/${post.slug}` },
-      authors: [{ name: post.author }],
+      authors: [{ name: author.name, url: author.url }],
       robots: { index: true, follow: true },
       openGraph: {
         type: "article",
@@ -101,7 +96,8 @@ export async function generateMetadata({
         description: post.description,
         url: `/blog/${post.slug}`,
         publishedTime: post.date,
-        authors: [post.author],
+        modifiedTime: post.updated ?? post.date,
+        authors: [author.url],
         tags: post.tags,
       },
       twitter: {
@@ -126,7 +122,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const [before, after] = splitHtmlAtSecondHeading(post.contentHtml);
   const topic = topicForTags(post.tags);
-  const angle = angleForSlug(post.slug, topic);
+  const exploreKey = exploreCtaForTags(post.tags);
+  const shownDate = post.updated ?? post.date;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -134,10 +131,11 @@ export default async function BlogPostPage({ params }: PageProps) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
+    dateModified: post.updated ?? post.date,
     author: {
-      "@type": "Organization",
-      name: post.author,
-      url: siteConfig.url,
+      "@type": "Person",
+      name: author.name,
+      url: author.url,
     },
     publisher: {
       "@type": "Organization",
@@ -148,95 +146,167 @@ export default async function BlogPostPage({ params }: PageProps) {
   };
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <Section>
+      <Container width="article">
+        <article>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
 
-      <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
-        <ol className="flex flex-wrap items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-teal-800">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li>
-            <Link href="/blog" className="hover:text-teal-800">
-              Blog
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li className="truncate text-slate-700" aria-current="page">
-            {post.title}
-          </li>
-        </ol>
-      </nav>
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Guides", href: "/blog" },
+              { label: post.title },
+            ]}
+          />
 
-      <header className="mt-6 border-b border-slate-200 pb-8">
-        <h1 className="font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          {post.title}
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          {post.description}
-        </p>
-        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-          <span>{post.author}</span>
-          <span aria-hidden>·</span>
-          <time dateTime={post.date}>{formatPostDate(post.date)}</time>
-          <span aria-hidden>·</span>
-          <span>{post.readingTime}</span>
-        </div>
-        {post.tags.length > 0 && (
-          <ul className="mt-4 flex flex-wrap gap-2" aria-label="Tags">
-            {post.tags.map((tag) => (
-              <li
-                key={tag}
-                className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
-              >
-                {tag}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="mt-4 text-xs text-slate-500">
-          Affiliate disclosure: we may earn a commission from{" "}
-          {siteConfig.partnerName}.{" "}
-          <Link
-            href="/affiliate-disclosure"
-            className="underline underline-offset-2 hover:text-slate-700"
+          <header className="mt-6 border-b border-rule pb-8">
+            <Kicker>
+              <time dateTime={shownDate}>
+                {post.updated ? "Updated " : ""}
+                {formatPostDate(shownDate)}
+              </time>
+            </Kicker>
+            <Heading level={1} className="mt-2">
+              {post.title}
+            </Heading>
+            <p className="mt-4 text-body text-ink-soft">{post.description}</p>
+            <p className="mt-5 text-small text-muted">
+              <Link href={author.path} className="font-semibold text-ink hover:text-action">
+                {author.name}
+              </Link>
+              <span className="mx-2" aria-hidden>
+                /
+              </span>
+              <time dateTime={post.date}>{formatPostDate(post.date)}</time>
+              <span className="mx-2" aria-hidden>
+                /
+              </span>
+              <span>{post.readingTime}</span>
+            </p>
+            {post.tags.length > 0 ? (
+              <ul className="mt-4 flex flex-wrap gap-2" aria-label="Tags">
+                {post.tags.map((tag) => (
+                  <li key={tag}>
+                    <Badge tone="neutral">{tag}</Badge>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <Disclosure compact className="mt-4" />
+          </header>
+
+          {post.rating ? (
+            <RatingBadge
+              rating={post.rating}
+              bestFor={post.bestFor}
+              className="mt-8"
+            />
+          ) : null}
+
+          <div
+            className="prose prose-billing prose-lg mt-10 max-w-none"
+            dangerouslySetInnerHTML={{ __html: before }}
+          />
+
+          <DecisionCard
+            title={inlineTitles[topic]}
+            className="my-10"
+            actions={
+              <>
+                <CtaButton cta="quote" position="inline" articleSlug={post.slug} />
+                <CtaButton
+                  cta={exploreKey}
+                  position="inline"
+                  variant="secondary"
+                  articleSlug={post.slug}
+                />
+              </>
+            }
           >
-            Details
-          </Link>
-          .
-        </p>
-      </header>
+            CDG publishes its markups and answers a quote request with a rate
+            sheet and a phone call.
+          </DecisionCard>
 
-      <div
-        className="prose prose-billing prose-lg mt-10 max-w-none"
-        dangerouslySetInnerHTML={{ __html: before }}
-      />
+          {after ? (
+            <div
+              className="prose prose-billing prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ __html: after }}
+            />
+          ) : null}
 
-      <MidArticleCdgCard topic={topic} articleSlug={post.slug} />
+          {post.rating ? (
+            <VerdictBox
+              className="mt-10"
+              rating={post.rating}
+              bestFor={post.bestFor ?? cdgBestFor}
+              forList={[...cdgFit.forList]}
+              notForList={[...cdgFit.notForList]}
+              actions={
+                <>
+                  <CtaButton cta="quote" position="verdict" articleSlug={post.slug} />
+                  <CtaButton
+                    cta="apply"
+                    position="verdict"
+                    variant="secondary"
+                    articleSlug={post.slug}
+                  />
+                </>
+              }
+            />
+          ) : (
+            <DecisionCard
+              title="See what CDG would charge your business"
+              className="mt-10"
+              actions={
+                <>
+                  <CtaButton cta="quote" position="end" articleSlug={post.slug} />
+                  <CtaButton
+                    cta="compare"
+                    position="end"
+                    variant="secondary"
+                    articleSlug={post.slug}
+                  />
+                </>
+              }
+            >
+              You can read the three published plans first. A quote request
+              ends in a rate sheet and a phone call from CDG.
+            </DecisionCard>
+          )}
 
-      {after ? (
-        <div
-          className="prose prose-billing prose-lg max-w-none"
-          dangerouslySetInnerHTML={{ __html: after }}
-        />
-      ) : null}
+          {post.sources.length > 0 ? (
+            <div className="mt-10">
+              <Heading level={2} size="sm">
+                Sources
+              </Heading>
+              <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-small text-ink-soft">
+                {post.sources.map((source) => (
+                  <li key={source.href}>
+                    <a
+                      href={source.href}
+                      rel="noopener noreferrer"
+                      className="text-action underline-offset-2 hover:underline"
+                    >
+                      {source.label}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
 
-      <EndArticleCdgCta angle={angle} articleSlug={post.slug} />
+          <AuthorCard className="mt-10" />
 
-      <p className="mt-8 text-sm text-slate-500">
-        <Link
-          href="/blog"
-          className="font-semibold text-teal-800 hover:text-teal-700"
-        >
-          ← Back to all posts
-        </Link>
-      </p>
-    </article>
+          <p className="mt-8">
+            <Button href="/blog" variant="quiet">
+              All guides
+            </Button>
+          </p>
+        </article>
+      </Container>
+    </Section>
   );
 }
