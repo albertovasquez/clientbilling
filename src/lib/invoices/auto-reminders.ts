@@ -1,8 +1,15 @@
 import { daysPastDue } from "@/lib/invoices/aging";
+import {
+  nextAutoReminderKind,
+  type AutoReminderKind,
+} from "@/lib/invoices/auto-reminder-kinds";
 import { sendInvoiceReminder } from "@/lib/invoices/email";
 import { openStatuses } from "@/lib/invoices/status";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
+
+export type { AutoReminderKind } from "@/lib/invoices/auto-reminder-kinds";
+export { nextAutoReminderKind } from "@/lib/invoices/auto-reminder-kinds";
 
 /**
  * Opt-in automatic reminders (decision 0015). Same email body and recipient
@@ -10,23 +17,12 @@ import { recordEvent } from "@/lib/events";
  * Missed days catch up one step at a time (3 before 10).
  */
 
-export type AutoReminderKind = 3 | 10;
-
 export type AutoReminderResult = {
   invoiceId: string;
   kind?: AutoReminderKind;
   sent?: boolean;
   error?: string;
 };
-
-export function nextAutoReminderKind(
-  daysPast: number,
-  sentKinds: Set<AutoReminderKind>,
-): AutoReminderKind | null {
-  if (daysPast >= 3 && !sentKinds.has(3)) return 3;
-  if (daysPast >= 10 && !sentKinds.has(10)) return 10;
-  return null;
-}
 
 export async function runDueAutoReminders(now = new Date()): Promise<AutoReminderResult[]> {
   const candidates = await prisma.invoice.findMany({

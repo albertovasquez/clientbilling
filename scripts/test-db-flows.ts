@@ -6,7 +6,7 @@
 import { compare } from "bcryptjs";
 import { prisma } from "../src/lib/db";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
-import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminders";
+import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
 import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
 import { fetchLogoForPdf, isAllowedLogoUrl } from "../src/lib/invoices/logo";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
