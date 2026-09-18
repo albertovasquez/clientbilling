@@ -21,12 +21,12 @@ const STATIC: {
   { path: "/blog", updated: "2026-09-17", priority: 0.9, changeFrequency: "weekly" },
   { path: "/tools/fee-calculator", updated: "2026-09-18", priority: 0.9, changeFrequency: "weekly" },
   { path: "/invoices", updated: "2026-09-18", priority: 0.85, changeFrequency: "weekly" },
-  { path: "/invoices/thanks", updated: "2026-09-18", priority: 0.2, changeFrequency: "yearly" },
   { path: "/get-started", updated: "2026-09-17", priority: 0.7, changeFrequency: "monthly" },
   { path: "/methodology", updated: "2026-09-17", priority: 0.5, changeFrequency: "yearly" },
   { path: "/authors/alberto-vasquez", updated: "2026-09-17", priority: 0.4, changeFrequency: "yearly" },
   { path: "/about", updated: "2026-09-17", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/privacy", updated: "2026-09-17", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/privacy", updated: "2026-09-18", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/terms", updated: "2026-09-18", priority: 0.3, changeFrequency: "yearly" },
   { path: "/affiliate-disclosure", updated: "2026-09-17", priority: 0.4, changeFrequency: "yearly" },
 ];
 

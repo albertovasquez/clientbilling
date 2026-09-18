@@ -15,6 +15,7 @@ type Defaults = {
   state?: string;
   postalCode?: string;
   logoUrl?: string;
+  paymentInstructions?: string;
 };
 
 const initial: ActionState = {};
@@ -50,6 +51,23 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
           />
         </div>
       ))}
+      <div>
+        <label htmlFor="paymentInstructions" className={labelClass}>
+          Payment instructions (shown on every invoice)
+        </label>
+        <textarea
+          id="paymentInstructions"
+          name="paymentInstructions"
+          rows={4}
+          maxLength={2000}
+          defaultValue={defaults?.paymentInstructions ?? ""}
+          placeholder={"Example: Pay by bank transfer to First Bank, routing 000000000, account 00000000. Checks to the address above. Net 30."}
+          className={fieldClass}
+        />
+        <p className="mt-1 text-caption text-muted">
+          Free text. Do not put card numbers here; ClientBilling never collects card data.
+        </p>
+      </div>
       {state.error ? (
         <p className="text-small text-verdict" role="alert">
           {state.error}
@@ -61,7 +79,7 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
         </p>
       ) : null}
       <button type="submit" disabled={pending} className={buttonClass("primary", "lg")}>
-        {pending ? "Saving…" : "Save business profile"}
+        {pending ? "Saving" : "Save business profile"}
       </button>
     </form>
   );

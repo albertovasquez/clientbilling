@@ -29,7 +29,7 @@ export const siteConfig = {
     wireless: landingUrl("wireless", "explore-mobile"),
   } as const satisfies Record<PartnerChannel, string>,
   nav: [
-    { href: "/app/sign-up", label: "Invoices" },
+    { href: "/invoices", label: "Invoices" },
     { href: "/cdgcommerce", label: "CDG Commerce" },
     { href: "/tools/fee-calculator", label: "Fee calculator" },
     { href: "/blog", label: "Guides" },
@@ -43,7 +43,7 @@ export const siteConfig = {
     { href: "/cdgcommerce/recurring-billing", label: "Recurring billing" },
     { href: "/cdgcommerce/b2b", label: "B2B payments" },
     { href: "/get-started", label: "Get started" },
-    { href: "/app/sign-up", label: "Create an invoice" },
+    { href: "/invoices", label: "Invoice tool" },
     { href: "/tools/fee-calculator", label: "Fee calculator" },
     { href: "/blog", label: "All guides" },
     { href: "/about", label: "About" },

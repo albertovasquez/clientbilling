@@ -1,73 +1,67 @@
 import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
 import { Button, buttonClass, Heading } from "@/components/ui";
+import { flags } from "@/lib/flags";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
-  quantumConnected: boolean;
-  quantumMerchantLabel?: string | null;
+  hasPaymentInstructions: boolean;
   invoiceTotalLabel: string;
 };
 
 /**
- * Collect online never asks for card data on ClientBilling.
- * No MID: CDG apply CTA. Connected: hosted pay placeholder / settings.
+ * Merchant-facing collect panel (decision 0002). Until CDG confirms the
+ * integration, this offers the CDG application and quote, and points to the
+ * payment instructions that payers see today. No card data ever touches ClientBilling.
  */
-export function CollectOnlinePanel({
-  quantumConnected,
-  quantumMerchantLabel,
-  invoiceTotalLabel,
-}: Props) {
+export function CollectOnlinePanel({ hasPaymentInstructions, invoiceTotalLabel }: Props) {
   return (
     <section className="rounded-2xl border border-action/30 bg-action-tint p-6">
-      <Heading level={2}>Collect online</Heading>
+      <Heading level={2}>Getting paid</Heading>
       <p className="mt-2 text-small text-ink-soft">
-        Total due: {invoiceTotalLabel}. Card collection runs on CDG Commerce
-        Quantum. ClientBilling never stores card numbers and is not the merchant
-        of record. Unpaid invoices still work without payments connected.
+        Total due: {invoiceTotalLabel}. Your client sees the payment instructions from
+        your business profile on the invoice.{" "}
+        {hasPaymentInstructions ? (
+          <Button href="/app/settings" variant="quiet">
+            Edit payment instructions
+          </Button>
+        ) : (
+          <Button href="/app/settings" variant="quiet">
+            Add payment instructions
+          </Button>
+        )}
       </p>
 
-      {!quantumConnected ? (
-        <div className="mt-5 space-y-3">
+      <div className="mt-5 border-t border-action/20 pt-5">
+        <h3 className="text-small font-semibold text-ink">
+          {flags.collectOnline ? "Online card payment" : "Online card payment (planned)"}
+        </h3>
+        <p className="mt-1 text-small text-ink-soft">
+          Card payment from the invoice page is planned to run on a CDG Commerce
+          merchant account. ClientBilling will never store card numbers and is not
+          the merchant of record. If you want a merchant account ready for that day,
+          start with CDG now.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <TrackedAffiliateLink
+            href={siteConfig.quoteUrl}
+            ctaPosition="card"
+            ctaText="Get a free quote from CDG"
+            ctaType="quote"
+            className={buttonClass("primary", "md")}
+          >
+            Get a free quote from CDG
+          </TrackedAffiliateLink>
           <TrackedAffiliateLink
             href={siteConfig.affiliateSignupUrl}
             ctaPosition="card"
             ctaText="Start a CDG application"
             ctaType="apply"
-            className={buttonClass("primary", "md")}
+            className={buttonClass("secondary", "md")}
           >
             Start a CDG application
           </TrackedAffiliateLink>
-          <div>
-            <TrackedAffiliateLink
-              href={siteConfig.quoteUrl}
-              ctaPosition="card"
-              ctaText="Get a free quote from CDG"
-              ctaType="quote"
-              className={buttonClass("secondary", "md")}
-            >
-              Get a free quote from CDG
-            </TrackedAffiliateLink>
-          </div>
-          <p className="text-small text-ink-soft">
-            Already approved for Quantum?{" "}
-            <Button href="/app/settings/payments" variant="quiet">
-              Connect existing Quantum
-            </Button>
-          </p>
         </div>
-      ) : (
-        <div className="mt-5 space-y-3">
-          <p className="text-small text-ink">
-            Connected as {quantumMerchantLabel || "Quantum merchant"}. Hosted pay
-            checkout from invoices is coming soon (Quantum hosted payment URL).
-            Until then, share the public invoice link and collect outside this
-            panel, or mark paid manually after settlement.
-          </p>
-          <Button href="/app/settings/payments" variant="secondary">
-            Manage Quantum connection
-          </Button>
-        </div>
-      )}
+      </div>
     </section>
   );
 }
