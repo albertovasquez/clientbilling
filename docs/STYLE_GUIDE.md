@@ -107,6 +107,17 @@ Example of a money section:
 </Section>
 ```
 
+### App screens: shadcn/ui
+
+Screens under `/app` use shadcn/ui (decision 0011). The components are copy-in code in `src/components/shadcn` and are imported from `@/components/shadcn/<name>` (lowercase file names): `button`, `input`, `label`, `textarea`, `native-select`, `card`, `table`, `badge`, `alert`, `separator`. Add more with `npx shadcn@latest add <name>`; `components.json` already points the `ui` alias at that folder so nothing lands in `src/components/ui`.
+
+- The shadcn variables (`--primary`, `--border`, `--destructive`, and the rest) are defined in `globals.css` as references to the tokens above. There is one palette and no dark mode. Do not set a raw color on a shadcn variable.
+- `bg-muted` in upstream components was rewritten to `bg-field` because `muted` is a text color in this guide. Keep that substitution when adding or updating a component.
+- Button variants: `default` for the one primary action on a screen, `outline` for secondary actions, `ghost` for navigation and low-emphasis controls, `destructive` only for revoke, void, and delete.
+- Forms: `Label` above `Input`, `Textarea`, or `NativeSelect`, one `grid gap-1.5` wrapper per field. Errors render in `Alert variant="destructive"` with `role="alert"`; notices in `Alert` with `role="status"`.
+- Records (invoices, clients, keys, schedules, funnel steps) render in `Table`. Status words render in `Badge`. Panels render in `Card`, never nested.
+- `Heading`, `Section`, and `Container` from `@/components/ui` still set page titles and layout in the app. Marketing pages do not use shadcn.
+
 ## 4. CTA ladder
 
 Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a position; they never write button text.
@@ -238,4 +249,4 @@ Channel page (hub sub-pages)
 
 ## 9. Enforcement
 
-`npm run style:check` scans `src/` and `content/` for banned phrases, em and en dashes, raw palette classes outside `ui/`, `uppercase` with `tracking-`, and arrows. `npm run check` runs typecheck, lint, and the style check together. Run it before every commit.
+`npm run style:check` scans `src/` and `content/` for banned phrases, em and en dashes, raw palette classes outside `ui/` (the shadcn folder uses the mapped variables, so it passes), `uppercase` with `tracking-`, and arrows. `npm run check` runs typecheck, lint, and the style check together. Run it before every commit.

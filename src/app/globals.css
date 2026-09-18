@@ -145,6 +145,14 @@ body {
 }
 
 @layer base {
+  /* shadcn components use a bare `border`; default the color like upstream does.
+     Utilities such as border-rule or border-verdict-rule still win. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;

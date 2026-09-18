@@ -2,7 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteScheduleAction, runScheduleNowAction, toggleScheduleAction } from "@/app/app/recurring-actions";
 import { RecurringForm } from "@/components/app/RecurringForm";
-import { buttonClass, Heading } from "@/components/ui";
+import { Heading } from "@/components/ui";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Badge } from "@/components/shadcn/badge";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardHeader } from "@/components/shadcn/card";
+import { Separator } from "@/components/shadcn/separator";
+import { Table, TableBody, TableCell, TableRow } from "@/components/shadcn/table";
 import { prisma } from "@/lib/db";
 import { cadences, parseStoredLines } from "@/lib/invoices/recurring-dates";
 import { merchantStatusLabel } from "@/lib/invoices/status";
@@ -42,44 +48,64 @@ export default async function RecurringDetailPage({ params, searchParams }: Prop
         <div className="flex flex-wrap gap-2">
           <form action={runScheduleNowAction}>
             <input type="hidden" name="id" value={schedule.id} />
-            <button type="submit" className={buttonClass("primary", "md")}>
-              Generate next invoice now
-            </button>
+            <Button type="submit">Generate next invoice now</Button>
           </form>
           <form action={toggleScheduleAction}>
             <input type="hidden" name="id" value={schedule.id} />
-            <button type="submit" className={buttonClass("secondary", "md")}>
+            <Button type="submit" variant="outline">
               {schedule.active ? "Pause" : "Resume"}
-            </button>
+            </Button>
           </form>
         </div>
       </div>
 
       {query.error === "run" ? (
-        <p className="text-small text-verdict" role="alert">
-          The invoice could not be generated. Check that the schedule is active and has line items.
-        </p>
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>
+            The invoice could not be generated. Check that the schedule is active and has line items.
+          </AlertDescription>
+        </Alert>
       ) : null}
 
-      <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>Generated invoices</Heading>
-        {schedule.invoices.length === 0 ? (
-          <p className="mt-2 text-small text-ink-soft">None yet.</p>
-        ) : (
-          <ul className="mt-4 divide-y divide-rule">
-            {schedule.invoices.map((inv) => (
-              <li key={inv.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-small">
-                <Link href={`/app/invoices/${inv.id}`} className="font-semibold text-ink hover:text-action">
-                  Invoice #{inv.number}
-                </Link>
-                <span className="text-ink-soft">
-                  {merchantStatusLabel(inv.status)} · {formatCents(inv.totalCents, inv.currency)} · {inv.createdAt.toISOString().slice(0, 10)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <Card>
+        <CardHeader>
+          <Heading level={2}>Generated invoices</Heading>
+        </CardHeader>
+        <CardContent>
+          {schedule.invoices.length === 0 ? (
+            <p className="text-small text-ink-soft">None yet.</p>
+          ) : (
+            <Table>
+              <TableBody>
+                {schedule.invoices.map((inv) => (
+                  <TableRow key={inv.id}>
+                    <TableCell>
+                      <Link href={`/app/invoices/${inv.id}`} className="font-semibold text-ink hover:text-primary">
+                        Invoice #{inv.number}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          inv.status === "overdue"
+                            ? "destructive"
+                            : inv.status === "paid"
+                              ? "default"
+                              : "secondary"
+                        }
+                      >
+                        {merchantStatusLabel(inv.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="tabular-nums">{formatCents(inv.totalCents, inv.currency)}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">{inv.createdAt.toISOString().slice(0, 10)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       <section>
         <Heading level={2}>Edit schedule</Heading>
@@ -101,12 +127,15 @@ export default async function RecurringDetailPage({ params, searchParams }: Prop
         />
       </section>
 
-      <form action={deleteScheduleAction} className="border-t border-rule pt-6">
-        <input type="hidden" name="id" value={schedule.id} />
-        <button type="submit" className={buttonClass("quiet", "md")}>
-          Delete this schedule (generated invoices are kept)
-        </button>
-      </form>
+      <div>
+        <Separator />
+        <form action={deleteScheduleAction} className="pt-6">
+          <input type="hidden" name="id" value={schedule.id} />
+          <Button type="submit" variant="ghost">
+            Delete this schedule (generated invoices are kept)
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

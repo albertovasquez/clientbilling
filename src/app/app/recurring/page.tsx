@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { buttonClass, Heading } from "@/components/ui";
+import { Heading } from "@/components/ui";
+import { Badge } from "@/components/shadcn/badge";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/shadcn/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
 import { prisma } from "@/lib/db";
 import { cadences, parseStoredLines } from "@/lib/invoices/recurring-dates";
 import { computeInvoiceTotals, formatCents } from "@/lib/money";
@@ -24,44 +28,75 @@ export default async function RecurringListPage() {
             Schedules generate a draft each period. Turn on auto-send to email them as they are created.
           </p>
         </div>
-        <Link href="/app/recurring/new" className={buttonClass("primary", "md")}>
-          New schedule
-        </Link>
+        <Button asChild>
+          <Link href="/app/recurring/new">New schedule</Link>
+        </Button>
       </div>
 
       {schedules.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-rule bg-paper p-8">
-          <Heading level={2}>No schedules yet</Heading>
-          <p className="mt-2 text-small text-ink-soft">
-            Bill a client the same amount every week, month, quarter, or year without retyping the invoice.
-          </p>
-          <Link href="/app/recurring/new" className={`${buttonClass("primary", "md")} mt-5`}>
-            Create a schedule
-          </Link>
-        </div>
+        <Card className="mt-10">
+          <CardHeader>
+            <Heading level={2}>No schedules yet</Heading>
+            <CardDescription>
+              Bill a client the same amount every week, month, quarter, or year without retyping the invoice.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/app/recurring/new">Create a schedule</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <ul className="mt-8 divide-y divide-rule overflow-hidden rounded-2xl border border-rule bg-paper">
-          {schedules.map((s) => {
-            const totals = computeInvoiceTotals(parseStoredLines(s.linesJson), s.taxRateBps);
-            const cadence = cadences.find((c) => c.value === s.cadence)?.label ?? s.cadence;
-            return (
-              <li key={s.id}>
-                <Link href={`/app/recurring/${s.id}`} className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 hover:bg-field sm:px-6">
-                  <div>
-                    <p className="text-small font-semibold text-ink">
-                      {s.client.name} · {formatCents(totals.totalCents)} {cadence.toLowerCase()}
-                    </p>
-                    <p className="text-caption text-muted">
-                      {s.active ? `Next on ${s.nextRunAt.toISOString().slice(0, 10)}` : "Paused"} · {s._count.invoices} generated
-                      {s.autoSend ? " · auto-send on" : ""}
-                    </p>
-                  </div>
-                  <span className="text-small text-action">Open</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <Card className="mt-8">
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Next</TableHead>
+                  <TableHead>Generated</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {schedules.map((s) => {
+                  const totals = computeInvoiceTotals(parseStoredLines(s.linesJson), s.taxRateBps);
+                  const cadence = cadences.find((c) => c.value === s.cadence)?.label ?? s.cadence;
+                  return (
+                    <TableRow key={s.id}>
+                      <TableCell>
+                        <Link href={`/app/recurring/${s.id}`} className="font-semibold text-ink hover:text-primary">
+                          {s.client.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {formatCents(totals.totalCents)} {cadence.toLowerCase()}
+                      </TableCell>
+                      <TableCell>
+                        {s.active ? (
+                          <span className="text-muted-foreground">Next on {s.nextRunAt.toISOString().slice(0, 10)}</span>
+                        ) : (
+                          <Badge variant="secondary">Paused</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {s._count.invoices} generated
+                        {s.autoSend ? " · auto-send on" : ""}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link href={`/app/recurring/${s.id}`} className="text-primary underline-offset-4 hover:underline">
+                          Open
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

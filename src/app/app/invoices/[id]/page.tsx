@@ -6,7 +6,12 @@ import { InvoiceStatusActions } from "@/components/app/StatusForm";
 import { CollectOnlinePanel } from "@/components/app/CollectOnlinePanel";
 import { RemindButton } from "@/components/app/RemindButton";
 import { SendInvoiceForm } from "@/components/app/SendInvoiceForm";
-import { buttonClass, Heading } from "@/components/ui";
+import { Heading } from "@/components/ui";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardHeader } from "@/components/shadcn/card";
+import { Separator } from "@/components/shadcn/separator";
+import { Table, TableBody, TableCell, TableRow } from "@/components/shadcn/table";
 import { prisma } from "@/lib/db";
 import { merchantStatusLabel, openStatuses } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents } from "@/lib/money";
@@ -60,57 +65,68 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link
-            href={`/i/${invoice.publicId}`}
-            className={buttonClass("secondary", "md")}
-            target="_blank"
-          >
-            Public view
-          </Link>
+          <Button asChild variant="outline">
+            <Link href={`/i/${invoice.publicId}`} target="_blank">
+              Public view
+            </Link>
+          </Button>
           <CopyLinkButton url={publicUrl} />
-          <a href={`/api/invoices/${invoice.id}/pdf`} className={buttonClass("secondary", "md")}>
-            Download PDF
-          </a>
+          <Button asChild variant="outline">
+            <a href={`/api/invoices/${invoice.id}/pdf`}>Download PDF</a>
+          </Button>
         </div>
       </div>
 
-      <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>Status</Heading>
-        {cardIntent ? (
-          <p className="mt-2 text-small text-ink">
-            A client asked to pay this invoice by card on {cardIntent.createdAt.toISOString().slice(0, 10)}.
-          </p>
-        ) : null}
-        {query.error === "transition" ? (
-          <p className="mt-2 text-small text-verdict" role="alert">
-            That status change is not allowed from the invoice&apos;s current state.
-          </p>
-        ) : null}
-        <div className="mt-4">
-          <InvoiceStatusActions invoiceId={invoice.id} status={invoice.status} />
-        </div>
-        {canRemind ? (
-          <div className="mt-6 border-t border-rule pt-4">
-            <RemindButton
+      <Card>
+        <CardHeader>
+          <Heading level={2}>Status</Heading>
+        </CardHeader>
+        <CardContent>
+          {cardIntent ? (
+            <p className="text-small text-ink">
+              A client asked to pay this invoice by card on {cardIntent.createdAt.toISOString().slice(0, 10)}.
+            </p>
+          ) : null}
+          {query.error === "transition" ? (
+            <Alert variant="destructive" role="alert" className="mt-2">
+              <AlertDescription>
+                That status change is not allowed from the invoice&apos;s current state.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+          <div className="mt-4">
+            <InvoiceStatusActions invoiceId={invoice.id} status={invoice.status} />
+          </div>
+          {canRemind ? (
+            <div className="mt-6">
+              <Separator />
+              <div className="mt-4">
+                <RemindButton
+                  invoiceId={invoice.id}
+                  clientEmail={invoice.client.email}
+                  lastRemindedAt={lastReminder ? lastReminder.createdAt.toISOString().slice(0, 10) : null}
+                />
+              </div>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <Heading level={2}>Share</Heading>
+        </CardHeader>
+        <CardContent>
+          <p className="text-small text-ink-soft break-all">{publicUrl}</p>
+          <div className="mt-4">
+            <SendInvoiceForm
               invoiceId={invoice.id}
+              clientId={invoice.clientId}
               clientEmail={invoice.client.email}
-              lastRemindedAt={lastReminder ? lastReminder.createdAt.toISOString().slice(0, 10) : null}
             />
           </div>
-        ) : null}
-      </section>
-
-      <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>Share</Heading>
-        <p className="mt-2 text-small text-ink-soft break-all">{publicUrl}</p>
-        <div className="mt-4">
-          <SendInvoiceForm
-            invoiceId={invoice.id}
-            clientId={invoice.clientId}
-            clientEmail={invoice.client.email}
-          />
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       <CollectOnlinePanel
         hasPaymentInstructions={Boolean(business?.paymentInstructions?.trim())}
@@ -118,38 +134,44 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
         invoiceTotalLabel={formatCents(invoice.totalCents, invoice.currency)}
       />
 
-      <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>Line items</Heading>
-        <ul className="mt-4 divide-y divide-rule">
-          {invoice.lineItems.map((line) => (
-            <li key={line.id} className="flex justify-between gap-4 py-3 text-small">
-              <span className="text-ink">
-                {line.description}{" "}
-                <span className="text-muted">
-                  × {String(line.quantity)} @ {formatCents(line.unitPriceCents)}
-                </span>
-              </span>
-              <span className="font-semibold text-ink">
-                {formatCents(Math.round(Number(line.quantity) * line.unitPriceCents))}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <dl className="mt-4 space-y-1 text-small">
-          <div className="flex justify-between">
-            <dt className="text-muted">Subtotal</dt>
-            <dd>{formatCents(invoice.subtotalCents)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Tax ({bpsToPercentLabel(invoice.taxRateBps)})</dt>
-            <dd>{formatCents(invoice.taxCents)}</dd>
-          </div>
-          <div className="flex justify-between font-semibold">
-            <dt>Total</dt>
-            <dd>{formatCents(invoice.totalCents)}</dd>
-          </div>
-        </dl>
-      </section>
+      <Card>
+        <CardHeader>
+          <Heading level={2}>Line items</Heading>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableBody>
+              {invoice.lineItems.map((line) => (
+                <TableRow key={line.id}>
+                  <TableCell className="whitespace-normal text-ink">
+                    {line.description}{" "}
+                    <span className="text-muted">
+                      × {String(line.quantity)} @ {formatCents(line.unitPriceCents)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-semibold tabular-nums text-ink">
+                    {formatCents(Math.round(Number(line.quantity) * line.unitPriceCents))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <dl className="mt-4 space-y-1 text-small">
+            <div className="flex justify-between">
+              <dt className="text-muted">Subtotal</dt>
+              <dd>{formatCents(invoice.subtotalCents)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted">Tax ({bpsToPercentLabel(invoice.taxRateBps)})</dt>
+              <dd>{formatCents(invoice.taxCents)}</dd>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <dt>Total</dt>
+              <dd>{formatCents(invoice.totalCents)}</dd>
+            </div>
+          </dl>
+        </CardContent>
+      </Card>
 
       {editable ? (
         <section>

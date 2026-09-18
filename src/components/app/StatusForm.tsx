@@ -1,5 +1,5 @@
 import { setInvoiceStatusAction } from "@/app/app/actions";
-import { buttonClass } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
 
 type Props = {
   invoiceId: string;
@@ -13,27 +13,25 @@ export function InvoiceStatusActions({ invoiceId, status }: Props) {
         <form action={setInvoiceStatusAction}>
           <input type="hidden" name="id" value={invoiceId} />
           <input type="hidden" name="status" value="sent" />
-          <button type="submit" className={buttonClass("secondary", "md")}>
+          <Button type="submit" variant="outline">
             Mark as sent
-          </button>
+          </Button>
         </form>
       ) : null}
       {status !== "paid" && status !== "void" ? (
         <form action={setInvoiceStatusAction}>
           <input type="hidden" name="id" value={invoiceId} />
           <input type="hidden" name="status" value="paid" />
-          <button type="submit" className={buttonClass("primary", "md")}>
-            Mark as paid
-          </button>
+          <Button type="submit">Mark as paid</Button>
         </form>
       ) : null}
       {status !== "void" ? (
         <form action={setInvoiceStatusAction}>
           <input type="hidden" name="id" value={invoiceId} />
           <input type="hidden" name="status" value="void" />
-          <button type="submit" className={buttonClass("quiet", "md")}>
+          <Button type="submit" variant="ghost">
             Void
-          </button>
+          </Button>
         </form>
       ) : null}
     </div>

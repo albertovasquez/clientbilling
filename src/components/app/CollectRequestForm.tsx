@@ -3,8 +3,11 @@
 import { useActionState } from "react";
 import { requestCollectAction, type CollectRequestState } from "@/app/app/collect-actions";
 import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { buttonClass } from "@/components/ui";
-import { fieldClass, labelClass } from "@/components/app/form-styles";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
+import { NativeSelect, NativeSelectOption } from "@/components/shadcn/native-select";
 
 type Props = {
   businessTypes: readonly string[];
@@ -21,70 +24,70 @@ export function CollectRequestForm({ businessTypes, volumeBands, quoteUrl, apply
 
   if (state.ok) {
     return (
-      <div className="mt-4 space-y-3" role="status">
-        <p className="text-small text-ink">
-          Thanks. A person from ClientBilling will follow up within one business day to walk you through
-          the CDG application. If you would rather start now, the quote form takes two minutes and CDG
-          calls you back.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <TrackedAffiliateLink href={quoteUrl} ctaPosition="card" ctaText="Get a free quote from CDG" ctaType="quote" className={buttonClass("primary", "md")}>
-            Get a free quote from CDG
-          </TrackedAffiliateLink>
-          <TrackedAffiliateLink href={applyUrl} ctaPosition="card" ctaText="Start a CDG application" ctaType="apply" className={buttonClass("quiet", "md")}>
-            Start a CDG application
-          </TrackedAffiliateLink>
-        </div>
-      </div>
+      <Alert role="status" className="mt-4">
+        <AlertDescription>
+          <p>
+            Thanks. A person from ClientBilling will follow up within one business day to walk you through
+            the CDG application. If you would rather start now, the quote form takes two minutes and CDG
+            calls you back.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild>
+              <TrackedAffiliateLink href={quoteUrl} ctaPosition="card" ctaText="Get a free quote from CDG" ctaType="quote">
+                Get a free quote from CDG
+              </TrackedAffiliateLink>
+            </Button>
+            <Button asChild variant="ghost">
+              <TrackedAffiliateLink href={applyUrl} ctaPosition="card" ctaText="Start a CDG application" ctaType="apply">
+                Start a CDG application
+              </TrackedAffiliateLink>
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
     );
   }
 
   return (
     <form action={action} className="mt-4 max-w-xl space-y-4">
-      <div>
-        <label htmlFor="businessType" className={labelClass}>
-          Business type
-        </label>
-        <select id="businessType" name="businessType" required className={fieldClass} defaultValue="">
-          <option value="" disabled>
+      <div className="grid gap-1.5">
+        <Label htmlFor="businessType">Business type</Label>
+        <NativeSelect id="businessType" name="businessType" required className="w-full" defaultValue="">
+          <NativeSelectOption value="" disabled>
             Choose one
-          </option>
+          </NativeSelectOption>
           {businessTypes.map((t) => (
-            <option key={t} value={t}>
+            <NativeSelectOption key={t} value={t}>
               {t}
-            </option>
+            </NativeSelectOption>
           ))}
-        </select>
+        </NativeSelect>
       </div>
-      <div>
-        <label htmlFor="volumeBand" className={labelClass}>
-          Monthly card volume
-        </label>
-        <select id="volumeBand" name="volumeBand" required className={fieldClass} defaultValue="">
-          <option value="" disabled>
+      <div className="grid gap-1.5">
+        <Label htmlFor="volumeBand">Monthly card volume</Label>
+        <NativeSelect id="volumeBand" name="volumeBand" required className="w-full" defaultValue="">
+          <NativeSelectOption value="" disabled>
             Choose one
-          </option>
+          </NativeSelectOption>
           {volumeBands.map((b) => (
-            <option key={b} value={b}>
+            <NativeSelectOption key={b} value={b}>
               {b}
-            </option>
+            </NativeSelectOption>
           ))}
-        </select>
+        </NativeSelect>
       </div>
-      <div>
-        <label htmlFor="note" className={labelClass}>
-          Anything we should know (optional)
-        </label>
-        <input id="note" name="note" maxLength={500} className={fieldClass} placeholder="For example: we invoice monthly, average invoice $2,000" />
+      <div className="grid gap-1.5">
+        <Label htmlFor="note">Anything we should know (optional)</Label>
+        <Input id="note" name="note" maxLength={500} placeholder="For example: we invoice monthly, average invoice $2,000" />
       </div>
       {state.error ? (
-        <p className="text-small text-verdict" role="alert">
-          {state.error}
-        </p>
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
       ) : null}
-      <button type="submit" disabled={pending} className={buttonClass("primary", "md")}>
+      <Button type="submit" disabled={pending}>
         {pending ? "Sending" : "Enable card payments"}
-      </button>
+      </Button>
       <p className="text-caption text-muted">
         These are the two questions CDG asks first. Nothing is sent to CDG from this form; you apply
         with them directly. ClientBilling may earn a commission if you do; it does not change your pricing.

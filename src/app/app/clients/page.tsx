@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { deleteClientAction } from "@/app/app/actions";
-import { buttonClass, Heading } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
+import { Table, TableBody, TableCell, TableRow } from "@/components/shadcn/table";
+import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 
@@ -17,44 +19,40 @@ export default async function ClientsPage() {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <Heading level={1}>Clients</Heading>
-        <Link href="/app/clients/new" className={buttonClass("primary", "md")}>
-          Add client
-        </Link>
+        <Button asChild>
+          <Link href="/app/clients/new">Add client</Link>
+        </Button>
       </div>
       {clients.length === 0 ? (
         <p className="mt-8 text-body text-ink-soft">
           No clients yet. Add one before you create an invoice.
         </p>
       ) : (
-        <ul className="mt-8 divide-y divide-rule overflow-hidden rounded-2xl border border-rule bg-paper">
-          {clients.map((client) => (
-            <li
-              key={client.id}
-              className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6"
-            >
-              <div>
-                <p className="text-small font-semibold text-ink">{client.name}</p>
-                <p className="text-caption text-muted">
+        <Table className="mt-8">
+          <TableBody>
+            {clients.map((client) => (
+              <TableRow key={client.id}>
+                <TableCell className="font-semibold text-ink">{client.name}</TableCell>
+                <TableCell className="text-caption text-muted">
                   {[client.email, client.company].filter(Boolean).join(" · ") || "No email"}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Link
-                  href={`/app/clients/${client.id}/edit`}
-                  className={buttonClass("secondary", "md")}
-                >
-                  Edit
-                </Link>
-                <form action={deleteClientAction}>
-                  <input type="hidden" name="id" value={client.id} />
-                  <button type="submit" className={buttonClass("quiet", "md")}>
-                    Delete
-                  </button>
-                </form>
-              </div>
-            </li>
-          ))}
-        </ul>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-3">
+                    <Button asChild variant="outline">
+                      <Link href={`/app/clients/${client.id}/edit`}>Edit</Link>
+                    </Button>
+                    <form action={deleteClientAction}>
+                      <input type="hidden" name="id" value={client.id} />
+                      <Button type="submit" variant="ghost">
+                        Delete
+                      </Button>
+                    </form>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );

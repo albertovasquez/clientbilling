@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buttonClass } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
 
 export function CopyLinkButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -17,8 +17,8 @@ export function CopyLinkButton({ url }: { url: string }) {
   }
 
   return (
-    <button type="button" onClick={onCopy} className={buttonClass("secondary", "md")}>
+    <Button type="button" variant="outline" onClick={onCopy}>
       {copied ? "Copied" : "Copy public link"}
-    </button>
+    </Button>
   );
 }

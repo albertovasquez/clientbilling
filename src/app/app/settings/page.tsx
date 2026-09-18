@@ -1,4 +1,5 @@
 import { BusinessForm } from "@/components/app/BusinessForm";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
 import { Heading } from "@/components/ui";
 import { getBusinessForUser, requireUser } from "@/lib/session";
 
@@ -16,9 +17,9 @@ export default async function SettingsPage({ searchParams }: Props) {
     <div>
       <Heading level={1}>Business profile</Heading>
       {needsSetup ? (
-        <p className="mt-2 text-small text-verdict">
-          Add your business details before creating invoices.
-        </p>
+        <Alert variant="destructive" role="status" className="mt-2">
+          <AlertDescription>Add your business details before creating invoices.</AlertDescription>
+        </Alert>
       ) : (
         <p className="mt-2 text-small text-ink-soft">
           Shown on public invoices. Logo URL is optional.

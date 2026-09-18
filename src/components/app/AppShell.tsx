@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { signOutAction } from "@/app/app/actions";
-import { buttonClass } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
 import { siteConfig } from "@/lib/site";
 
 const nav = [
@@ -37,18 +37,14 @@ export function AppShell({ email, isAdmin = false, children }: Props) {
           </div>
           <nav className="flex flex-wrap items-center gap-1" aria-label="App">
             {[...nav, ...(isAdmin ? [{ href: "/app/admin/funnel", label: "Funnel" }] : [])].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-md px-2 py-2 text-small font-medium text-ink-soft hover:bg-field hover:text-ink"
-              >
-                {item.label}
-              </Link>
+              <Button key={item.href} asChild variant="ghost" size="sm">
+                <Link href={item.href}>{item.label}</Link>
+              </Button>
             ))}
             <form action={signOutAction}>
-              <button type="submit" className={buttonClass("quiet", "md", "ml-1")}>
+              <Button type="submit" variant="ghost" size="sm" className="ml-1">
                 Sign out
-              </button>
+              </Button>
             </form>
           </nav>
         </div>

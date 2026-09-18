@@ -6,8 +6,11 @@ import {
   updateClientAction,
   type ActionState,
 } from "@/app/app/actions";
-import { buttonClass } from "@/components/ui";
-import { fieldClass, labelClass } from "@/components/app/form-styles";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
+import { Textarea } from "@/components/shadcn/textarea";
 
 type Defaults = {
   id?: string;
@@ -45,40 +48,29 @@ export function ClientForm({ mode, defaults }: { mode: "create" | "edit"; defaul
           ["postalCode", "Postal code", false],
         ] as const
       ).map(([name, label, required]) => (
-        <div key={name}>
-          <label htmlFor={name} className={labelClass}>
-            {label}
-          </label>
-          <input
+        <div key={name} className="grid gap-1.5">
+          <Label htmlFor={name}>{label}</Label>
+          <Input
             id={name}
             name={name}
             type={name === "email" ? "email" : "text"}
             required={required}
             defaultValue={(defaults?.[name] as string | undefined) ?? ""}
-            className={fieldClass}
           />
         </div>
       ))}
-      <div>
-        <label htmlFor="notes" className={labelClass}>
-          Notes
-        </label>
-        <textarea
-          id="notes"
-          name="notes"
-          rows={3}
-          defaultValue={defaults?.notes ?? ""}
-          className={fieldClass}
-        />
+      <div className="grid gap-1.5">
+        <Label htmlFor="notes">Notes</Label>
+        <Textarea id="notes" name="notes" rows={3} defaultValue={defaults?.notes ?? ""} />
       </div>
       {state.error ? (
-        <p className="text-small text-verdict" role="alert">
-          {state.error}
-        </p>
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
       ) : null}
-      <button type="submit" disabled={pending} className={buttonClass("primary", "lg")}>
+      <Button type="submit" disabled={pending} size="lg">
         {pending ? "Saving…" : mode === "create" ? "Add client" : "Save client"}
-      </button>
+      </Button>
     </form>
   );
 }
