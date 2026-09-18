@@ -39,7 +39,10 @@ async function main() {
   const raw = await createResetToken(email);
   assert(raw && raw.length > 20, "token created");
   assert(!(await resetPasswordWithToken(email, "wrong-token-value-1234567890", "newpass123")), "wrong token rejected");
+  const before = await prisma.user.findUniqueOrThrow({ where: { email }, select: { sessionVersion: true } });
   assert(await resetPasswordWithToken(email, raw!, "newpass123"), "valid token resets password");
+  const afterReset = await prisma.user.findUniqueOrThrow({ where: { email }, select: { sessionVersion: true } });
+  assert(afterReset.sessionVersion === before.sessionVersion + 1, "reset bumps the session version");
   const after = await prisma.user.findUnique({ where: { email } });
   assert(after && (await compare("newpass123", after.passwordHash)), "new password hash verifies");
   assert(!(await resetPasswordWithToken(email, raw!, "again12345")), "token cannot be reused");
@@ -55,6 +58,9 @@ async function main() {
   assert(!(await allow(key, 3, 60)), "4th blocked");
   await prisma.rateLimit.update({ where: { key }, data: { resetAt: new Date(Date.now() - 1000) } });
   assert(await allow(key, 3, 60), "allowed again after window");
+  const burstKey = `burst:${Date.now()}`;
+  const burst = await Promise.all(Array.from({ length: 12 }, () => allow(burstKey, 3, 60)));
+  assert(burst.filter(Boolean).length === 3, `12 concurrent calls with limit 3 admit exactly 3 (got ${burst.filter(Boolean).length})`);
 
   // Invoice number uniqueness under concurrency
   const client = await prisma.client.create({ data: { userId: user.id, name: "C" } });

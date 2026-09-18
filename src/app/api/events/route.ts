@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { recordEvent } from "@/lib/events";
+import { allow, ipFromHeaders } from "@/lib/rate-limit";
 
 const allowedNames = new Set(["affiliate_cta_click", "calculator_complete", "payer_pay_link_click"]);
 
@@ -11,6 +12,9 @@ export async function POST(req: Request) {
     | null;
   if (!body || typeof body.name !== "string" || !allowedNames.has(body.name)) {
     return NextResponse.json({ ok: false }, { status: 400 });
+  }
+  if (!(await allow(`events:${ipFromHeaders(req.headers)}`, 60, 60))) {
+    return NextResponse.json({ ok: false }, { status: 429 });
   }
   const session = await auth().catch(() => null);
   const country = req.headers.get("x-vercel-ip-country");

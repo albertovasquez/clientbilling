@@ -32,6 +32,7 @@ model User {
   email        String   @unique
   name         String?
   passwordHash String
+  sessionVersion Int    @default(0) // bumped on password reset; tokens issued earlier are refused (decision 0020)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

@@ -36,7 +36,7 @@ First-party `Event` table (decision 0007). Server events: `signup`, `invoice_cre
 | `RESEND_API_KEY` | For email | Without it, the app offers copy link only. |
 | `RESEND_FROM` | Required with the key | Verified sender, e.g. `ClientBilling <invoices@clientbilling.com>`. |
 | `COLLECT_ONLINE` | Optional | `on` enables collect UI beyond the CDG links. Leave unset. |
-| `ADMIN_EMAILS` | Optional | Comma-separated emails allowed to view `/app/admin/funnel`. |
+| `ADMIN_EMAILS` | Optional | Comma-separated emails allowed to view `/app/admin/funnel`. Create the account first, then set the variable; listed addresses cannot self-register. |
 | `CRON_SECRET` | Yes for the overdue sweep | Vercel Cron sends it as a bearer token; the route refuses without it. |
 
 ## Ops checklist

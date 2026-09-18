@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cronAuthorized } from "@/lib/cron-auth";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 
@@ -8,9 +9,7 @@ import { recordEvent } from "@/lib/events";
  * route refuses, so it can never be triggered publicly by accident.
  */
 export async function GET(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  const header = req.headers.get("authorization") ?? "";
-  if (!secret || header !== `Bearer ${secret}`) {
+  if (!cronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!process.env.DATABASE_URL) {

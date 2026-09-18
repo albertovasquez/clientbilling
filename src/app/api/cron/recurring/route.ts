@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
+import { cronAuthorized } from "@/lib/cron-auth";
 import { runDueSchedules } from "@/lib/invoices/recurring";
 
 /** Daily recurring sweep (decision 0018). Same bearer secret as the overdue sweep. */
 export async function GET(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  const header = req.headers.get("authorization") ?? "";
-  if (!secret || header !== `Bearer ${secret}`) {
+  if (!cronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!process.env.DATABASE_URL) {

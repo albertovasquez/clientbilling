@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
+import { allow, ipFromHeaders } from "@/lib/rate-limit";
 
 /** View beacon for public invoices. Unauthenticated by design; it only records a timestamp. */
 export async function POST(req: Request) {
@@ -12,11 +13,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
+  if (!(await allow(`view:${ipFromHeaders(req.headers)}`, 60, 60))) {
+    return NextResponse.json({ ok: false }, { status: 429 });
+  }
   const invoice = await prisma.invoice.findUnique({
     where: { publicId },
     select: { id: true, userId: true, status: true, viewedAt: true },
   });
-  if (!invoice || invoice.viewedAt) return NextResponse.json({ ok: true });
+  // Drafts are private (decision 0020); a beacon for one is ignored.
+  if (!invoice || invoice.viewedAt || invoice.status === "draft") return NextResponse.json({ ok: true });
 
   await prisma.invoice.update({
     where: { id: invoice.id },

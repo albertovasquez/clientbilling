@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn, signOut } from "@/auth";
 import { createInvoice, parseDueDate, parseLines, setInvoiceStatus } from "@/lib/invoices/service";
+import { isAdminEmail } from "@/lib/admin";
 import { assertDatabase, prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { computeInvoiceTotals, percentToBps } from "@/lib/money";
@@ -59,6 +60,10 @@ export async function signUpAction(
   }
 
   const email = parsed.data.email.toLowerCase().trim();
+  // Admin addresses are created by the owner before ADMIN_EMAILS is set; nobody self-registers one (decision 0020).
+  if (isAdminEmail(email)) {
+    return { error: "This address is reserved. Sign in instead, or use a different email." };
+  }
   const passwordHash = await hash(parsed.data.password, 12);
   let userId: string;
   try {
@@ -154,7 +159,7 @@ const businessSchema = z.object({
   city: z.string().max(80).optional(),
   state: z.string().max(40).optional(),
   postalCode: z.string().max(20).optional(),
-  logoUrl: z.string().url().optional().or(z.literal("")),
+  logoUrl: z.string().url().max(500).refine((u) => u.startsWith("https://"), "Logo URL must start with https://").optional().or(z.literal("")),
   paymentInstructions: z.string().max(2000).optional(),
   payLinkUrl: z
     .string()
@@ -183,7 +188,14 @@ export async function updateBusinessAction(
   });
   if (!parsed.success) {
     const payLinkIssue = parsed.error.issues.find((i) => i.path[0] === "payLinkUrl");
-    return { error: payLinkIssue ? "The pay link must be a full https:// address." : "Check the business profile fields." };
+    const logoIssue = parsed.error.issues.find((i) => i.path[0] === "logoUrl");
+    return {
+      error: payLinkIssue
+        ? "The pay link must be a full https:// address."
+        : logoIssue
+          ? "The logo URL must be a full https:// address."
+          : "Check the business profile fields.",
+    };
   }
 
   const data = {
