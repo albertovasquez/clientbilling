@@ -35,6 +35,14 @@ export function InvoiceEditor({ mode, clients, invoiceId, defaults }: Props) {
       ? defaults.lines
       : [{ description: "", quantity: "1", unitPrice: "" }],
   );
+  const [clientChoice, setClientChoice] = useState<string>(() => {
+    if (mode !== "create") return defaults?.clientId ?? "";
+    if (clients.length === 0) return "__new__";
+    if (defaults?.clientId) return defaults.clientId;
+    return "";
+  });
+  const showNewClientFields =
+    mode === "create" && (clients.length === 0 || clientChoice === "__new__");
 
   function addLine() {
     setLines((prev) => [...prev, { description: "", quantity: "1", unitPrice: "" }]);
@@ -58,23 +66,77 @@ export function InvoiceEditor({ mode, clients, invoiceId, defaults }: Props) {
         <label htmlFor="clientId" className={labelClass}>
           Client
         </label>
-        <select
-          id="clientId"
-          name="clientId"
-          required
-          defaultValue={defaults?.clientId ?? ""}
-          className={fieldClass}
-        >
-          <option value="" disabled>
-            Select a client
-          </option>
-          {clients.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+        {mode === "edit" ? (
+          <select
+            id="clientId"
+            name="clientId"
+            required
+            defaultValue={defaults?.clientId ?? ""}
+            className={fieldClass}
+          >
+            <option value="" disabled>
+              Select a client
             </option>
-          ))}
-        </select>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        ) : clients.length > 0 ? (
+          <select
+            id="clientId"
+            name="clientId"
+            required={!showNewClientFields}
+            value={clientChoice}
+            onChange={(e) => setClientChoice(e.target.value)}
+            className={fieldClass}
+          >
+            <option value="" disabled>
+              Select a client
+            </option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+            <option value="__new__">New client…</option>
+          </select>
+        ) : (
+          <input type="hidden" name="clientId" value="" />
+        )}
       </div>
+
+      {showNewClientFields ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="newClientName" className={labelClass}>
+              Client name
+            </label>
+            <input
+              id="newClientName"
+              name="newClientName"
+              required
+              autoComplete="organization"
+              placeholder="Acme Studio"
+              className={fieldClass}
+            />
+          </div>
+          <div>
+            <label htmlFor="newClientEmail" className={labelClass}>
+              Client email (optional)
+            </label>
+            <input
+              id="newClientEmail"
+              name="newClientEmail"
+              type="email"
+              autoComplete="email"
+              placeholder="billing@example.com"
+              className={fieldClass}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

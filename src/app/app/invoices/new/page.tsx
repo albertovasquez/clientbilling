@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { InvoiceEditor } from "@/components/app/InvoiceEditor";
-import { buttonClass, Heading } from "@/components/ui";
+import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 
@@ -17,18 +16,8 @@ export default async function NewInvoicePage() {
   return (
     <div>
       <Heading level={1}>New invoice</Heading>
-      {clients.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-rule bg-paper p-6">
-          <p className="text-body text-ink-soft">
-            Add a client before you create an invoice.
-          </p>
-          <Link href="/app/clients/new" className={`${buttonClass("primary", "md")} mt-4`}>
-            Add a client
-          </Link>
-        </div>
-      ) : (
-        <InvoiceEditor mode="create" clients={clients} />
-      )}
+      <p className="mt-2 text-small text-ink-soft">Bill a new or existing client.</p>
+      <InvoiceEditor mode="create" clients={clients} />
     </div>
   );
 }

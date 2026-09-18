@@ -33,15 +33,15 @@ export default async function AppHomePage() {
         <div className="mt-10 rounded-2xl border border-rule bg-paper p-8">
           <Heading level={2}>No invoices yet</Heading>
           <p className="mt-2 text-small text-ink-soft">
-            Add a client, then create your first invoice. You can share the public
+            You can add the client while creating the invoice. Share the public
             link before payments are connected.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/app/clients/new" className={buttonClass("secondary", "md")}>
-              Add a client
-            </Link>
             <Link href="/app/invoices/new" className={buttonClass("primary", "md")}>
               Create an invoice
+            </Link>
+            <Link href="/app/clients" className={buttonClass("secondary", "md")}>
+              Manage clients
             </Link>
           </div>
         </div>

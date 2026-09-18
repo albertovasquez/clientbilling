@@ -281,11 +281,34 @@ export async function createInvoiceAction(
 ): Promise<ActionState> {
   const user = await requireUser();
   const business = await requireBusiness(user.id);
-  const clientId = String(formData.get("clientId") ?? "");
-  const client = await prisma.client.findFirst({
-    where: { id: clientId, userId: user.id },
-  });
-  if (!client) return { error: "Pick a client." };
+  const clientIdRaw = String(formData.get("clientId") ?? "").trim();
+  const useNewClient = !clientIdRaw || clientIdRaw === "__new__";
+
+  let newClient: { name: string; email: string | null } | null = null;
+  if (useNewClient) {
+    const newClientName = String(formData.get("newClientName") ?? "").trim();
+    const newClientEmailRaw = String(formData.get("newClientEmail") ?? "").trim();
+    if (!newClientName) {
+      return { error: "Enter a client name, or pick an existing client." };
+    }
+    if (newClientEmailRaw) {
+      const emailOk = z.string().email().safeParse(newClientEmailRaw);
+      if (!emailOk.success) {
+        return { error: "New client email must be a valid email address." };
+      }
+    }
+    newClient = {
+      name: newClientName,
+      email: newClientEmailRaw || null,
+    };
+  } else {
+    const existing = await prisma.client.findFirst({
+      where: { id: clientIdRaw, userId: user.id },
+    });
+    if (!existing) {
+      return { error: "Pick a client, or create a new one with a name." };
+    }
+  }
 
   const lines = parseLineItems(formData);
   if (lines.length === 0) {
@@ -300,11 +323,23 @@ export async function createInvoiceAction(
   const number = String(business.nextInvoiceNumber);
 
   const invoice = await prisma.$transaction(async (tx) => {
+    let resolvedClientId = clientIdRaw;
+    if (newClient) {
+      const createdClient = await tx.client.create({
+        data: {
+          userId: user.id,
+          name: newClient.name,
+          email: newClient.email,
+        },
+      });
+      resolvedClientId = createdClient.id;
+    }
+
     const created = await tx.invoice.create({
       data: {
         publicId,
         userId: user.id,
-        clientId: client.id,
+        clientId: resolvedClientId,
         number,
         status: "draft",
         dueDate: dueRaw ? new Date(dueRaw) : null,
@@ -332,6 +367,7 @@ export async function createInvoiceAction(
   });
 
   revalidatePath("/app");
+  revalidatePath("/app/clients");
   redirect(`/app/invoices/${invoice.id}`);
 }
 
