@@ -11,6 +11,13 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum RecurringCadence {
+  weekly
+  monthly
+  quarterly
+  yearly
+}
+
 enum InvoiceStatus {
   draft
   sent
@@ -34,6 +41,7 @@ model User {
   accounts Account[]
   sessions Session[]
   apiKeys  ApiKey[]
+  schedules RecurringSchedule[]
 }
 
 model Account {
@@ -122,6 +130,7 @@ model Client {
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   invoices Invoice[]
+  schedules RecurringSchedule[]
 
   @@index([userId])
 }
@@ -145,11 +154,13 @@ model Invoice {
   viewedAt       DateTime?
   paidAt         DateTime?
   voidedAt       DateTime?
+  recurringScheduleId String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
   user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   client    Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  schedule  RecurringSchedule? @relation(fields: [recurringScheduleId], references: [id], onDelete: SetNull)
   lineItems InvoiceLineItem[]
   events    InvoiceEvent[]
 
@@ -157,6 +168,32 @@ model Invoice {
   @@index([userId])
   @@index([clientId])
   @@index([status])
+  @@index([recurringScheduleId])
+}
+
+/// Recurring invoice schedules (decision 0018). linesJson holds NewLine[] as JSON.
+model RecurringSchedule {
+  id         String            @id @default(cuid())
+  userId     String
+  clientId   String
+  cadence    RecurringCadence  @default(monthly)
+  nextRunAt  DateTime
+  dueInDays  Int               @default(14)
+  taxRateBps Int               @default(0)
+  notes      String?           @db.Text
+  linesJson  String            @db.Text
+  autoSend   Boolean           @default(false)
+  active     Boolean           @default(true)
+  lastRunAt  DateTime?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  invoices Invoice[]
+
+  @@index([userId])
+  @@index([active, nextRunAt])
 }
 
 model InvoiceLineItem {

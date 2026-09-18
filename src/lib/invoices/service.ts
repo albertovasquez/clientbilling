@@ -45,7 +45,8 @@ export type CreateInvoiceInput = {
   taxRateBps: number;
   dueDate: Date | null;
   notes: string | null;
-  source: "app" | "api";
+  source: "app" | "api" | "recurring";
+  recurringScheduleId?: string | null;
 };
 
 export type CreateInvoiceResult = { ok: true; invoice: Invoice } | { ok: false; error: string; status: number };
@@ -101,6 +102,7 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreateIn
             sortOrder: index,
           })),
         },
+        recurringScheduleId: input.recurringScheduleId ?? null,
         events: { create: { type: "created", meta: input.source } },
       },
     });
