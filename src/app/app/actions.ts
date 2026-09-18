@@ -157,6 +157,11 @@ const businessSchema = z.object({
   postalCode: z.string().max(20).optional(),
   logoUrl: z.string().url().optional().or(z.literal("")),
   paymentInstructions: z.string().max(2000).optional(),
+  payLinkUrl: z
+    .string()
+    .max(500)
+    .refine((v) => v === "" || /^https:\/\/[^\s]+$/i.test(v), "Pay link must start with https://")
+    .optional(),
 });
 
 export async function updateBusinessAction(
@@ -175,9 +180,11 @@ export async function updateBusinessAction(
     postalCode: formData.get("postalCode") || undefined,
     logoUrl: formData.get("logoUrl") || "",
     paymentInstructions: formData.get("paymentInstructions") || undefined,
+    payLinkUrl: String(formData.get("payLinkUrl") ?? "").trim(),
   });
   if (!parsed.success) {
-    return { error: "Check the business profile fields." };
+    const payLinkIssue = parsed.error.issues.find((i) => i.path[0] === "payLinkUrl");
+    return { error: payLinkIssue ? "The pay link must be a full https:// address." : "Check the business profile fields." };
   }
 
   const data = {
@@ -191,6 +198,7 @@ export async function updateBusinessAction(
     postalCode: parsed.data.postalCode?.trim() || null,
     logoUrl: parsed.data.logoUrl?.trim() || null,
     paymentInstructions: parsed.data.paymentInstructions?.trim() || null,
+    payLinkUrl: parsed.data.payLinkUrl?.trim() || null,
   };
 
   await prisma.businessProfile.upsert({

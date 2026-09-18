@@ -89,6 +89,9 @@ model BusinessProfile {
   /// Shown to payers in the Pay section of the public invoice (decision 0008).
   paymentInstructions String? @db.Text
 
+  /// Merchant-provided hosted payment page, shown as Pay online (decision 0014). https only.
+  payLinkUrl String?
+
   // Quantum connection fields are unused until decision 0002 is revisited.
   // Never store gateway passwords or RestrictKeys.
   quantumConnected     Boolean @default(false)

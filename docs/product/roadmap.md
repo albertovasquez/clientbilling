@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-brief.md`. Each item lists agent-operability (can an agent do it through UI, API, or runbook without improvising policy) and the CDG dependency. Items marked "CDG" cannot start until `docs/mission/affiliate-cdg.md` shows questions 1 and 2 answered.
+Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-brief.md`. Each item lists agent-operability (can an agent do it through UI, API, or runbook without improvising policy) and the CDG dependency. Per decision 0014, nothing is asked of CDG; items that would need a CDG integration are not on the roadmap.
 
 ## P0: next four to six weeks
 
@@ -17,7 +17,7 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 
 | Item | Why | Agent-operable | CDG dependency |
 | --- | --- | --- | --- |
-| Quantum pay link on `/i/*` | The product. Hosted pay page for the merchant's own account with amount and invoice reference; payment status by post-back. No card data on our origin. | Yes once built. | CDG (method, permission, sandbox). |
+| Merchant-provided pay link on `/i/*` (shipped 2026-09-18) | The merchant pastes their own hosted payment page; unpaid invoices show Pay online. No integration, no card data, no claims (decision 0014). | Yes. | None. |
 | Recurring invoices | Service businesses bill monthly. Schedules generate drafts; the merchant approves or auto-sends. | Yes. | None. |
 | Partial payments and payment records | Record deposits, installments, and offline payments against an invoice; balance due on the document. | Yes. | None. |
 | Credit notes and voids with reason | Corrections without deleting history. | Yes. | None. |

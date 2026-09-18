@@ -16,6 +16,7 @@ type Defaults = {
   postalCode?: string;
   logoUrl?: string;
   paymentInstructions?: string;
+  payLinkUrl?: string;
 };
 
 const initial: ActionState = {};
@@ -66,6 +67,26 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
         />
         <p className="mt-1 text-caption text-muted">
           Free text. Do not put card numbers here; ClientBilling never collects card data.
+        </p>
+      </div>
+      <div>
+        <label htmlFor="payLinkUrl" className={labelClass}>
+          Online payment link (optional)
+        </label>
+        <input
+          id="payLinkUrl"
+          name="payLinkUrl"
+          type="url"
+          inputMode="url"
+          maxLength={500}
+          placeholder="https://"
+          defaultValue={defaults?.payLinkUrl ?? ""}
+          className={fieldClass}
+        />
+        <p className="mt-1 text-caption text-muted">
+          If you already have a hosted payment page, for example from your CDG Commerce Quantum
+          account or another pay link you use, paste it here. It appears as a Pay online button on
+          unpaid invoices. Card details are entered on that page, never on ClientBilling.
         </p>
       </div>
       {state.error ? (

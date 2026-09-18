@@ -13,7 +13,7 @@ Owner: founder for terms, residuals, and permitted claims. Agents may update lin
 | Branding or claim restrictions from CDG? | None found published as of 2026-09-17. Asked as question 4. | Research report, `docs/research/2026-09-17-traffic-gap-report.md`. |
 | Sandbox credentials contact? | Open. Question 5. | Same. |
 
-Until questions 1 and 2 are answered yes in writing, `COLLECT_ONLINE` stays off (decision 0002) and no engineering goes into the pay path.
+Per decision 0014 (2026-09-18), these questions are not being asked. There is no integration with CDG or Quantum, no residual is claimed, and merchants paste their own pay link. `COLLECT_ONLINE` stays off.
 
 ## Allowed destinations
 
