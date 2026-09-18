@@ -39,7 +39,7 @@ Everything below is ordered by expected payoff for effort.
 
 | Item | Status | Action |
 | --- | --- | --- |
-| Per-post OG image | Only a site-wide `opengraph-image.tsx` | Add `app/blog/[slug]/opengraph-image.tsx` with the title, score if any, and site mark. |
+| Per-post OG image | Done 2026-09-17: `app/blog/[slug]/opengraph-image.tsx` renders title, score if any, byline, and site mark. | None. |
 | Organization JSON-LD | Missing | Add to the root layout with `logo`, `url`, `sameAs`. |
 | BreadcrumbList JSON-LD | Missing (visual breadcrumb exists on posts) | Add on posts and channel pages. |
 | Article JSON-LD | Present, org author only, no `dateModified` | Add `dateModified` and an author URL. |
@@ -54,7 +54,7 @@ Everything below is ordered by expected payoff for effort.
 The current instrumentation only logs to the console and pushes to `window.dataLayer`, and no tag manager is loaded. Recommended lean stack:
 
 - Google Search Console for queries and impressions.
-- Plausible (or Umami if self-hosting) for pageviews and outbound clicks. Plausible's outbound-links extension captures external clicks automatically; send `position`, `cta_type`, and `slug` as custom props from the existing `trackAffiliateClick`.
+- Plausible (or Umami if self-hosting) for pageviews and outbound clicks. Done 2026-09-17: the layout loads Plausible with the outbound-links extension when `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` is set, and `trackAffiliateClick` sends `affiliate_cta_click` with page, position, type, label, and slug as props. Remaining: create the Plausible site and set the variable in Vercel.
 - Append a `ref=<slug>-<position>` parameter to outbound CDG URLs so CDG's agent reporting can be matched back to pages.
 - Scroll depth at 50% and 90% on posts.
 

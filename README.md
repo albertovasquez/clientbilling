@@ -28,6 +28,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | --- | --- | --- |
 | `NEXT_PUBLIC_AFFILIATE_SIGNUP_URL` | Optional | "Start a CDG application". CDG's secure merchant application, agent 470. |
 | `NEXT_PUBLIC_CDG_QUOTE_URL` | Optional | "Get a free quote from CDG". CDG's quote form (`/applynow/?R=470`). |
+| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Optional | Set to `clientbilling.com` to load Plausible with outbound-link tracking. Unset means no analytics script. |
 
 Defaults for both are in `src/lib/site.ts`. The explore CTAs use CDG's agent-attributed solution pages (`my_landing/?R=470&type=...`), also in `site.ts`.
 
@@ -43,7 +44,7 @@ Every button label and destination comes from `src/lib/cta.ts`. Pages render `Ct
 | apply | Start a CDG application | CDG secure application |
 | explore* | Explore CDG online / in-person / mobile payments, or an internal guide | CDG solution pages or internal |
 
-Clicks on outbound rungs fire `affiliate_cta_click` (see `src/lib/affiliate-track.ts`) with page, position, type, and label.
+Clicks on outbound rungs fire `affiliate_cta_click` (see `src/lib/affiliate-track.ts`) with page, position, type, and label. The event goes to a DOM `CustomEvent`, `window.dataLayer`, and Plausible as a custom event when the script is loaded.
 
 ## Facts about CDG
 

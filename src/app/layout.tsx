@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
+import Script from "next/script";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { author } from "@/lib/author";
@@ -61,6 +62,9 @@ export const metadata: Metadata = {
   },
 };
 
+/** Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to load Plausible with outbound-link tracking. */
+const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -96,6 +100,14 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        {plausibleDomain ? (
+          <Script
+            defer
+            data-domain={plausibleDomain}
+            src="https://plausible.io/js/script.outbound-links.js"
+            strategy="afterInteractive"
+          />
+        ) : null}
       </body>
     </html>
   );
