@@ -1,82 +1,127 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Container, FactRows, Heading, Kicker, Section } from "@/components/ui";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "Privacy stub for ClientBilling — how we think about analytics, cookies, and affiliate links.",
+    "How ClientBilling handles server logs, analytics, cookies, and affiliate links.",
   alternates: { canonical: "/privacy" },
 };
 
+const link = "text-action underline-offset-4 hover:underline";
+
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <header>
-        <h1 className="font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          Privacy
-        </h1>
-        <p className="mt-3 text-sm text-slate-500">
-          Stub policy for MVP launch. Replace with counsel-reviewed language
-          before collecting personal data at scale.
-        </p>
-      </header>
+    <>
+      <Section>
+        <Container width="article">
+          <Kicker>Updated September 17, 2026</Kicker>
+          <Heading level={1} className="mt-2">
+            Privacy
+          </Heading>
+          <p className="mt-6 text-body text-ink-soft">
+            {siteConfig.name} ({siteConfig.domain}) is an editorial site about
+            merchant accounts and billing. It collects very little about you,
+            and this page says exactly what. It is a starting policy, and we
+            will have counsel review it before the site collects personal data
+            at any scale.
+          </p>
+        </Container>
+      </Section>
 
-      <div className="prose prose-billing prose-lg mt-8 max-w-none">
-        <p>
-          {siteConfig.name} ({siteConfig.domain}) is an editorial site about
-          customer billing best practices. This page is a transparent stub for
-          the MVP.
-        </p>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>What we collect</Heading>
+          <FactRows
+            className="mt-6"
+            rows={[
+              {
+                label: "Server logs",
+                value:
+                  "Our hosting provider records the standard request log: IP address, user agent, and the path you requested.",
+              },
+              {
+                label: "Analytics",
+                value:
+                  "None today. If we enable page view and referrer measurement later, we will update this page when that happens.",
+              },
+              {
+                label: "Email",
+                value:
+                  "Whatever you choose to send us if you contact us directly.",
+              },
+            ]}
+          />
+        </Container>
+      </Section>
 
-        <h2>What we collect (typical for this stack)</h2>
-        <ul>
-          <li>
-            Standard server and hosting logs (IP address, user agent, request
-            path) as provided by our hosting provider
-          </li>
-          <li>
-            Optional analytics, if enabled later (page views, referrers)—we will
-            update this page when that happens
-          </li>
-          <li>
-            Information you voluntarily email us, if you contact us directly
-          </li>
-        </ul>
+      <Section rule>
+        <Container width="article">
+          <Heading level={2}>What we do not do</Heading>
+          <FactRows
+            className="mt-6"
+            rows={[
+              {
+                label: "Accounts",
+                value: "No user accounts or sign-in on this site.",
+              },
+              {
+                label: "Billing data",
+                value:
+                  "No customer billing database. Your merchant application goes to CDG Commerce, not to us.",
+              },
+              {
+                label: "Selling data",
+                value: "We do not sell personal information.",
+              },
+            ]}
+          />
+        </Container>
+      </Section>
 
-        <h2>What we do not do in this MVP</h2>
-        <ul>
-          <li>No user accounts or authentication</li>
-          <li>No customer billing database on this site</li>
-          <li>No sale of personal information as a business model</li>
-        </ul>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>Cookies</Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            The site sets no first-party marketing cookies. Hosting and
+            security tooling may set strictly necessary cookies, and any future
+            analytics tool may set measurement cookies. We will list them here
+            when they are introduced.
+          </p>
+        </Container>
+      </Section>
 
-        <h2>Affiliate links</h2>
-        <p>
-          Outbound links to CDG Commerce merchant application pages may include
-          affiliate tracking parameters controlled by the partner. See our{" "}
-          <Link href="/affiliate-disclosure">Affiliate Disclosure</Link> for
-          how those relationships work.
-        </p>
+      <Section rule>
+        <Container width="article">
+          <Heading level={2}>Affiliate links</Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            Outbound links to CDG Commerce carry parameters that tell CDG the
+            application came from ClientBilling. CDG controls what it records
+            on its own pages. The{" "}
+            <Link href="/affiliate-disclosure" className={link}>
+              affiliate disclosure
+            </Link>{" "}
+            explains how that relationship works and what it does not change.
+          </p>
+        </Container>
+      </Section>
 
-        <h2>Cookies</h2>
-        <p>
-          The MVP does not set first-party marketing cookies. Hosting,
-          security, or future analytics tooling may set strictly necessary or
-          measurement cookies; we will document them here when introduced.
-        </p>
-
-        <h2>Contact</h2>
-        <p>
-          For privacy questions about {siteConfig.domain}, contact the site
-          operator once a production contact address is published. This stub
-          will be replaced with a full policy as the product matures.
-        </p>
-
-        <p className="text-sm text-slate-500">
-          Last updated: September 17, 2026
-        </p>
-      </div>
-    </div>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>Contact</Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            For privacy questions about {siteConfig.domain}, contact the site
+            operator through the address we will publish on the{" "}
+            <Link href="/about" className={link}>
+              about
+            </Link>{" "}
+            page once one is set up. This policy will be replaced with a full
+            one as the site grows.
+          </p>
+        </Container>
+      </Section>
+    </>
   );
 }

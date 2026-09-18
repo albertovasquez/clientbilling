@@ -1,15 +1,21 @@
 ---
 title: "Best Payment Processor for Recurring Billing"
-description: "Editorial buyer’s guide to processors and stacks for subscriptions and repeat charges — with CDG Commerce as one option among several approaches."
+description: "Editorial buyer’s guide to processors and stacks for subscriptions and repeat charges, with CDG Commerce as one option among several approaches."
 date: "2026-09-12"
-author: "ClientBilling"
+updated: "2026-09-17"
+author: "alberto-vasquez"
 tags: ["recurring billing", "subscriptions", "payment processing", "CDG Commerce"]
 featured: false
+sources:
+  - label: "CDG Commerce pricing"
+    href: "https://www.cdgcommerce.com/pricing/"
+  - label: "Merchant Maverick review"
+    href: "https://www.merchantmaverick.com/reviews/cdgcommerce-review/"
 ---
 
 There is no single “best” processor for every subscription business. Recurring billing success depends on **retry logic**, **customer communication**, **tax**, and **entitlements** as much as the acquiring bank behind the card charge.
 
-This guide frames options editorially. CDG Commerce is one partner we cover as an affiliate; other approaches remain valid.
+This guide frames the options. CDG Commerce is one of them; other approaches remain valid.
 
 ## What “recurring” actually requires
 
@@ -30,13 +36,13 @@ A merchant account that can run recurring charges is necessary but not sufficien
    More control; more integration work.
 
 3. **Merchant account with built-in recurring features**  
-   CDG lists recurring billing among its merchant features — useful when your subscription model is straightforward.
+   CDG includes recurring billing among its merchant features, which is useful when your subscription model is straightforward.
 
 ## Where CDG may fit
 
-If you want a dedicated merchant account and CDG’s listed recurring capability is enough for monthly/annual plans, retainers, or memberships, shortlist them — especially if you also need online gateways or invoicing CDG lists.
+If you want a dedicated merchant account and CDG’s recurring billing is enough for monthly or annual plans, retainers, or memberships, shortlist them, especially if you also need an online gateway or invoicing from the same account.
 
-If you need sophisticated usage metering and entitlement graphs, you may still pair CDG (or another acquirer) with specialized billing software — or stay on a platform that owns that layer.
+If you need sophisticated usage metering and entitlement graphs, you may still pair CDG (or another acquirer) with specialized billing software, or stay on a platform that owns that layer.
 
 ## Evaluation checklist
 
@@ -44,7 +50,7 @@ If you need sophisticated usage metering and entitlement graphs, you may still p
 - Customer portal for payment method updates
 - Tax and currency needs
 - Chargeback workflow
-- Contract terms (CDG states no mandatory long-term contract / no termination fee — confirm on your offer)
+- Contract terms (Merchant Maverick reports CDG is month to month with no early termination fee; confirm on your offer)
 
 ## Next reading
 

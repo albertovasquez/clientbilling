@@ -1,88 +1,73 @@
 import Link from "next/link";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { softCtaCopy, siteConfig } from "@/lib/site";
+import { CtaButton } from "@/components/ui";
+import { author } from "@/lib/author";
+import { siteConfig } from "@/lib/site";
 
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <footer className="mt-auto border-t border-rule bg-field">
+      <div className="mx-auto max-w-page px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           <div className="sm:col-span-2 lg:col-span-1">
-            <p className="text-base font-semibold text-slate-900">
+            <p className="font-display text-display-sm font-semibold text-ink">
               {siteConfig.name}
             </p>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-600">
+            <p className="mt-2 max-w-sm text-small text-ink-soft">
               Independent guides to merchant accounts, processing costs, and
-              billing operations. We may earn a commission when you apply
-              through our {siteConfig.partnerName} affiliate links.
+              billing operations, written by{" "}
+              <Link href={author.path} className="text-action underline-offset-4 hover:underline">
+                {author.name}
+              </Link>
+              . We may earn a commission when you apply to CDG Commerce through
+              our links.
             </p>
           </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Explore
-            </p>
+            <p className="text-small font-semibold text-ink">Guides</p>
             <ul className="mt-3 space-y-2">
               {siteConfig.footerNav.map((item) => (
                 <li key={item.href + item.label}>
                   <Link
                     href={item.href}
-                    className="text-sm text-slate-700 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    className="text-small text-ink-soft hover:text-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
                   >
                     {item.label}
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href="/methodology" className="text-small text-ink-soft hover:text-action">
+                  How we score
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Partner · {siteConfig.partnerName}
+            <p className="text-small font-semibold text-ink">Ready for numbers?</p>
+            <p className="mt-3 text-small text-ink-soft">
+              CDG answers a quote request with a phone call and a rate sheet.
+              Compare the published pricing first if you want context.
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              Compare pricing and features on our CDG Commerce guide, then check
-              eligibility when you are ready.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link
-                href="/cdgcommerce"
-                className="inline-flex rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
-              >
-                {softCtaCopy.seePricing}
-              </Link>
-              <TrackedAffiliateLink
-                ctaPosition="footer"
-                ctaText={softCtaCopy.checkEligibility}
-                ctaType="footer"
-                className="inline-flex rounded-lg bg-teal-800 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-              >
-                {softCtaCopy.checkEligibility}
-              </TrackedAffiliateLink>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <CtaButton cta="quote" position="footer" variant="secondary" />
+              <CtaButton cta="apply" position="footer" variant="quiet" />
             </div>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-slate-200 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-6 text-small text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {year} {siteConfig.name}. All rights reserved.
+            &copy; {year} {siteConfig.name}. All rights reserved.
           </p>
-          <p>
-            <Link
-              href="/affiliate-disclosure"
-              className="underline-offset-2 hover:text-slate-700 hover:underline"
-            >
+          <p className="flex flex-wrap gap-x-4">
+            <Link href="/affiliate-disclosure" className="underline-offset-2 hover:text-ink hover:underline">
               Affiliate disclosure
             </Link>
-            <span aria-hidden className="mx-2">
-              ·
-            </span>
-            <Link
-              href="/privacy"
-              className="underline-offset-2 hover:text-slate-700 hover:underline"
-            >
+            <Link href="/privacy" className="underline-offset-2 hover:text-ink hover:underline">
               Privacy
             </Link>
           </p>

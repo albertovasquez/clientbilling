@@ -1,107 +1,162 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { softCtaCopy, siteConfig } from "@/lib/site";
+import {
+  Breadcrumb,
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  FactRows,
+  Heading,
+  Kicker,
+  RateLockup,
+  Section,
+  SourceNote,
+} from "@/components/ui";
+import { CDG_CHECKED, cdgCompany, cdgPlan, cdgSources } from "@/lib/cdg";
 
 export const metadata: Metadata = {
   title: "CDG Commerce Recurring Billing",
-  description: "How CDG Commerce lists recurring billing for subscriptions and repeat charges — and when to compare alternatives.",
+  description:
+    "How CDG Commerce lists recurring billing for subscriptions and repeat charges, and when to compare alternatives.",
   alternates: { canonical: "/cdgcommerce/recurring-billing" },
   openGraph: {
     title: "CDG Commerce Recurring Billing | ClientBilling",
-    description: "How CDG Commerce lists recurring billing for subscriptions and repeat charges — and when to compare alternatives.",
+    description:
+      "How CDG Commerce lists recurring billing for subscriptions and repeat charges, and when to compare alternatives.",
     url: "/cdgcommerce/recurring-billing",
   },
   robots: { index: true, follow: true },
 };
 
+const interchangePlus = cdgPlan("interchangePlus");
+const flatRate = cdgPlan("flatRate");
+const onlineMarkup = interchangePlus.rates.find((r) => r.label.startsWith("Online"))!;
+const onlineFlat = flatRate.rates.find((r) => r.label.startsWith("Online"))!;
+
+const rates = [
+  {
+    figure: onlineMarkup.figure,
+    label: "Above interchange, each scheduled charge",
+    detail: `Interchange plus, ${interchangePlus.bandShort.toLowerCase()}`,
+  },
+  {
+    figure: onlineFlat.figure,
+    label: "Flat rate, each scheduled charge",
+    detail: `${flatRate.bandShort}, ${flatRate.monthlyFee}`,
+  },
+];
+
+const included = [
+  { label: "Recurring billing", value: "Store a card once and charge it on a schedule you set" },
+  { label: "Invoicing", value: "Email an invoice with a pay link and let the customer pay it by card" },
+  { label: "Gateway", value: `${cdgCompany.gateways}, included with no per-transaction gateway fee on interchange plus` },
+  { label: "Virtual terminal", value: "Key in a card for a one-off charge or a retainer top-up" },
+  { label: "Integrations", value: `${cdgCompany.integrations} through the gateway` },
+];
+
+const fits = [
+  "You bill memberships, retainers, or a simple plan catalog and want the charges on a merchant account you control",
+  "You process $10K a month or more and want the scheduled charges priced at a published markup",
+  "You want invoicing and recurring charges from the same account as your one-time sales",
+];
+
+const notFits = [
+  "You need usage metering, proration, and entitlement logic from the billing system itself",
+  "You process under $1K a month and want a free subscription tool with an instant account",
+  "You are outside the U.S.",
+];
+
 export default function Page() {
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
-        <ol className="flex flex-wrap items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-teal-800">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li>
-            <Link href="/cdgcommerce" className="hover:text-teal-800">
-              CDG Commerce
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li className="text-slate-700" aria-current="page">
-            Recurring billing
-          </li>
-        </ol>
-      </nav>
+    <>
+      <Section>
+        <Container width="article">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "CDG Commerce", href: "/cdgcommerce" },
+              { label: "Recurring billing" },
+            ]}
+          />
+          <Kicker className="mt-8">Updated September 17, 2026</Kicker>
+          <Heading level={1} className="mt-2">
+            CDG Commerce for recurring billing
+          </Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            Recurring billing is where processing meets retention: stored
+            cards, failed charges, and plan changes. CDG runs scheduled charges
+            through its gateway, and each one is priced at the online rate, so
+            the numbers below are the numbers that apply.
+          </p>
+          <Disclosure className="mt-4" />
+        </Container>
+      </Section>
 
-      <header className="mt-6 border-b border-slate-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-          {siteConfig.partnerName} · Recurring billing
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          CDG Commerce Recurring Billing
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          How CDG Commerce lists recurring billing for subscriptions and repeat charges — and when to compare alternatives.
-        </p>
-      </header>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>What a scheduled charge costs</Heading>
+          <div className="mt-8 grid gap-8 sm:grid-cols-2">
+            {rates.map((rate) => (
+              <RateLockup key={rate.label} figure={rate.figure} label={rate.label} detail={rate.detail} />
+            ))}
+          </div>
+          <SourceNote
+            source={cdgSources.interchangePlus}
+            checked={CDG_CHECKED}
+            note="The flat rate figure is from CDG's flat rate pricing page. Interchange and network fees are separate."
+            className="mt-6"
+          />
+        </Container>
+      </Section>
 
-      <div className="mt-8 space-y-5">
-          <p className="text-base leading-relaxed text-slate-600">Recurring billing is where payment processing meets retention operations: failed cards, dunning, proration, and plan changes. CDG Commerce lists recurring billing among its merchant features, which can matter if you want card processing and subscription charging under one partner conversation.</p>
-          <p className="text-base leading-relaxed text-slate-600">That does not mean every SaaS should leave Stripe Billing or a dedicated subscription engine. Editorial reality: some teams need deep entitlement metering; others need straightforward monthly or annual card charges. Document your commercial model first, then see if CDG's stack matches.</p>
-          <p className="text-base leading-relaxed text-slate-600">Read our recurring-billing processor guide for a broader comparison, then return here when CDG is on the shortlist.</p>
-      </div>
+      <Section rule>
+        <Container width="article">
+          <Heading level={2}>What is included</Heading>
+          <FactRows rows={included} className="mt-6" />
+          <SourceNote source={cdgSources.about} checked={CDG_CHECKED} className="mt-4" />
+        </Container>
+      </Section>
 
-      <ul className="mt-8 space-y-3 text-sm text-slate-700">
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Recurring / subscription charging listed by CDG</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Pairs with online merchant accounts and gateways CDG lists</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Useful for memberships, retainers, and SaaS with simpler catalogs</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Still verify tax, dunning, and finance handoff against your requirements</li>
-      </ul>
+      <Section band="field" rule>
+        <Container width="article">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <Heading level={2} size="sm">Who it fits</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {fits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <Heading level={2} size="sm">Who it does not</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {notFits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </Section>
 
-      <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        Features and claims are attributed to how CDG publishes its offerings.
-        Confirm current capabilities and pricing directly with CDG.
-      </p>
-
-      <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-slate-900">
-          {softCtaCopy.getFreeQuote}
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          If recurring billing plus card acceptance is on your shortlist, request
-          a free CDG quote through our tracked affiliate link. Check eligibility
-          remains available as a secondary hard convert.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end"
-            ctaText={softCtaCopy.getFreeQuote}
-            ctaType="soft"
-            className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+      <Section rule>
+        <Container width="article">
+          <DecisionCard
+            title="Want recurring charges priced on your own volume?"
+            actions={
+              <>
+                <CtaButton cta="quote" position="end" />
+                <CtaButton cta="exploreOnline" position="end" variant="secondary" />
+                <CtaButton cta="apply" position="end" variant="quiet" />
+              </>
+            }
           >
-            {softCtaCopy.getFreeQuote}
-          </TrackedAffiliateLink>
-          <Link
-            href="/cdgcommerce"
-            className="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-          >
-            {softCtaCopy.seeOptions}
-          </Link>
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end_hard"
-            ctaText={softCtaCopy.checkEligibility}
-            ctaType="eligibility"
-            className="inline-flex px-2 py-2.5 text-xs font-semibold text-slate-500 underline-offset-2 hover:text-teal-800 hover:underline"
-          >
-            {softCtaCopy.checkEligibility}
-          </TrackedAffiliateLink>
-        </div>
-      </div>
-    </article>
+            Tell CDG how many charges you run a month and the average ticket.
+            Those two numbers set the quote.
+          </DecisionCard>
+        </Container>
+      </Section>
+    </>
   );
 }

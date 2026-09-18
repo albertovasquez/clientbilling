@@ -1,41 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import type { ComponentProps, MouseEvent, ReactNode } from "react";
-import {
-  trackAffiliateClick,
-  type AffiliateClickPayload,
-} from "@/lib/affiliate-track";
-import { siteConfig } from "@/lib/site";
+import type { ComponentProps, ReactNode } from "react";
+import { trackAffiliateClick } from "@/lib/affiliate-track";
+import type { CtaPosition, CtaType } from "@/lib/cta";
 
 type Props = {
   children: ReactNode;
   className?: string;
-  href?: string;
-  ctaPosition: string;
+  href: string;
+  ctaPosition: CtaPosition;
   ctaText: string;
-  ctaType: AffiliateClickPayload["cta_type"];
+  ctaType: CtaType;
   articleSlug?: string;
-  page?: string;
 } & Omit<ComponentProps<"a">, "href" | "children" | "className" | "onClick">;
 
+/** Outbound affiliate anchor: sponsored rel plus a click event. Prefer CtaButton. */
 export function TrackedAffiliateLink({
   children,
   className,
-  href = siteConfig.affiliateSignupUrl,
+  href,
   ctaPosition,
   ctaText,
   ctaType,
   articleSlug,
-  page,
   ...rest
 }: Props) {
-  function onClick(_e: MouseEvent<HTMLAnchorElement>) {
-    const path =
-      page ||
-      (typeof window !== "undefined" ? window.location.pathname : "");
+  function onClick() {
     trackAffiliateClick({
-      page: path,
+      page: window.location.pathname,
       article_slug: articleSlug,
       cta_position: ctaPosition,
       cta_text: ctaText,
@@ -52,7 +45,6 @@ export function TrackedAffiliateLink({
       data-affiliate-cta="true"
       data-cta-position={ctaPosition}
       data-cta-type={ctaType}
-      data-cta-text={ctaText}
       {...rest}
     >
       {children}

@@ -1,107 +1,162 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
-import { softCtaCopy, siteConfig } from "@/lib/site";
+import {
+  Breadcrumb,
+  Container,
+  CtaButton,
+  DecisionCard,
+  Disclosure,
+  FactRows,
+  Heading,
+  Kicker,
+  RateLockup,
+  Section,
+  SourceNote,
+} from "@/components/ui";
+import { CDG_CHECKED, cdgCompany, cdgPlan, cdgSources } from "@/lib/cdg";
 
 export const metadata: Metadata = {
   title: "CDG Commerce Online Payments",
-  description: "When CDG Commerce online / internet merchant accounts may fit e-commerce, invoicing, and remote-first businesses.",
+  description:
+    "When CDG Commerce online / internet merchant accounts may fit e-commerce, invoicing, and remote-first businesses.",
   alternates: { canonical: "/cdgcommerce/online-payments" },
   openGraph: {
     title: "CDG Commerce Online Payments | ClientBilling",
-    description: "When CDG Commerce online / internet merchant accounts may fit e-commerce, invoicing, and remote-first businesses.",
+    description:
+      "When CDG Commerce online / internet merchant accounts may fit e-commerce, invoicing, and remote-first businesses.",
     url: "/cdgcommerce/online-payments",
   },
   robots: { index: true, follow: true },
 };
 
+const interchangePlus = cdgPlan("interchangePlus");
+const flatRate = cdgPlan("flatRate");
+const onlineMarkup = interchangePlus.rates.find((r) => r.label.startsWith("Online"))!;
+const onlineFlat = flatRate.rates.find((r) => r.label.startsWith("Online"))!;
+
+const rates = [
+  {
+    figure: onlineMarkup.figure,
+    label: "Above interchange, online",
+    detail: `Interchange plus, ${interchangePlus.bandShort.toLowerCase()}`,
+  },
+  {
+    figure: onlineFlat.figure,
+    label: "Flat rate, online",
+    detail: `${flatRate.bandShort}, ${flatRate.monthlyFee}`,
+  },
+];
+
+const included = [
+  { label: "Gateway", value: `${cdgCompany.gateways}, included with no per-transaction gateway fee on interchange plus` },
+  { label: "Virtual terminal", value: "Key in a card from a browser when a customer calls with an order" },
+  { label: "Recurring billing and invoicing", value: "Scheduled charges and emailed invoices from the same account" },
+  { label: "Integrations", value: `${cdgCompany.integrations} through the gateway` },
+  { label: "Support", value: cdgCompany.support },
+];
+
+const fits = [
+  "You sell through a website or a hosted checkout and process $10K a month or more",
+  "You already pay for Authorize.Net separately and would rather have the gateway included",
+  "Your finance team keys the occasional phone order and wants it on the same statement",
+];
+
+const notFits = [
+  "You are outside the U.S.",
+  "You process under $1K a month and want an instant, self-serve account with no phone call",
+  "You need a marketplace or split-payment setup rather than a single merchant account",
+];
+
 export default function Page() {
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
-        <ol className="flex flex-wrap items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-teal-800">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li>
-            <Link href="/cdgcommerce" className="hover:text-teal-800">
-              CDG Commerce
-            </Link>
-          </li>
-          <li aria-hidden>/</li>
-          <li className="text-slate-700" aria-current="page">
-            Online / Internet
-          </li>
-        </ol>
-      </nav>
+    <>
+      <Section>
+        <Container width="article">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "CDG Commerce", href: "/cdgcommerce" },
+              { label: "Online payments" },
+            ]}
+          />
+          <Kicker className="mt-8">Updated September 17, 2026</Kicker>
+          <Heading level={1} className="mt-2">
+            CDG Commerce for online payments
+          </Heading>
+          <p className="mt-4 text-body text-ink-soft">
+            If most of your revenue arrives through a website, a customer
+            portal, or an emailed invoice, this is the CDG account you would
+            be quoted. It pairs a merchant account with a Quantum or
+            Authorize.Net gateway, and the online markup is published.
+          </p>
+          <Disclosure className="mt-4" />
+        </Container>
+      </Section>
 
-      <header className="mt-6 border-b border-slate-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-wider text-teal-800">
-          {siteConfig.partnerName} · Online / Internet
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-source-serif)] text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          CDG Commerce Online Payments
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-600">
-          When CDG Commerce online / internet merchant accounts may fit e-commerce, invoicing, and remote-first businesses.
-        </p>
-      </header>
+      <Section band="field" rule>
+        <Container width="article">
+          <Heading level={2}>Online rates CDG publishes</Heading>
+          <div className="mt-8 grid gap-8 sm:grid-cols-2">
+            {rates.map((rate) => (
+              <RateLockup key={rate.label} figure={rate.figure} label={rate.label} detail={rate.detail} />
+            ))}
+          </div>
+          <SourceNote
+            source={cdgSources.interchangePlus}
+            checked={CDG_CHECKED}
+            note="The flat rate figure is from CDG's flat rate pricing page. Interchange and network fees are separate."
+            className="mt-6"
+          />
+        </Container>
+      </Section>
 
-      <div className="mt-8 space-y-5">
-          <p className="text-base leading-relaxed text-slate-600">If most of your revenue arrives through a website, customer portal, or emailed invoice, an online-first merchant account is usually the right research path. CDG Commerce positions internet merchant accounts for digital sellers who need card acceptance without standing up a full in-house payments stack.</p>
-          <p className="text-base leading-relaxed text-slate-600">For SaaS and subscription operators, online acceptance often pairs with recurring billing and a payment gateway. CDG lists Quantum and Authorize.Net among gateway options, alongside invoicing and virtual terminal capabilities — useful when finance still keys occasional cards.</p>
-          <p className="text-base leading-relaxed text-slate-600">Use this page as a fit check, not a quote. Review volume bands on our main CDG guide, then check eligibility when you want CDG to evaluate your business.</p>
-      </div>
+      <Section rule>
+        <Container width="article">
+          <Heading level={2}>What is included</Heading>
+          <FactRows rows={included} className="mt-6" />
+          <SourceNote source={cdgSources.about} checked={CDG_CHECKED} className="mt-4" />
+        </Container>
+      </Section>
 
-      <ul className="mt-8 space-y-3 text-sm text-slate-700">
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Online / internet merchant accounts (as CDG positions)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Payment gateways: Quantum and Authorize.Net (as CDG lists)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Invoicing and virtual terminal options (as CDG lists)</li>
-            <li className="flex gap-3"><span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal-700" />Recurring billing for subscriptions (as CDG lists)</li>
-      </ul>
+      <Section band="field" rule>
+        <Container width="article">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <Heading level={2} size="sm">Who it fits</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {fits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <Heading level={2} size="sm">Who it does not</Heading>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+                {notFits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </Section>
 
-      <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        Features and claims are attributed to how CDG publishes its offerings.
-        Confirm current capabilities and pricing directly with CDG.
-      </p>
-
-      <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-slate-900">
-          {softCtaCopy.getFreeQuote}
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          Prefer a soft next step? Request a free CDG quote through our tracked
-          affiliate link. Check eligibility / apply remains secondary when you
-          are ready to convert.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end"
-            ctaText={softCtaCopy.getFreeQuote}
-            ctaType="soft"
-            className="inline-flex rounded-lg bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+      <Section rule>
+        <Container width="article">
+          <DecisionCard
+            title="Ready to see the online rate on your own volume?"
+            actions={
+              <>
+                <CtaButton cta="quote" position="end" />
+                <CtaButton cta="exploreOnline" position="end" variant="secondary" />
+                <CtaButton cta="apply" position="end" variant="quiet" />
+              </>
+            }
           >
-            {softCtaCopy.getFreeQuote}
-          </TrackedAffiliateLink>
-          <Link
-            href="/cdgcommerce"
-            className="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-          >
-            {softCtaCopy.seeOptions}
-          </Link>
-          <TrackedAffiliateLink
-            ctaPosition="subpage_end_hard"
-            ctaText={softCtaCopy.checkEligibility}
-            ctaType="eligibility"
-            className="inline-flex px-2 py-2.5 text-xs font-semibold text-slate-500 underline-offset-2 hover:text-teal-800 hover:underline"
-          >
-            {softCtaCopy.checkEligibility}
-          </TrackedAffiliateLink>
-        </div>
-      </div>
-    </article>
+            A quote request ends in a phone call and a written rate sheet.
+            Have your monthly volume and current statement to hand.
+          </DecisionCard>
+        </Container>
+      </Section>
+    </>
   );
 }
