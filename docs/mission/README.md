@@ -10,7 +10,7 @@ Reading order
 4. `product-principles.md`: how we decide what to build and how it should feel.
 5. `../product/invoice-mvp.md`: what exists today. `../product/roadmap.md`: what comes next and why.
 6. `../agents/operating-manual.md`: what an agent may change on its own, and when it must stop and ask.
-7. `../agents/definition-of-done.md`: what "shipped" means here.
+7. `../agents/definition-of-done.md`: what "shipped" means here. `../agents/api.md`: the API an agent uses to operate an account.
 8. `../decisions/`: the record of choices already made. Newer supersedes older.
 9. `../STYLE_GUIDE.md`: tokens, primitives, voice, CTA ladder.
 

@@ -11,6 +11,7 @@ export async function sendEmail(input: {
   subject: string;
   text: string;
   replyTo?: string;
+  attachments?: { filename: string; content: string }[];
 }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
@@ -26,6 +27,7 @@ export async function sendEmail(input: {
         subject: input.subject,
         text: input.text,
         reply_to: input.replyTo,
+        attachments: input.attachments && input.attachments.length > 0 ? input.attachments : undefined,
       }),
     });
     if (!res.ok) {

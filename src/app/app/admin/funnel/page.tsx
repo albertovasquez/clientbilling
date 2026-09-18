@@ -17,6 +17,7 @@ const steps: { name: string; label: string }[] = [
   { name: "invoice_overdue", label: "Invoices gone overdue" },
   { name: "invoice_reminder_sent", label: "Reminders sent" },
   { name: "collect_requested", label: "Collect requests (concierge)" },
+  { name: "api_key_created", label: "API keys created" },
   { name: "calculator_complete", label: "Fee calculator completions" },
   { name: "affiliate_cta_click", label: "CDG link clicks" },
   { name: "password_reset_requested", label: "Password resets requested" },

@@ -1,18 +1,17 @@
 "use server";
 
 import { hash } from "bcryptjs";
-import { Prisma, type InvoiceStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn, signOut } from "@/auth";
-import { newPublicInvoiceId } from "@/lib/invoices/ids";
-import { canTransition } from "@/lib/invoices/status";
+import { createInvoice, parseDueDate, parseLines, setInvoiceStatus } from "@/lib/invoices/service";
 import { assertDatabase, prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
-import { computeInvoiceTotals, dollarsToCents, normalizeQuantity, percentToBps } from "@/lib/money";
+import { computeInvoiceTotals, percentToBps } from "@/lib/money";
 import { allow } from "@/lib/rate-limit";
 import { requireBusiness, requireUser } from "@/lib/session";
 
@@ -310,36 +309,11 @@ export async function deleteClientAction(formData: FormData) {
   redirect("/app/clients");
 }
 
-type ParsedLines =
-  | { ok: true; lines: { description: string; quantity: number; unitPriceCents: number }[] }
-  | { ok: false; error: string };
-
-function parseLineItems(formData: FormData): ParsedLines {
+function parseLineItems(formData: FormData) {
   const descriptions = formData.getAll("line_description").map(String);
   const quantities = formData.getAll("line_quantity").map(String);
   const prices = formData.getAll("line_unit_price").map(String);
-  const lines: { description: string; quantity: number; unitPriceCents: number }[] = [];
-  for (let i = 0; i < descriptions.length; i++) {
-    const description = descriptions[i]?.trim() ?? "";
-    if (!description) continue;
-    const quantity = normalizeQuantity(quantities[i] ?? "1");
-    const unitPriceCents = dollarsToCents(prices[i] ?? "0");
-    if (quantity <= 0) {
-      return { ok: false, error: `Quantity for "${description}" must be greater than zero.` };
-    }
-    if (unitPriceCents < 0) {
-      return { ok: false, error: `Unit price for "${description}" cannot be negative.` };
-    }
-    lines.push({ description: description.slice(0, 500), quantity, unitPriceCents });
-  }
-  if (lines.length === 0) return { ok: false, error: "Add at least one line item." };
-  return { ok: true, lines };
-}
-
-function parseDueDate(raw: string): Date | null {
-  if (!raw) return null;
-  const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? null : d;
+  return parseLines(descriptions.map((description, i) => ({ description, quantity: quantities[i] ?? "1", unitPrice: prices[i] ?? "0" })));
 }
 
 export async function createInvoiceAction(
@@ -347,7 +321,7 @@ export async function createInvoiceAction(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
-  const business = await requireBusiness(user.id);
+  await requireBusiness(user.id);
   const clientIdRaw = String(formData.get("clientId") ?? "").trim();
   const useNewClient = !clientIdRaw || clientIdRaw === "__new__";
 
@@ -361,75 +335,27 @@ export async function createInvoiceAction(
     if (newClientEmailRaw && !z.string().email().safeParse(newClientEmailRaw).success) {
       return { error: "New client email must be a valid email address." };
     }
-    newClient = { name: newClientName.slice(0, 160), email: newClientEmailRaw || null };
-  } else {
-    const existing = await prisma.client.findFirst({
-      where: { id: clientIdRaw, userId: user.id },
-    });
-    if (!existing) {
-      return { error: "Pick a client, or create a new one with a name." };
-    }
+    newClient = { name: newClientName, email: newClientEmailRaw || null };
   }
 
   const parsedLines = parseLineItems(formData);
   if (!parsedLines.ok) return { error: parsedLines.error };
-  const lines = parsedLines.lines;
 
-  const taxRateBps = percentToBps(String(formData.get("taxRate") ?? "0"));
-  if (taxRateBps < 0 || taxRateBps > 10_000) {
-    return { error: "Tax rate must be between 0% and 100%." };
-  }
-  const totals = computeInvoiceTotals(lines, taxRateBps);
-  const dueDate = parseDueDate(String(formData.get("dueDate") ?? ""));
-  const notes = String(formData.get("notes") ?? "").trim().slice(0, 4000) || null;
-  const publicId = newPublicInvoiceId();
-
-  const invoice = await prisma.$transaction(async (tx) => {
-    let resolvedClientId = clientIdRaw;
-    if (newClient) {
-      const createdClient = await tx.client.create({
-        data: { userId: user.id, name: newClient.name, email: newClient.email },
-      });
-      resolvedClientId = createdClient.id;
-    }
-
-    // Atomic increment inside the transaction so concurrent creates never share a number.
-    const counter = await tx.businessProfile.update({
-      where: { id: business.id },
-      data: { nextInvoiceNumber: { increment: 1 } },
-      select: { nextInvoiceNumber: true },
-    });
-    const number = String(counter.nextInvoiceNumber - 1);
-
-    return tx.invoice.create({
-      data: {
-        publicId,
-        userId: user.id,
-        clientId: resolvedClientId,
-        number,
-        status: "draft",
-        dueDate,
-        notes,
-        taxRateBps,
-        ...totals,
-        lineItems: {
-          create: lines.map((line, index) => ({
-            description: line.description,
-            quantity: line.quantity,
-            unitPriceCents: line.unitPriceCents,
-            sortOrder: index,
-          })),
-        },
-        events: { create: { type: "created", meta: "draft" } },
-      },
-    });
+  const result = await createInvoice({
+    userId: user.id,
+    clientId: useNewClient ? null : clientIdRaw,
+    newClient,
+    lines: parsedLines.lines,
+    taxRateBps: percentToBps(String(formData.get("taxRate") ?? "0")),
+    dueDate: parseDueDate(String(formData.get("dueDate") ?? "")),
+    notes: String(formData.get("notes") ?? "").trim().slice(0, 4000) || null,
+    source: "app",
   });
-
-  await recordEvent({ name: "invoice_created", userId: user.id, payload: { totalCents: invoice.totalCents } });
+  if (!result.ok) return { error: result.error };
 
   revalidatePath("/app");
   revalidatePath("/app/clients");
-  redirect(`/app/invoices/${invoice.id}`);
+  redirect(`/app/invoices/${result.invoice.id}`);
 }
 
 export async function updateInvoiceAction(
@@ -493,35 +419,17 @@ export async function updateInvoiceAction(
   redirect(`/app/invoices/${id}`);
 }
 
-const manualStatuses: InvoiceStatus[] = ["sent", "paid", "void"];
-
 export async function setInvoiceStatusAction(formData: FormData) {
   const user = await requireUser();
   const id = String(formData.get("id") ?? "");
-  const status = String(formData.get("status") ?? "") as InvoiceStatus;
-  if (!manualStatuses.includes(status)) return;
-
-  const invoice = await prisma.invoice.findFirst({ where: { id, userId: user.id } });
-  if (!invoice) return;
-  if (!canTransition(invoice.status, status)) {
-    redirect(`/app/invoices/${id}?error=transition`);
+  const status = String(formData.get("status") ?? "");
+  const result = await setInvoiceStatus(user.id, id, status, "app");
+  if (!result.ok) {
+    if (result.code === "transition") redirect(`/app/invoices/${id}?error=transition`);
+    return;
   }
-
-  const now = new Date();
-  await prisma.invoice.update({
-    where: { id },
-    data: {
-      status,
-      sentAt: status === "sent" ? (invoice.sentAt ?? now) : invoice.sentAt,
-      paidAt: status === "paid" ? now : invoice.paidAt,
-      voidedAt: status === "void" ? now : invoice.voidedAt,
-      events: { create: { type: `status_${status}`, meta: "manual" } },
-    },
-  });
-  await recordEvent({ name: `invoice_${status}`, userId: user.id, payload: { manual: true } });
-
   revalidatePath(`/app/invoices/${id}`);
-  revalidatePath(`/i/${invoice.publicId}`);
+  revalidatePath(`/i/${result.invoice.publicId}`);
   revalidatePath("/app");
   redirect(`/app/invoices/${id}`);
 }
