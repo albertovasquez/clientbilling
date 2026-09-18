@@ -15,9 +15,25 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+  const secureCookieName = "__Secure-authjs.session-token";
+  const insecureCookieName = "authjs.session-token";
+
+  // Prefer whichever Auth.js v5 cookie is actually present; fall back to
+  // protocol detection (Vercel production is HTTPS).
+  const cookieName = req.cookies.has(secureCookieName)
+    ? secureCookieName
+    : req.cookies.has(insecureCookieName)
+      ? insecureCookieName
+      : req.nextUrl.protocol === "https:"
+        ? secureCookieName
+        : insecureCookieName;
+
   const token = await getToken({
     req,
-    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    secret,
+    cookieName,
+    salt: cookieName,
   });
 
   if (!token) {
@@ -33,3 +49,4 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: ["/app/:path*"],
 };
+
