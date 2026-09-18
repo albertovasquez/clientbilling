@@ -6,6 +6,7 @@
 import { compare } from "bcryptjs";
 import { prisma } from "../src/lib/db";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
+import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
 import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
 import { setInvoiceStatus } from "../src/lib/invoices/service";
@@ -42,6 +43,44 @@ async function main() {
   assert(aged.d1to30.balanceCents === 15000 && aged.d1to30.count === 1, "1-30 net of partial payment");
   assert(aged.d31to60.balanceCents === 30000 && aged.d31to60.count === 1, "31-60 bucket");
   assert(aged.d60plus.balanceCents === 30000 && aged.d60plus.count === 1, "60+ net of partial payment");
+
+  // CSV export helpers (decision 0012)
+  assert(csvCell("plain") === "plain", "plain csv cell");
+  assert(csvCell('say "hi"') === '"say ""hi"""', "quotes escaped in csv");
+  assert(csvCell("a,b") === '"a,b"', "comma forces quotes");
+  assert(csvFilename("invoices", new Date("2026-09-18T12:00:00Z")) === "invoices-2026-09-18.csv", "invoice filename date");
+  const invoiceCsv = invoicesToCsv([
+    {
+      number: "1001",
+      status: "sent",
+      clientName: "Acme, Inc",
+      clientEmail: "a@example.com",
+      issueDate: new Date("2026-09-01T00:00:00Z"),
+      dueDate: new Date("2026-09-15T00:00:00Z"),
+      currency: "USD",
+      subtotalCents: 10000,
+      taxCents: 800,
+      totalCents: 10800,
+      paidCents: 2000,
+      sentAt: new Date("2026-09-01T00:00:00Z"),
+      paidAt: null,
+      publicId: "abc123def456",
+    },
+  ]);
+  assert(invoiceCsv.includes("Acme, Inc") && invoiceCsv.includes("88.00"), "invoice csv quotes client and shows balance");
+  const paymentCsv = paymentsToCsv([
+    {
+      paidOn: new Date("2026-09-10T00:00:00Z"),
+      amountCents: 2000,
+      method: "bank_transfer",
+      note: "Deposit",
+      source: "app",
+      invoiceNumber: "1001",
+      invoiceStatus: "sent",
+      clientName: "Acme, Inc",
+    },
+  ]);
+  assert(paymentCsv.includes("Bank transfer") && paymentCsv.includes("20.00"), "payment csv labels method and dollars");
 
   // Pay links (decision 0014 amendment)
   assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "paypal.me gets the balance");
