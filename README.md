@@ -81,9 +81,12 @@ Clicks on outbound rungs fire `affiliate_cta_click` (see `src/lib/affiliate-trac
 | `npm run lint` | ESLint |
 | `npm run style:check` | Style guide checks (banned phrases, dashes, raw palette classes) |
 | `npm run check` | Typecheck, lint, and style check together. Run before every commit. |
+| `npm run test:db` | Postgres integration checks (rate limit, reset, payments). Needs `DATABASE_URL`. |
 | `npm run db:generate` | `prisma generate` |
 | `npm run db:push` | Push schema (early MVP; needs `DATABASE_URL`) |
 | `npm run db:migrate` | Prisma migrate dev |
+
+CI (GitHub Actions) runs `npm run check` and `npm run test:db` on every pull request and on `main`.
 
 ## Deploy
 
