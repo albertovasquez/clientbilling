@@ -1,5 +1,6 @@
-import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { BusinessProfile, Client, Invoice, InvoiceLineItem } from "@prisma/client";
+import { fetchLogoForPdf } from "@/lib/invoices/logo";
 import { balanceCents } from "@/lib/invoices/payments";
 import { payLinkForInvoice } from "@/lib/pay-link";
 import { payerStatusLabel } from "@/lib/invoices/status";
@@ -9,7 +10,9 @@ import { siteConfig } from "@/lib/site";
 /**
  * Branded invoice PDF (decision 0016). Same data and wording as /i/[publicId].
  * Built-in Helvetica keeps rendering deterministic with no font fetching.
- * No card data, no affiliate links, ClientBilling only in the footer.
+ * Optional merchant logo is fetched with a timeout and size cap; failures fall
+ * back to the text header so downloads never 500. No card data, no affiliate
+ * links, ClientBilling only in the footer.
  */
 export type InvoiceForPdf = Invoice & {
   client: Client;
@@ -26,6 +29,8 @@ const action = "#115e59";
 const s = StyleSheet.create({
   page: { paddingTop: 48, paddingBottom: 56, paddingHorizontal: 48, fontFamily: "Helvetica", fontSize: 10, color: soft },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  merchantBlock: { flexDirection: "row", alignItems: "center", maxWidth: 320 },
+  logo: { width: 48, height: 48, marginRight: 10, objectFit: "contain" },
   merchant: { fontSize: 16, fontFamily: "Helvetica-Bold", color: ink },
   small: { fontSize: 9, color: muted },
   title: { fontSize: 18, fontFamily: "Helvetica-Bold", color: ink, textAlign: "right" },
@@ -55,7 +60,7 @@ function date(d: Date | null): string {
   return d ? d.toISOString().slice(0, 10) : "";
 }
 
-export function InvoicePdf({ invoice }: { invoice: InvoiceForPdf }) {
+export function InvoicePdf({ invoice, logoSrc }: { invoice: InvoiceForPdf; logoSrc?: string | null }) {
   const b = invoice.business;
   const merchant = b?.name || "Your vendor";
   const paid = invoice.status === "paid";
@@ -69,10 +74,15 @@ export function InvoicePdf({ invoice }: { invoice: InvoiceForPdf }) {
     <Document title={`Invoice ${invoice.number} from ${merchant}`} author={merchant} producer={siteConfig.name}>
       <Page size="LETTER" style={s.page}>
         <View style={s.header}>
-          <View>
-            <Text style={s.merchant}>{merchant}</Text>
-            {b?.email ? <Text style={s.small}>{b.email}</Text> : null}
-            {b?.phone ? <Text style={s.small}>{b.phone}</Text> : null}
+          <View style={s.merchantBlock}>
+            {/* react-pdf Image is not an HTML img; alt is not part of its API. */}
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            {logoSrc ? <Image src={logoSrc} style={s.logo} /> : null}
+            <View>
+              <Text style={s.merchant}>{merchant}</Text>
+              {b?.email ? <Text style={s.small}>{b.email}</Text> : null}
+              {b?.phone ? <Text style={s.small}>{b.phone}</Text> : null}
+            </View>
           </View>
           <View>
             <Text style={s.title}>Invoice #{invoice.number}</Text>
@@ -187,7 +197,8 @@ export function InvoicePdf({ invoice }: { invoice: InvoiceForPdf }) {
 }
 
 export async function renderInvoicePdf(invoice: InvoiceForPdf): Promise<Buffer> {
-  return renderToBuffer(<InvoicePdf invoice={invoice} />);
+  const logoSrc = await fetchLogoForPdf(invoice.business?.logoUrl);
+  return renderToBuffer(<InvoicePdf invoice={invoice} logoSrc={logoSrc} />);
 }
 
 export function pdfFilename(invoice: InvoiceForPdf): string {

@@ -7,6 +7,7 @@ import { compare } from "bcryptjs";
 import { prisma } from "../src/lib/db";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
+import { fetchLogoForPdf, isAllowedLogoUrl } from "../src/lib/invoices/logo";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
 import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
 import { setInvoiceStatus } from "../src/lib/invoices/service";
@@ -87,6 +88,12 @@ async function main() {
   assert(bpsToPercentInput(825) === "8.25", "bps to percent input");
   assert(bpsToPercentInput(700) === "7", "whole percent has no decimals");
   assert(dueDateIsoFromDays(14, new Date("2026-09-18T15:00:00Z")) === "2026-10-02", "due date from days");
+
+  // PDF logo URL gate
+  assert(isAllowedLogoUrl("https://cdn.example.com/logo.png"), "https logo allowed");
+  assert(!isAllowedLogoUrl("http://cdn.example.com/logo.png"), "http logo rejected");
+  assert(!isAllowedLogoUrl(""), "empty logo rejected");
+  assert((await fetchLogoForPdf("http://example.com/x.png")) === null, "fetch rejects http without requesting");
 
   // Pay links (decision 0014 amendment)
   assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "paypal.me gets the balance");

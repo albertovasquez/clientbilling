@@ -10,7 +10,7 @@ Merchants attach invoices to email threads and client portals, and payers file t
 
 - PDFs are rendered on the server with @react-pdf/renderer from the same invoice data and wording as `/i/[publicId]`: merchant first, plain status, line items, totals, notes, how to pay (pay link and instructions), and ClientBilling only in the footer.
 - Built-in Helvetica is used. No font files are fetched at render time, so output is deterministic and the route has no network dependency.
-- The merchant's logo is not in the PDF yet. Remote image fetching inside the renderer is a failure surface (dead URLs, slow hosts) that would break downloads; it returns as a P2 item with a cached, validated logo.
+- The merchant's https logo is included when a capped fetch succeeds (2s timeout, 500KB, image content-types only). Failures fall back to the text header so downloads never fail on a dead logo URL.
 - Two routes: `/api/invoices/[id]/pdf` for the merchant (authenticated, attachment) and `/i/[publicId]/pdf` for the payer (same access rule as the page, inline, noindex). The invoice email attaches the PDF.
 
 ## Reasons
