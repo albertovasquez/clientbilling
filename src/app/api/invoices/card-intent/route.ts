@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { recordEvent } from "@/lib/events";
 import { formatCents } from "@/lib/money";
-import { allow } from "@/lib/rate-limit";
+import { allow, ipFromHeaders } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site";
 
 /**
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+  const ip = ipFromHeaders(req.headers);
   if (!(await allow(`card-intent:${ip}`, 10, 3600))) {
     return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
   }
@@ -37,7 +37,8 @@ export async function POST(req: Request) {
     select: { id: true },
   });
 
-  await prisma.invoiceEvent.create({ data: { invoiceId: invoice.id, type: "card_intent" } });
+  // One invoice event per invoice; repeats are counted in the analytics payload only.
+  if (!alreadyAsked) await prisma.invoiceEvent.create({ data: { invoiceId: invoice.id, type: "card_intent" } });
   await recordEvent({
     name: "payer_card_intent",
     userId: invoice.userId,

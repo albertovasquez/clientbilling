@@ -57,8 +57,11 @@ export async function requestPasswordResetAction(
     ].join("\n");
     if (emailEnabled()) {
       await sendEmail({ to: email, subject: "Reset your ClientBilling password", text });
-    } else {
+    } else if (process.env.NODE_ENV !== "production") {
       console.info("[password-reset] email not configured; reset link:", link);
+    } else {
+      // Never put a live token in production logs (decision 0020). The owner sees the request in the funnel.
+      console.warn("[password-reset] email not configured; a reset was requested and no link was delivered");
     }
     await recordEvent({ name: "password_reset_requested", path: "/app/reset" });
   }

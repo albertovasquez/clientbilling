@@ -45,6 +45,7 @@ export async function resetPasswordWithToken(
   if (record.expires.getTime() < Date.now()) return false;
 
   const passwordHash = await hash(newPassword, 12);
-  const result = await prisma.user.updateMany({ where: { email }, data: { passwordHash } });
+  // Bumping the version signs out every session issued before the reset (decision 0020).
+  const result = await prisma.user.updateMany({ where: { email }, data: { passwordHash, sessionVersion: { increment: 1 } } });
   return result.count === 1;
 }

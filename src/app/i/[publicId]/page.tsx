@@ -5,7 +5,9 @@ import { CardIntentButton } from "@/components/CardIntentButton";
 import { PayLinkButton } from "@/components/PayLinkButton";
 import { ViewBeacon } from "@/components/ViewBeacon";
 import { Heading } from "@/components/ui";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { publicInvoiceVisible } from "@/lib/invoices/visibility";
 import { balanceCents } from "@/lib/invoices/payments";
 import { payLinkForInvoice } from "@/lib/pay-link";
 import { payerStatusLabel } from "@/lib/invoices/status";
@@ -49,7 +51,9 @@ export default async function PublicInvoicePage({ params }: Props) {
       user: { include: { business: true } },
     },
   });
-  if (!invoice || invoice.status === "void") notFound();
+  if (!invoice) notFound();
+  const session = await auth().catch(() => null);
+  if (!publicInvoiceVisible(invoice, session?.user?.id)) notFound();
 
   const business = invoice.user.business;
   const merchantName = business?.name || "Your vendor";
@@ -67,7 +71,7 @@ export default async function PublicInvoicePage({ params }: Props) {
 
       <header className="flex flex-wrap items-start justify-between gap-6">
         <div className="flex items-center gap-4">
-          {business?.logoUrl ? (
+          {business?.logoUrl?.startsWith("https://") ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={business.logoUrl} alt="" className="h-12 w-12 rounded-lg object-contain" />
           ) : null}

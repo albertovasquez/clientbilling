@@ -129,6 +129,11 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
         </CardHeader>
         <CardContent>
           <p className="text-small text-ink-soft break-all">{publicUrl}</p>
+          {invoice.status === "draft" ? (
+            <p className="mt-2 text-caption text-muted">
+              Drafts are private. Payers can open this link once the invoice is sent or marked as sent; you can open it now.
+            </p>
+          ) : null}
           <div className="mt-4">
             <SendInvoiceForm
               invoiceId={invoice.id}

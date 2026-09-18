@@ -25,3 +25,4 @@ Format: `NNNN-short-title.md` with sections Status, Context, Decision, Reasons, 
 | 0017 | Personal API keys and a small REST surface so agents can operate the product | Accepted 2026-09-18 |
 | 0018 | Recurring schedules generate drafts daily; auto-send is opt-in; missed runs catch up one per day | Accepted 2026-09-18 |
 | 0019 | Payment records with partial payments; marking paid records a payment; balance due on the document | Accepted 2026-09-18 |
+| 0020 | Security hardening after the first review: session versioning, atomic rate limits, private drafts, admin bootstrap | Accepted 2026-09-18 |

@@ -118,7 +118,7 @@ export async function getPostBySlug(slug: string): Promise<Post> {
   const { data, content } = readPostFile(slug);
   const processed = await remark()
     .use(remarkGfm)
-    .use(remarkHtml, { sanitize: false })
+    .use(remarkHtml, { sanitize: true })
     .process(content);
 
   return {
