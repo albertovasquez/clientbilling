@@ -2,9 +2,11 @@
 title: "Invoice Clarity Reduces Late Payments"
 description: "How clear line items, due dates, and payment instructions cut days sales outstanding without aggressive collections."
 date: "2026-08-12"
-author: "ClientBilling"
+updated: "2026-09-17"
+author: "alberto-vasquez"
 tags: ["invoicing", "collections", "B2B"]
 featured: false
+sources: []
 ---
 
 Late payments rarely start as a collections problem. More often, they start as a **clarity** problem: the customer does not know exactly what they owe, when it is due, or how to pay.
@@ -27,12 +29,12 @@ If any of those answers require a follow-up email, your invoice is doing unfinis
 
 Customers dispute invoices when the bill does not map to what they think they bought.
 
-- Prefer plan names and periods customers recognize (“Growth plan · Aug 1–31, 2026”) over internal SKUs.
+- Prefer plan names and periods customers recognize (“Growth plan · Aug 1-31, 2026”) over internal SKUs.
 - Separate one-time fees, prorations, and recurring charges.
 - Show credits and discounts as their own lines so the math is auditable.
 - For usage-based products, include a short summary of the meter (units, rate, total) and link to a detailed usage report when possible.
 
-Ambiguous line items create silent friction. Clear line items create trust—even when the amount is larger than expected.
+Ambiguous line items create silent friction. Clear line items create trust, even when the amount is larger than expected.
 
 ## Due dates and terms without jargon traps
 
@@ -40,7 +42,7 @@ Ambiguous line items create silent friction. Clear line items create trust—eve
 
 > Payment due by **September 15, 2026** (Net 30 from invoice date August 16, 2026).
 
-Also state what happens after the due date in plain language—late fees, service pauses, or both—so there are no surprises. Consistency matters more than severity: enforce the policy you publish.
+Also state what happens after the due date in plain language (late fees, service pauses, or both) so there are no surprises. Consistency matters more than severity: enforce the policy you publish.
 
 ## Payment instructions customers can actually use
 
@@ -63,7 +65,7 @@ Before you send the next batch of invoices, spot-check ten recent ones:
 - Is the pay button or remittance path obvious on mobile?
 - Does the PDF match what the customer sees in the portal?
 
-Teams that treat invoicing as a product surface—not just an accounting artifact—usually see fewer “just checking on this” emails and a shorter cash conversion cycle.
+Teams that treat invoicing as a product surface, not just an accounting artifact, usually see fewer “just checking on this” emails and a shorter cash conversion cycle.
 
 ## Where tooling fits
 

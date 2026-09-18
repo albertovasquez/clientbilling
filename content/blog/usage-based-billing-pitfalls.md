@@ -1,17 +1,19 @@
 ---
 title: "Usage-Based Billing Pitfalls (and How to Avoid Them)"
+description: "Common traps in metered pricing (surprise bills, opaque meters, and reconciliation pain) and how to design usage billing customers will accept."
 date: "2026-09-09"
-description: "Common traps in metered pricing—surprise bills, opaque meters, and reconciliation pain—and how to design usage billing customers will accept."
-author: "ClientBilling"
+updated: "2026-09-17"
+author: "alberto-vasquez"
 tags: ["usage-based", "pricing", "SaaS"]
 featured: false
+sources: []
 ---
 
 Usage-based pricing can align cost with value. It can also create bill shock, support overload, and finance reconciliation nightmares. The difference is design discipline.
 
 ## Pitfall 1: Meters customers cannot inspect
 
-If customers cannot see near-real-time usage, they will treat the invoice as a black box—and dispute it.
+If customers cannot see near-real-time usage, they will treat the invoice as a black box, and dispute it.
 
 **Avoid it by:**
 
@@ -36,7 +38,7 @@ Alerts are not optional polish. They are part of the pricing product.
 
 ## Pitfall 3: Proration and credit chaos
 
-Seat changes, plan changes, and usage overages interacting in one period create invoices nobody can explain—including your own support team.
+Seat changes, plan changes, and usage overages interacting in one period create invoices nobody can explain, including your own support team.
 
 **Practices that help:**
 
@@ -60,7 +62,7 @@ Product engineering may emit millions of events. Finance needs aggregates that t
 
 Without those, month-end becomes archaeology.
 
-## Pitfall 5: Pricing that invites gaming—or confusion
+## Pitfall 5: Pricing that invites gaming, or confusion
 
 Ambiguous meters invite both accidental and intentional edge cases. Overly complex tiers confuse buyers during evaluation.
 

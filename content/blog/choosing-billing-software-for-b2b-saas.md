@@ -1,10 +1,12 @@
 ---
 title: "Choosing Billing Software for B2B SaaS"
-description: "A practical evaluation framework for subscription and invoice billing tools—covering tax, dunning, entitlements, and finance handoff."
+description: "A practical evaluation framework for subscription and invoice billing tools, covering tax, dunning, entitlements, and finance handoff."
 date: "2026-09-15"
-author: "ClientBilling"
+updated: "2026-09-17"
+author: "alberto-vasquez"
 tags: ["billing software", "evaluation", "B2B SaaS"]
 featured: false
+sources: []
 ---
 
 Picking billing software is a multi-year decision. Switching later is expensive: migrations touch entitlements, tax history, dunning state, and customer trust.
@@ -31,7 +33,7 @@ Can product define plans, add-ons, and feature flags without engineering tickets
 
 ### Invoicing and collections
 
-B2B often needs invoices, purchase orders, ACH, wire instructions, and net terms—not only cards. Confirm PDF quality, tax lines, and AR aging views.
+B2B often needs invoices, purchase orders, ACH, wire instructions, and net terms, not only cards. Confirm PDF quality, tax lines, and AR aging views.
 
 ### Tax and compliance posture
 
@@ -51,12 +53,12 @@ Webhooks, idempotent APIs, sandbox parity, and clear versioning matter when bill
 
 ## Evaluation scorecard (simple and opinionated)
 
-Score each vendor 1–5 on:
+Score each vendor 1-5 on:
 
 1. Fit to your pricing model
 2. Invoice / AR depth for B2B
 3. Tax readiness
-4. Dunning & recovery UX
+4. Dunning and recovery UX
 5. Reporting definitions you trust
 6. Implementation effort (honest estimate)
 7. Total cost at your 12-month volume
@@ -75,6 +77,6 @@ A cheaper monthly fee evaporates if migration slips a quarter.
 
 ## How we approach recommendations
 
-ClientBilling publishes billing best practices and may earn a commission when you sign up through partner links. That does not change the evaluation homework above. Use our content to sharpen questions; use your scorecard to pick the system.
+Use our content to sharpen your questions; use your scorecard to pick the system.
 
-When you are ready to compare options hands-on, start with a sandbox that mirrors a real customer journey: trial → paid → failed renewal → plan change → annual upgrade. If that path feels brittle in the demo, it will feel worse in production.
+When you are ready to compare options hands-on, start with a sandbox that mirrors a real customer journey: trial, then paid, then a failed renewal, then a plan change, then an annual upgrade. If that path feels brittle in the demo, it will feel worse in production.

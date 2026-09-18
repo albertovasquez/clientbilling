@@ -2,9 +2,11 @@
 title: "Subscription Billing Metrics That Actually Matter"
 description: "Move beyond vanity MRR dashboards. Track recognition, failed payments, churn timing, and expansion with metrics finance and product can share."
 date: "2026-08-26"
-author: "ClientBilling"
+updated: "2026-09-17"
+author: "alberto-vasquez"
 tags: ["subscriptions", "metrics", "SaaS"]
 featured: false
+sources: []
 ---
 
 Subscription businesses drown in charts. Monthly recurring revenue looks healthy while cash collection stalls, or churn looks flat while failed renewals quietly erase expansion gains.
@@ -37,7 +39,7 @@ Useful failed-payment metrics:
 - **Involuntary churn** attributed to unresolved declines
 - **Time-to-update** for card and ACH details
 
-A product that “churned” because the card expired is a recoverable relationship—if your dunning and customer communication are designed for it.
+A product that “churned” because the card expired is a recoverable relationship, if your dunning and customer communication are designed for it.
 
 ## Cohort timing beats headline churn
 
@@ -61,7 +63,7 @@ Expansion MRR from seats, usage, and add-ons should not be a residual line on a 
 - Time from offer to paid change order
 - Net revenue retention by cohort
 
-When product and billing share the same event stream—seat added, usage crossed tier, add-on enabled—you can attribute expansion to real customer behavior instead of anecdotal sales wins.
+When product and billing share the same event stream (seat added, usage crossed tier, add-on enabled) you can attribute expansion to real customer behavior instead of anecdotal sales wins.
 
 ## A practical weekly review
 
@@ -72,7 +74,7 @@ Once a week, spend thirty minutes on four numbers:
 3. Voluntary cancels in the last fourteen days (with reasons)
 4. Expansion closed vs. expansion offered
 
-If your tooling cannot produce those four without a heroic export, the gap is operational risk—not a reporting preference.
+If your tooling cannot produce those four without a heroic export, the gap is operational risk, not a reporting preference.
 
 ## Align definitions before you automate
 
