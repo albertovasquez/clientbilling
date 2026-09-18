@@ -4,6 +4,7 @@ import { recordEvent } from "@/lib/events";
 import { pdfFilename, renderInvoicePdf } from "@/lib/invoices/pdf";
 import { openStatuses } from "@/lib/invoices/status";
 import { formatCents } from "@/lib/money";
+import { payLinkForInvoice } from "@/lib/pay-link";
 import { allow } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site";
 
@@ -121,7 +122,7 @@ export async function sendInvoiceReminder(userId: string, invoiceId: string): Pr
     `A reminder that invoice #${invoice.number} from ${fromName} for ${formatCents(invoice.totalCents, invoice.currency)} is still open.${invoice.paidCents > 0 ? ` ${formatCents(invoice.totalCents - invoice.paidCents, invoice.currency)} remains due after payments received.` : ""} ${dueLine}`,
     "",
     `View it here: ${publicUrl}`,
-    business?.payLinkUrl ? `Pay online: ${business.payLinkUrl}` : null,
+    business?.payLinkUrl ? `Pay online: ${payLinkForInvoice(business.payLinkUrl, invoice.totalCents - invoice.paidCents, invoice.currency)}` : null,
     business?.paymentInstructions ? `How to pay: ${business.paymentInstructions}` : null,
     "",
     `If you have already paid, thank you, and please ignore this note. Questions go to ${business?.email ?? fromName}.`,
