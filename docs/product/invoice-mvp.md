@@ -17,6 +17,7 @@ Updated: 2026-09-18. Decisions that shaped this are in `docs/decisions/`.
 5. Send: `/api/invoices/[id]/send` emails the client on file through Resend with the PDF attached; "sent" is set only on delivery. Copy link always works. 20 emails per user per hour.
 6. Status transitions follow `src/lib/invoices/status.ts`. A daily cron (`/api/cron/overdue`, 06:00 UTC, requires `CRON_SECRET`) flips past-due sent or opened invoices to overdue. Merchants send reminders from the invoice page: client on file only, one per invoice per 24 hours (decision 0015).
 7. Getting paid: payers see the merchant's payment instructions and, when the merchant has pasted a hosted payment page link, a Pay online button (decision 0014). The merchant marks paid. `COLLECT_ONLINE` is unused.
+8. Concierge Collect: "Enable card payments" on the payments settings page captures business type and volume band, records `collect_requested`, and emails the first `ADMIN_EMAILS` address; the founder follows `docs/agents/runbooks/concierge-collect.md` (decision 0009).
 
 ## Measurement
 
