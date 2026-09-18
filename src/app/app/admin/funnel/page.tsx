@@ -12,6 +12,7 @@ const steps: { name: string; label: string }[] = [
   { name: "invoice_sent", label: "Invoices sent (email)" },
   { name: "invoice_viewed", label: "Invoices opened by a payer" },
   { name: "invoice_paid", label: "Invoices marked paid" },
+  { name: "payer_card_intent", label: "Payers asking to pay by card" },
   { name: "calculator_complete", label: "Fee calculator completions" },
   { name: "affiliate_cta_click", label: "CDG link clicks" },
   { name: "password_reset_requested", label: "Password resets requested" },

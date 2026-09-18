@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CardIntentButton } from "@/components/CardIntentButton";
 import { ViewBeacon } from "@/components/ViewBeacon";
 import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
@@ -207,6 +208,7 @@ export default async function PublicInvoicePage({ params }: Props) {
               {business?.email ? ` at ${business.email}` : ""} for payment options.
             </p>
           )}
+          <CardIntentButton publicId={publicId} merchantName={merchantName} />
         </section>
       ) : null}
 

@@ -3,6 +3,8 @@ import { buttonClass, Heading } from "@/components/ui";
 import { formatCents } from "@/lib/money";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { siteConfig } from "@/lib/site";
+import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
 
 export const metadata = { title: "Your invoices" };
 
@@ -11,6 +13,9 @@ export default async function AppHomePage() {
   const business = await prisma.businessProfile.findUnique({
     where: { userId: user.id },
     select: { paymentInstructions: true },
+  });
+  const cardIntents = await prisma.event.count({
+    where: { name: "payer_card_intent", userId: user.id, createdAt: { gte: new Date(Date.now() - 30 * 86_400_000) } },
   });
   const invoices = await prisma.invoice.findMany({
     where: { userId: user.id },
@@ -41,6 +46,28 @@ export default async function AppHomePage() {
           </Link>{" "}
           so they know how to pay you.
         </p>
+      ) : null}
+
+      {cardIntents > 0 ? (
+        <div className="mt-6 rounded-2xl border border-action/30 bg-action-tint p-5">
+          <p className="text-small font-semibold text-ink">
+            {cardIntents === 1 ? "A client asked" : `${cardIntents} clients asked`} to pay by card in the last 30 days.
+          </p>
+          <p className="mt-1 text-small text-ink-soft">
+            Card payment from your invoices is planned to run on a CDG Commerce merchant account. Getting a quote now means the account is ready when it ships.
+          </p>
+          <div className="mt-3">
+            <TrackedAffiliateLink
+              href={siteConfig.quoteUrl}
+              ctaPosition="card"
+              ctaText="Get a free quote from CDG"
+              ctaType="quote"
+              className={buttonClass("primary", "md")}
+            >
+              Get a free quote from CDG
+            </TrackedAffiliateLink>
+          </div>
+        </div>
       ) : null}
 
       {invoices.length === 0 ? (
