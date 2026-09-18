@@ -6,6 +6,8 @@
 import { compare } from "bcryptjs";
 import { prisma } from "../src/lib/db";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
+import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
+import { setInvoiceStatus } from "../src/lib/invoices/service";
 import { allow } from "../src/lib/rate-limit";
 
 function assert(cond: unknown, msg: string) {
@@ -68,6 +70,33 @@ async function main() {
     dupBlocked = true;
   }
   assert(dupBlocked, "duplicate number rejected by unique index");
+
+  // Payments (decision 0019)
+  const inv = await prisma.invoice.update({
+    where: { id: made[0].id },
+    data: { status: "sent", sentAt: new Date(), totalCents: 30000, subtotalCents: 30000, dueDate: new Date(Date.now() - 86_400_000) },
+  });
+  const over = await recordPayment(user.id, inv.id, { amountCents: 30001 }, "app");
+  assert(!over.ok && over.status === 400, "overpayment rejected");
+  const zero = await recordPayment(user.id, inv.id, { amountCents: 0 }, "app");
+  assert(!zero.ok, "zero amount rejected");
+  const future = await recordPayment(user.id, inv.id, { amountCents: 100, paidOn: new Date(Date.now() + 7 * 86_400_000) }, "app");
+  assert(!future.ok, "future date rejected");
+  const p1 = await recordPayment(user.id, inv.id, { amountCents: 10000, method: "check", note: "deposit" }, "app");
+  assert(p1.ok && p1.invoice.paidCents === 10000 && p1.invoice.status === "sent", "partial payment keeps status, sums paidCents");
+  const p2 = await recordPayment(user.id, inv.id, { amountCents: 20000, method: "bank_transfer", paidOn: "2026-09-10" }, "api");
+  assert(p2.ok && p2.invoice.status === "paid" && p2.invoice.paidAt?.toISOString().slice(0, 10) === "2026-09-10", "full balance flips to paid on the received date");
+  const again = await recordPayment(user.id, inv.id, { amountCents: 1 }, "app");
+  assert(!again.ok && again.status === 409, "paid invoice takes no more payments");
+  const removed = await deletePayment(user.id, p2.ok ? p2.payment.id : "");
+  assert(removed.ok && removed.invoice.status === "overdue" && removed.invoice.paidCents === 10000 && removed.invoice.paidAt === null, "removing the settling payment reopens as overdue");
+  const marked = await setInvoiceStatus(user.id, inv.id, "paid", "app");
+  assert(marked.ok && marked.invoice.paidCents === 30000 && marked.invoice.status === "paid", "mark as paid records the balance");
+  const rows = await prisma.payment.findMany({ where: { invoiceId: inv.id } });
+  assert(rows.length === 2 && rows.some((r) => r.note === "Marked paid"), "two payment rows, one from mark as paid");
+  const voidRes = await setInvoiceStatus(user.id, made[1].id, "void", "app");
+  const onVoid = await recordPayment(user.id, made[1].id, { amountCents: 5 }, "app");
+  assert(voidRes.ok && !onVoid.ok && onVoid.status === 409, "void invoice rejects payments");
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

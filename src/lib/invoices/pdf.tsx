@@ -1,5 +1,6 @@
 import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { BusinessProfile, Client, Invoice, InvoiceLineItem } from "@prisma/client";
+import { balanceCents } from "@/lib/invoices/payments";
 import { payerStatusLabel } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents, lineTotalCents } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
@@ -57,6 +58,8 @@ export function InvoicePdf({ invoice }: { invoice: InvoiceForPdf }) {
   const b = invoice.business;
   const merchant = b?.name || "Your vendor";
   const paid = invoice.status === "paid";
+  const balance = balanceCents(invoice);
+  const partial = !paid && invoice.paidCents > 0;
   const address = [b?.address1, b?.address2, [b?.city, b?.state, b?.postalCode].filter(Boolean).join(", ")].filter(Boolean);
   const instructions = b?.paymentInstructions?.trim();
   const payLink = b?.payLinkUrl?.trim();
@@ -126,10 +129,27 @@ export function InvoicePdf({ invoice }: { invoice: InvoiceForPdf }) {
               <Text>{formatCents(invoice.taxCents)}</Text>
             </View>
           ) : null}
-          <View style={[s.tRow, s.tTotal]}>
-            <Text>{paid ? "Total paid" : "Total due"}</Text>
-            <Text>{formatCents(invoice.totalCents, invoice.currency)}</Text>
-          </View>
+          {partial ? (
+            <>
+              <View style={[s.tRow, s.tTotal]}>
+                <Text>Total</Text>
+                <Text>{formatCents(invoice.totalCents, invoice.currency)}</Text>
+              </View>
+              <View style={s.tRow}>
+                <Text style={{ color: muted }}>Paid to date</Text>
+                <Text>{formatCents(invoice.paidCents, invoice.currency)}</Text>
+              </View>
+              <View style={[s.tRow, s.tTotal]}>
+                <Text>Balance due</Text>
+                <Text>{formatCents(balance, invoice.currency)}</Text>
+              </View>
+            </>
+          ) : (
+            <View style={[s.tRow, s.tTotal]}>
+              <Text>{paid ? "Total paid" : "Total due"}</Text>
+              <Text>{formatCents(invoice.totalCents, invoice.currency)}</Text>
+            </View>
+          )}
         </View>
 
         {invoice.notes ? (

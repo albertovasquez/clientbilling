@@ -118,7 +118,7 @@ export async function sendInvoiceReminder(userId: string, invoiceId: string): Pr
   const text = [
     `Hi${invoice.client.name ? ` ${invoice.client.name}` : ""},`,
     "",
-    `A reminder that invoice #${invoice.number} from ${fromName} for ${formatCents(invoice.totalCents, invoice.currency)} is still open. ${dueLine}`,
+    `A reminder that invoice #${invoice.number} from ${fromName} for ${formatCents(invoice.totalCents, invoice.currency)} is still open.${invoice.paidCents > 0 ? ` ${formatCents(invoice.totalCents - invoice.paidCents, invoice.currency)} remains due after payments received.` : ""} ${dueLine}`,
     "",
     `View it here: ${publicUrl}`,
     business?.payLinkUrl ? `Pay online: ${business.payLinkUrl}` : null,

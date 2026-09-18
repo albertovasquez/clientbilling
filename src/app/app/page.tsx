@@ -33,10 +33,13 @@ export default async function AppHomePage() {
     take: 50,
   });
   const [open, overdue, paidThisMonth] = await Promise.all([
-    prisma.invoice.aggregate({ where: { userId: user.id, status: { in: ["sent", "viewed", "overdue"] } }, _sum: { totalCents: true }, _count: true }),
-    prisma.invoice.aggregate({ where: { userId: user.id, status: "overdue" }, _sum: { totalCents: true }, _count: true }),
-    prisma.invoice.aggregate({ where: { userId: user.id, status: "paid", paidAt: { gte: monthStart } }, _sum: { totalCents: true }, _count: true }),
+    prisma.invoice.aggregate({ where: { userId: user.id, status: { in: ["sent", "viewed", "overdue"] } }, _sum: { totalCents: true, paidCents: true }, _count: true }),
+    prisma.invoice.aggregate({ where: { userId: user.id, status: "overdue" }, _sum: { totalCents: true, paidCents: true }, _count: true }),
+    prisma.payment.aggregate({ where: { userId: user.id, paidOn: { gte: monthStart } }, _sum: { amountCents: true }, _count: true }),
   ]);
+  // Outstanding money is what is still owed, net of partial payments (decision 0019).
+  const openBalance = (open._sum.totalCents ?? 0) - (open._sum.paidCents ?? 0);
+  const overdueBalance = (overdue._sum.totalCents ?? 0) - (overdue._sum.paidCents ?? 0);
 
   return (
     <div>
@@ -57,7 +60,7 @@ export default async function AppHomePage() {
           <Card>
             <CardHeader>
               <CardDescription className="text-caption text-muted">Outstanding</CardDescription>
-              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-ink">{formatCents(open._sum.totalCents ?? 0)}</CardTitle>
+              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-ink">{formatCents(openBalance)}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-caption text-muted">{open._count} open</p>
@@ -66,7 +69,7 @@ export default async function AppHomePage() {
           <Card>
             <CardHeader>
               <CardDescription className="text-caption text-muted">Overdue</CardDescription>
-              <CardTitle className={`font-display text-display-sm font-semibold tabular-nums ${overdue._count > 0 ? "text-destructive" : "text-ink"}`}>{formatCents(overdue._sum.totalCents ?? 0)}</CardTitle>
+              <CardTitle className={`font-display text-display-sm font-semibold tabular-nums ${overdue._count > 0 ? "text-destructive" : "text-ink"}`}>{formatCents(overdueBalance)}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-caption text-muted">{overdue._count} past due</p>
@@ -75,10 +78,10 @@ export default async function AppHomePage() {
           <Card>
             <CardHeader>
               <CardDescription className="text-caption text-muted">Paid this month</CardDescription>
-              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-primary">{formatCents(paidThisMonth._sum.totalCents ?? 0)}</CardTitle>
+              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-primary">{formatCents(paidThisMonth._sum.amountCents ?? 0)}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-caption text-muted">{paidThisMonth._count} paid</p>
+              <p className="text-caption text-muted">{paidThisMonth._count} payments</p>
             </CardContent>
           </Card>
         </div>
@@ -173,7 +176,14 @@ export default async function AppHomePage() {
                         {merchantStatusLabel(invoice.status)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="tabular-nums">{formatCents(invoice.totalCents, invoice.currency)}</TableCell>
+                    <TableCell className="tabular-nums">
+                      {formatCents(invoice.totalCents, invoice.currency)}
+                      {invoice.paidCents > 0 && invoice.status !== "paid" ? (
+                        <span className="block text-caption text-muted">
+                          {formatCents(invoice.totalCents - invoice.paidCents, invoice.currency)} still due
+                        </span>
+                      ) : null}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{invoice.dueDate ? invoice.dueDate.toISOString().slice(0, 10) : ""}</TableCell>
                     <TableCell className="text-right">
                       <Link href={`/app/invoices/${invoice.id}`} className="text-primary underline-offset-4 hover:underline">

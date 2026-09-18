@@ -10,3 +10,5 @@ Purpose: follow up on unpaid invoices without inventing policy (decisions 0015, 
 Reference: `docs/agents/api.md`.
 
 Stop and ask: any late fee, interest, collections language, contacting anyone other than the client on file, or sending from any address other than the app.
+
+When a client pays part of an invoice, record it with `POST /api/v1/invoices/:id/payments` (or the Payments card on the invoice page). The reminder then quotes the remaining balance, and the invoice closes by itself when the last payment lands (decision 0019).

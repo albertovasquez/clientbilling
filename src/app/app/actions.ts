@@ -388,6 +388,9 @@ export async function updateInvoiceAction(
     return { error: "Tax rate must be between 0% and 100%." };
   }
   const totals = computeInvoiceTotals(lines, taxRateBps);
+  if (totals.totalCents < invoice.paidCents) {
+    return { error: "The total cannot be less than the amount already paid. Remove a payment first." };
+  }
   const dueDate = parseDueDate(String(formData.get("dueDate") ?? ""));
   const notes = String(formData.get("notes") ?? "").trim().slice(0, 4000) || null;
 
