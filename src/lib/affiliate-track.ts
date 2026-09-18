@@ -1,21 +1,16 @@
+import type { CtaPosition, CtaType } from "@/lib/cta";
+
 export type AffiliateClickPayload = {
   page: string;
   article_slug?: string;
-  cta_position: string;
+  cta_position: CtaPosition;
   cta_text: string;
-  cta_type: "soft" | "mid" | "end" | "nav" | "footer" | "eligibility";
+  cta_type: CtaType;
 };
 
 /** Lightweight affiliate click instrumentation (no paid analytics required). */
 export function trackAffiliateClick(payload: AffiliateClickPayload): void {
   if (typeof window === "undefined") return;
-
-  try {
-    // eslint-disable-next-line no-console
-    console.info("[affiliate_cta_click]", payload);
-  } catch {
-    /* ignore */
-  }
 
   try {
     window.dispatchEvent(

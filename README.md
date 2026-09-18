@@ -1,13 +1,16 @@
 # ClientBilling (clientbilling.com)
 
-Next.js App Router site with **payments and billing guidance** for businesses that want to get paid better, plus a transparent affiliate funnel into **CDG Commerce**.
+Next.js App Router site with plain-language guides to merchant accounts, processing fees, recurring billing, invoicing, and POS, plus a disclosed affiliate funnel into CDG Commerce.
+
+Start with `docs/STYLE_GUIDE.md`. It defines the look, the voice, the CTA ladder, and the page templates, and `npm run check` enforces the parts a script can catch.
 
 ## Stack
 
 - Next.js App Router + TypeScript
-- Tailwind CSS v4
+- Tailwind CSS v4 with semantic tokens in `src/app/globals.css`
+- Primitives in `src/components/ui` (the only place raw palette classes are allowed)
 - Markdown posts in `content/blog` (gray-matter + remark)
-- No auth, no database, no paid analytics required for MVP
+- No auth, no database, no paid analytics required
 
 ## Getting started
 
@@ -23,36 +26,40 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `NEXT_PUBLIC_AFFILIATE_SIGNUP_URL` | Optional | Bottom-of-funnel CDG merchant apply / free-quote URL. Defaults to the ClientBilling agent link with UTMs. |
+| `NEXT_PUBLIC_AFFILIATE_SIGNUP_URL` | Optional | "Start a CDG application". CDG's secure merchant application, agent 470. |
+| `NEXT_PUBLIC_CDG_QUOTE_URL` | Optional | "Get a free quote from CDG". CDG's quote form (`/applynow/?R=470`). |
 
-Default apply / quote URL (tracked money CTA):
+Defaults for both are in `src/lib/site.ts`. The explore CTAs use CDG's agent-attributed solution pages (`my_landing/?R=470&type=...`), also in `site.ts`.
 
-`https://secure.cdgcommerce.com/onlineapp/onlineapp-ht-newV2.php?agentid=470&appcode=CLIENTBILLING&utm_source=clientbilling&utm_medium=cta&utm_campaign=site`
+## CTA ladder
 
-Mid-funnel R=470 landings (Online / Retail / Wireless Explore on `/get-started`):
+Every button label and destination comes from `src/lib/cta.ts`. Pages render `CtaButton` with a rung and a position; see the style guide, section 4.
 
-- `https://www.cdgcommerce.com/my_landing/?R=470&type=internet`
-- `https://www.cdgcommerce.com/my_landing/?R=470&type=retail`
-- `https://www.cdgcommerce.com/my_landing/?R=470&type=wireless`
+| Rung | Label | Destination |
+| --- | --- | --- |
+| compare | Compare CDG pricing | `/cdgcommerce` |
+| fit | See if CDG fits | `/cdgcommerce#fit` |
+| quote | Get a free quote from CDG | CDG quote form |
+| apply | Start a CDG application | CDG secure application |
+| explore* | Explore CDG online / in-person / mobile payments, or an internal guide | CDG solution pages or internal |
 
-Recurring & B2B Explore stay on internal `/cdgcommerce/recurring-billing` and `/cdgcommerce/b2b`.
+Clicks on outbound rungs fire `affiliate_cta_click` (see `src/lib/affiliate-track.ts`) with page, position, type, and label.
 
-## Funnel model
+## Facts about CDG
 
-1. Soft CTAs → **See CDG Options** / **Get a Free CDG Quote**
-2. Mid-funnel Explore → R=470 landings (Online/In-Person/Mobile) or internal guides (Recurring/B2B)
-3. Hard convert → Check eligibility / Apply for a merchant account (lower on pages)
-4. Tracked via `TrackedAffiliateLink` + `affiliate_cta_click`
+`src/lib/cdg.ts` holds every CDG number the site shows, with the source URL and the date it was checked. Update it there, not in pages.
 
 ## Key routes
 
-- `/` — Editorial homepage (volume selector, soft CTAs)
-- `/cdgcommerce` — Primary money page (glance, fit/not-fit, pricing models, features, FAQ)
-- `/cdgcommerce/online-payments` | `/retail` | `/wireless` | `/recurring-billing` | `/b2b`
-- `/get-started` — Why CDG + five intent paths + prequalification
-- `/cdg-commerce` → redirects to `/cdgcommerce`
-- `/blog`, `/blog/[slug]` — Guides with contextual mid + end CTAs
+- `/` homepage: volume and business-type chooser, featured guides
+- `/cdgcommerce` the CDG Commerce review and pricing hub
+- `/cdgcommerce/online-payments`, `/retail`, `/wireless`, `/recurring-billing`, `/b2b` channel pages
+- `/get-started` the chooser for readers who already know they want a quote
+- `/blog`, `/blog/[slug]` guides
+- `/methodology` how scores are set
+- `/authors/alberto-vasquez` author page
 - `/about`, `/affiliate-disclosure`, `/privacy`
+- `/cdg-commerce` redirects to `/cdgcommerce`
 - `/sitemap.xml`, `/robots.txt`
 
 ## Scripts
@@ -63,6 +70,8 @@ Recurring & B2B Explore stay on internal `/cdgcommerce/recurring-billing` and `/
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | ESLint |
+| `npm run style:check` | Style guide checks (banned phrases, dashes, raw palette classes) |
+| `npm run check` | Typecheck, lint, and style check together. Run before every commit. |
 
 ## Deploy
 

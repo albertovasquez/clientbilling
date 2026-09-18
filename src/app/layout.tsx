@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { author } from "@/lib/author";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -20,12 +21,12 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — ${siteConfig.tagline}`,
+    default: `${siteConfig.name}: ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-  authors: [{ name: siteConfig.author, url: siteConfig.url }],
+  authors: [{ name: author.name, url: author.url }],
   creator: siteConfig.name,
   publisher: siteConfig.name,
   keywords: [
@@ -46,18 +47,27 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    title: `${siteConfig.name}: ${siteConfig.tagline}`,
     description: siteConfig.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    title: `${siteConfig.name}: ${siteConfig.tagline}`,
     description: siteConfig.description,
   },
   robots: {
     index: true,
     follow: true,
   },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}/opengraph-image`,
+  founder: { "@type": "Person", name: author.name, url: author.url },
 };
 
 export default function RootLayout({
@@ -70,10 +80,14 @@ export default function RootLayout({
       lang="en"
       className={`${sourceSans.variable} ${sourceSerif.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans text-slate-900">
+      <body className="flex min-h-full flex-col font-sans text-ink">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-teal-800 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-action focus:px-4 focus:py-2 focus:text-small focus:font-semibold focus:text-paper"
         >
           Skip to content
         </a>
