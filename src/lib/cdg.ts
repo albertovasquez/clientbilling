@@ -35,6 +35,10 @@ export const cdgSources = {
     label: "Better Business Bureau profile",
     href: "https://www.bbb.org/us/fl/port-orange/profile/credit-card-processing-services/cdg-commerce-0733-90711547",
   },
+  recurringBilling: {
+    label: "CDG Commerce recurring billing",
+    href: "https://www.cdgcommerce.com/solutions/recurring-billing/",
+  },
   merchantMaverick: {
     label: "Merchant Maverick review",
     href: "https://www.merchantmaverick.com/reviews/cdgcommerce-review/",
@@ -175,7 +179,18 @@ export const cdgFit = {
   ],
 } as const;
 
-/** Editorial score. Provisional; adjust after the owner's review. See /methodology. */
+/**
+ * Editorial score, set 2026-09-17. Method: /methodology.
+ * Pricing transparency 4.5: every plan's rates, monthly fee, gateway, and terminal
+ *   terms are published; minus 0.5 because the flat-rate monthly fee differs between
+ *   CDG's pages and chargeback, ACH, and batch fees are not published at all.
+ * Contract terms 4.0: month to month with no early termination fee, but only a third
+ *   party reports it; wholesale membership is billed annually; the terminal is a
+ *   placement, not owned.
+ * Support 4.5: 24/7/365 U.S.-based in-house support is CDG's own claim and matches
+ *   third-party reviews; minus 0.5 because we have not tested it ourselves.
+ * Overall is the mean, 4.3.
+ */
 export const cdgRating: Rating = {
   overall: 4.3,
   pricing: 4.5,

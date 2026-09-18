@@ -54,7 +54,7 @@ Everything below is ordered by expected payoff for effort.
 The current instrumentation only logs to the console and pushes to `window.dataLayer`, and no tag manager is loaded. Recommended lean stack:
 
 - Google Search Console for queries and impressions.
-- Plausible (or Umami if self-hosting) for pageviews and outbound clicks. Done 2026-09-17: the layout loads Plausible with the outbound-links extension when `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` is set, and `trackAffiliateClick` sends `affiliate_cta_click` with page, position, type, label, and slug as props. Remaining: create the Plausible site and set the variable in Vercel.
+- An analytics tool for pageviews and outbound clicks. The owner declined Plausible on 2026-09-17. The site emits `affiliate_cta_click` as a DOM event and a `window.dataLayer` push, so Google Tag Manager, GA4, or a self-hosted Umami can be wired in later without page changes.
 - Append a `ref=<slug>-<position>` parameter to outbound CDG URLs so CDG's agent reporting can be matched back to pages.
 - Scroll depth at 50% and 90% on posts.
 

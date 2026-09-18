@@ -7,6 +7,8 @@ author: "alberto-vasquez"
 tags: ["recurring billing", "subscriptions", "payment processing", "CDG Commerce"]
 featured: false
 sources:
+  - label: "CDG Commerce recurring billing"
+    href: "https://www.cdgcommerce.com/solutions/recurring-billing/"
   - label: "CDG Commerce pricing"
     href: "https://www.cdgcommerce.com/pricing/"
   - label: "Merchant Maverick review"
