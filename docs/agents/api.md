@@ -43,6 +43,14 @@ Returns `201 { "client": { "id", "name", "email", "phone", "company", "createdAt
 
 `POST /api/v1/invoices/:id/send` emails the invoice, with the PDF attached, to the client on file. `400` if the client has no email, `429` past 20 emails per hour, `503` if email is not enabled on the deployment. On success the invoice becomes `sent`.
 
+`GET /api/v1/invoices/:id/payments` lists payments recorded against the invoice, newest first.
+
+`POST /api/v1/invoices/:id/payments` records money received (decision 0019). Body: `{ "amountCents": 12500, "method": "bank_transfer", "paidOn": "2026-09-18", "note": "Deposit" }`. `method` is one of `cash`, `check`, `bank_transfer`, `card`, `other` (default `other`); `paidOn` defaults to now and cannot be in the future. Paying the full balance flips the invoice to `paid`. `400` if the amount is zero or exceeds `balanceCents`, `409` on void or already paid invoices. Returns `201 { "payment": {...}, "invoice": {...} }`.
+
+`DELETE /api/v1/invoices/:id/payments/:paymentId` removes a payment record. A paid invoice reopens as `overdue`, `viewed`, `sent`, or `draft` depending on its history.
+
+`POST /api/v1/invoices/:id/status` with `{ "status": "paid" }` records one payment for the remaining balance with method `other`, so payment records stay the source of truth.
+
 `POST /api/v1/invoices/:id/remind` sends one reminder to the client on file. `429` within 24 hours of the last reminder.
 
 ## Invoice object
@@ -57,6 +65,7 @@ Returns `201 { "client": { "id", "name", "email", "phone", "company", "createdAt
   "issueDate": "2026-09-18T00:00:00.000Z", "dueDate": "2026-10-02T00:00:00.000Z",
   "currency": "USD", "taxRateBps": 700,
   "subtotalCents": 125000, "taxCents": 8750, "totalCents": 133750,
+  "paidCents": 50000, "balanceCents": 83750,
   "notes": "Net 14.",
   "lineItems": [{ "id": "cmu...", "description": "...", "quantity": 4, "unitPriceCents": 12500 }],
   "sentAt": "...", "viewedAt": null, "paidAt": null, "voidedAt": null,
@@ -75,6 +84,10 @@ curl -s -X POST https://www.clientbilling.com/api/v1/invoices \
   -d '{"newClient":{"name":"Jane Client","email":"jane@example.com"},"lines":[{"description":"Consulting, September","quantity":10,"unitPrice":150}],"taxRate":0,"dueDate":"2026-10-15"}'
 
 curl -s -X POST https://www.clientbilling.com/api/v1/invoices/INVOICE_ID/send -H "Authorization: Bearer $CB_KEY"
+
+curl -s -X POST https://www.clientbilling.com/api/v1/invoices/INVOICE_ID/payments \
+  -H "Authorization: Bearer $CB_KEY" -H "Content-Type: application/json" \
+  -d '{"amountCents":50000,"method":"check","paidOn":"2026-09-18","note":"Check 1042"}'
 ```
 
 ## Not in v1

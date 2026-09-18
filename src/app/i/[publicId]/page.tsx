@@ -6,6 +6,7 @@ import { PayLinkButton } from "@/components/PayLinkButton";
 import { ViewBeacon } from "@/components/ViewBeacon";
 import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
+import { balanceCents } from "@/lib/invoices/payments";
 import { payerStatusLabel } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents, lineTotalCents } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
@@ -53,6 +54,8 @@ export default async function PublicInvoicePage({ params }: Props) {
   const merchantName = business?.name || "Your vendor";
   const statusLabel = payerStatusLabel(invoice.status, invoice.dueDate);
   const paid = invoice.status === "paid";
+  const balance = balanceCents(invoice);
+  const partial = !paid && invoice.paidCents > 0;
   const instructions = business?.paymentInstructions?.trim();
   const payLink = business?.payLinkUrl?.trim();
   const addressLine = [business?.city, business?.state, business?.postalCode].filter(Boolean).join(", ");
@@ -180,10 +183,27 @@ export default async function PublicInvoicePage({ params }: Props) {
             <dd className="tabular-nums">{formatCents(invoice.taxCents)}</dd>
           </div>
         ) : null}
-        <div className="flex justify-between border-t border-rule-strong pt-2 text-body font-semibold">
-          <dt>{paid ? "Total paid" : "Total due"}</dt>
-          <dd className="tabular-nums">{formatCents(invoice.totalCents, invoice.currency)}</dd>
-        </div>
+        {partial ? (
+          <>
+            <div className="flex justify-between border-t border-rule-strong pt-2">
+              <dt className="text-muted">Total</dt>
+              <dd className="tabular-nums">{formatCents(invoice.totalCents, invoice.currency)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted">Paid to date</dt>
+              <dd className="tabular-nums">{formatCents(invoice.paidCents, invoice.currency)}</dd>
+            </div>
+            <div className="flex justify-between text-body font-semibold">
+              <dt>Balance due</dt>
+              <dd className="tabular-nums">{formatCents(balance, invoice.currency)}</dd>
+            </div>
+          </>
+        ) : (
+          <div className="flex justify-between border-t border-rule-strong pt-2 text-body font-semibold">
+            <dt>{paid ? "Total paid" : "Total due"}</dt>
+            <dd className="tabular-nums">{formatCents(invoice.totalCents, invoice.currency)}</dd>
+          </div>
+        )}
       </dl>
 
       {invoice.notes ? (

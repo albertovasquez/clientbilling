@@ -2,6 +2,7 @@ import type { Client, Invoice, InvoiceLineItem, InvoiceStatus } from "@prisma/cl
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { newPublicInvoiceId } from "@/lib/invoices/ids";
+import { balanceCents, recordPayment } from "@/lib/invoices/payments";
 import { canTransition } from "@/lib/invoices/status";
 import { computeInvoiceTotals, dollarsToCents, normalizeQuantity } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
@@ -133,6 +134,12 @@ export async function setInvoiceStatus(
   if (!canTransition(invoice.status, target)) {
     return { ok: false, error: `Cannot move an invoice from ${invoice.status} to ${target}.`, status: 409, code: "transition" };
   }
+  // Marking paid records the balance as a payment so totals reconcile (decision 0019).
+  if (target === "paid" && balanceCents(invoice) > 0) {
+    const paid = await recordPayment(userId, invoice.id, { amountCents: balanceCents(invoice), method: "other", note: "Marked paid" }, source);
+    if (!paid.ok) return { ok: false, error: paid.error, status: paid.status, code: "invalid" };
+    return { ok: true, invoice: paid.invoice };
+  }
   const now = new Date();
   const updated = await prisma.invoice.update({
     where: { id: invoice.id },
@@ -167,6 +174,8 @@ export function serializeInvoice(
     subtotalCents: invoice.subtotalCents,
     taxCents: invoice.taxCents,
     totalCents: invoice.totalCents,
+    paidCents: invoice.paidCents,
+    balanceCents: balanceCents(invoice),
     notes: invoice.notes,
     lineItems: invoice.lineItems.map((l) => ({
       id: l.id,

@@ -20,7 +20,7 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | Merchant-provided pay link on `/i/*` (shipped 2026-09-18) | The merchant pastes their own hosted payment page; unpaid invoices show Pay online. No integration, no card data, no claims (decision 0014). | Yes. | None. |
 | App UI on shadcn/ui (shipped 2026-09-18, decision 0011) | Forms, tables, badges, and alerts on shared components so screens are faster to add and consistent. | Yes. | None. |
 | Recurring invoices (shipped 2026-09-18) | Service businesses bill monthly. Schedules generate drafts; the merchant approves or auto-sends. | Yes. | None. |
-| Partial payments and payment records | Record deposits, installments, and offline payments against an invoice; balance due on the document. | Yes. | None. |
+| Partial payments and payment records (shipped 2026-09-18, decision 0019) | Record deposits, installments, and offline payments against an invoice; balance due on the document. | Yes. | None. |
 | Credit notes and voids with reason | Corrections without deleting history. | Yes. | None. |
 | Client statements | One page per client: open invoices, paid, balance. Emailable. | Yes. | None. |
 | CSV export | Invoices and payments for a bookkeeper. | Yes. | None. |

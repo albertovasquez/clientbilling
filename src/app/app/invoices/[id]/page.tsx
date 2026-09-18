@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { CopyLinkButton } from "@/components/app/CopyLinkButton";
 import { InvoiceEditor } from "@/components/app/InvoiceEditor";
 import { InvoiceStatusActions } from "@/components/app/StatusForm";
+import { PaymentForm } from "@/components/app/PaymentForm";
+import { deletePaymentAction } from "@/app/app/payment-actions";
 import { CollectOnlinePanel } from "@/components/app/CollectOnlinePanel";
 import { RemindButton } from "@/components/app/RemindButton";
 import { SendInvoiceForm } from "@/components/app/SendInvoiceForm";
@@ -13,6 +15,7 @@ import { Card, CardContent, CardHeader } from "@/components/shadcn/card";
 import { Separator } from "@/components/shadcn/separator";
 import { Table, TableBody, TableCell, TableRow } from "@/components/shadcn/table";
 import { prisma } from "@/lib/db";
+import { balanceCents, paymentMethodLabel, paymentMethods } from "@/lib/invoices/payments";
 import { merchantStatusLabel, openStatuses } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents } from "@/lib/money";
 import { requireUser } from "@/lib/session";
@@ -35,9 +38,14 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
       client: true,
       lineItems: { orderBy: { sortOrder: "asc" } },
       events: { orderBy: { createdAt: "desc" }, take: 25 },
+      payments: { orderBy: { paidOn: "desc" } },
     },
   });
   if (!invoice) notFound();
+  const balance = balanceCents(invoice);
+  const canTakePayment = invoice.status !== "void" && balance > 0;
+  // Server component; today's date seeds the payment form.
+  const today = new Date().toISOString().slice(0, 10);
 
   const business = await prisma.businessProfile.findUnique({
     where: { userId: user.id },
@@ -62,6 +70,9 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
           <p className="mt-2 text-small text-ink-soft">
             {invoice.client.name} · {merchantStatusLabel(invoice.status)} ·{" "}
             {formatCents(invoice.totalCents, invoice.currency)}
+            {invoice.paidCents > 0 && invoice.status !== "paid"
+              ? ` · ${formatCents(balance, invoice.currency)} still due`
+              : ""}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -131,7 +142,7 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
       <CollectOnlinePanel
         hasPaymentInstructions={Boolean(business?.paymentInstructions?.trim())}
         hasPayLink={Boolean(business?.payLinkUrl?.trim())}
-        invoiceTotalLabel={formatCents(invoice.totalCents, invoice.currency)}
+        invoiceTotalLabel={formatCents(balance, invoice.currency)}
       />
 
       <Card>
@@ -169,7 +180,70 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
               <dt>Total</dt>
               <dd>{formatCents(invoice.totalCents)}</dd>
             </div>
+            {invoice.paidCents > 0 ? (
+              <>
+                <div className="flex justify-between">
+                  <dt className="text-muted">Paid to date</dt>
+                  <dd>{formatCents(invoice.paidCents)}</dd>
+                </div>
+                <div className="flex justify-between font-semibold">
+                  <dt>Balance due</dt>
+                  <dd>{formatCents(balance)}</dd>
+                </div>
+              </>
+            ) : null}
           </dl>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <Heading level={2}>Payments</Heading>
+        </CardHeader>
+        <CardContent>
+          {invoice.payments.length > 0 ? (
+            <Table>
+              <TableBody>
+                {invoice.payments.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="text-ink">{p.paidOn.toISOString().slice(0, 10)}</TableCell>
+                    <TableCell className="text-ink-soft">
+                      {paymentMethodLabel(p.method)}
+                      {p.note ? <span className="text-muted"> · {p.note}</span> : null}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums text-ink">
+                      {formatCents(p.amountCents, invoice.currency)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {invoice.status !== "void" ? (
+                        <form action={deletePaymentAction}>
+                          <input type="hidden" name="paymentId" value={p.id} />
+                          <Button type="submit" variant="ghost" size="sm">
+                            Remove
+                          </Button>
+                        </form>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-small text-ink-soft">No payments recorded yet.</p>
+          )}
+          {canTakePayment ? (
+            <div className="mt-6">
+              <Separator />
+              <div className="mt-4">
+                <PaymentForm
+                  invoiceId={invoice.id}
+                  balanceDollars={(balance / 100).toFixed(2)}
+                  today={today}
+                  methods={paymentMethods.map((m) => ({ value: m, label: paymentMethodLabel(m) }))}
+                />
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
