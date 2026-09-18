@@ -26,3 +26,7 @@ The app screens use hand-rolled form styles and buttons from the marketing primi
 ## Revisit when
 
 P0 ships, or a P0 feature turns out to need a component (a data table with sorting, a command menu) that is cheaper to take from shadcn than to write.
+
+## Outcome (2026-09-18)
+
+P0 shipped, so the migration ran the same day. shadcn v4 on Radix (preset Nova, neutral base) was initialized with the `ui` alias pointed at `src/components/shadcn`, because the default alias collides with the marketing primitives folder on a case-insensitive filesystem (`Button.tsx` and `button.tsx`). The generated variables were replaced with references to the existing tokens; the dark block, sidebar variables, radius scale, and font overrides were dropped so marketing pages are unaffected. `bg-muted` became `bg-field` inside the components. React Email and shadcn charts were not adopted yet; email stays plain HTML in `src/lib/email.ts` until a template needs more.

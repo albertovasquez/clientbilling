@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { buttonClass } from "@/components/ui";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Button } from "@/components/shadcn/button";
 
 type Props = {
   invoiceId: string;
@@ -39,7 +40,7 @@ export function SendInvoiceForm({ invoiceId, clientId, clientEmail }: Props) {
     return (
       <p className="text-small text-ink-soft">
         This client has no email on file.{" "}
-        <Link href={`/app/clients/${clientId}/edit`} className="text-action underline-offset-4 hover:underline">
+        <Link href={`/app/clients/${clientId}/edit`} className="text-primary underline-offset-4 hover:underline">
           Add one
         </Link>{" "}
         to email the invoice, or copy the public link above.
@@ -53,13 +54,13 @@ export function SendInvoiceForm({ invoiceId, clientId, clientEmail }: Props) {
         Emails the public link to <span className="font-semibold text-ink">{clientEmail}</span>.
         To send elsewhere, edit the client first.
       </p>
-      <button type="submit" disabled={pending} className={buttonClass("primary", "md")}>
+      <Button type="submit" disabled={pending}>
         {pending ? "Sending" : "Email invoice link"}
-      </button>
+      </Button>
       {message ? (
-        <p className="text-small text-ink-soft" role="status">
-          {message}
-        </p>
+        <Alert role="status">
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       ) : null}
     </form>
   );

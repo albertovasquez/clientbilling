@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { buttonClass, Heading } from "@/components/ui";
+import { Heading } from "@/components/ui";
+import { Alert, AlertDescription, AlertTitle } from "@/components/shadcn/alert";
+import { Badge } from "@/components/shadcn/badge";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
 import { merchantStatusLabel } from "@/lib/invoices/status";
 import { formatCents } from "@/lib/money";
 import { prisma } from "@/lib/db";
@@ -42,100 +47,145 @@ export default async function AppHomePage() {
             Draft, send, and track. Payers see your payment instructions on every invoice.
           </p>
         </div>
-        <Link href="/app/invoices/new" className={buttonClass("primary", "md")}>
-          New invoice
-        </Link>
+        <Button asChild>
+          <Link href="/app/invoices/new">New invoice</Link>
+        </Button>
       </div>
 
       {invoices.length > 0 ? (
-        <dl className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-rule bg-paper p-4">
-            <dt className="text-caption text-muted">Outstanding</dt>
-            <dd className="mt-1 font-display text-display-sm font-semibold tabular-nums text-ink">{formatCents(open._sum.totalCents ?? 0)}</dd>
-            <dd className="text-caption text-muted">{open._count} open</dd>
-          </div>
-          <div className="rounded-2xl border border-rule bg-paper p-4">
-            <dt className="text-caption text-muted">Overdue</dt>
-            <dd className={`mt-1 font-display text-display-sm font-semibold tabular-nums ${overdue._count > 0 ? "text-verdict" : "text-ink"}`}>{formatCents(overdue._sum.totalCents ?? 0)}</dd>
-            <dd className="text-caption text-muted">{overdue._count} past due</dd>
-          </div>
-          <div className="rounded-2xl border border-rule bg-paper p-4">
-            <dt className="text-caption text-muted">Paid this month</dt>
-            <dd className="mt-1 font-display text-display-sm font-semibold tabular-nums text-action">{formatCents(paidThisMonth._sum.totalCents ?? 0)}</dd>
-            <dd className="text-caption text-muted">{paidThisMonth._count} paid</dd>
-          </div>
-        </dl>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardDescription className="text-caption text-muted">Outstanding</CardDescription>
+              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-ink">{formatCents(open._sum.totalCents ?? 0)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-caption text-muted">{open._count} open</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription className="text-caption text-muted">Overdue</CardDescription>
+              <CardTitle className={`font-display text-display-sm font-semibold tabular-nums ${overdue._count > 0 ? "text-destructive" : "text-ink"}`}>{formatCents(overdue._sum.totalCents ?? 0)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-caption text-muted">{overdue._count} past due</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription className="text-caption text-muted">Paid this month</CardDescription>
+              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-primary">{formatCents(paidThisMonth._sum.totalCents ?? 0)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-caption text-muted">{paidThisMonth._count} paid</p>
+            </CardContent>
+          </Card>
+        </div>
       ) : null}
 
       {!business?.paymentInstructions?.trim() ? (
-        <p className="mt-6 rounded-lg border border-verdict-rule bg-verdict-tint px-4 py-3 text-small text-ink-soft">
-          Payers currently see &quot;contact us for payment options&quot;.{" "}
-          <Link href="/app/settings" className="font-semibold text-action underline-offset-4 hover:underline">
-            Add payment instructions
-          </Link>{" "}
-          so they know how to pay you.
-        </p>
+        <Alert role="status" className="mt-6">
+          <AlertDescription>
+            Payers currently see &quot;contact us for payment options&quot;.{" "}
+            <Link href="/app/settings" className="font-semibold text-primary underline-offset-4 hover:underline">
+              Add payment instructions
+            </Link>{" "}
+            so they know how to pay you.
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {cardIntents > 0 && !business?.payLinkUrl ? (
-        <div className="mt-6 rounded-2xl border border-action/30 bg-action-tint p-5">
-          <p className="text-small font-semibold text-ink">
+        <Alert role="status" className="mt-6">
+          <AlertTitle>
             {cardIntents === 1 ? "A client asked" : `${cardIntents} clients asked`} to pay by card in the last 30 days.
-          </p>
-          <p className="mt-1 text-small text-ink-soft">
+          </AlertTitle>
+          <AlertDescription>
             Add a hosted payment page link in Business settings and they can pay online. A CDG Commerce merchant account includes one.
-          </p>
+          </AlertDescription>
           <div className="mt-3">
-            <TrackedAffiliateLink
-              href={siteConfig.quoteUrl}
-              ctaPosition="card"
-              ctaText="Get a free quote from CDG"
-              ctaType="quote"
-              className={buttonClass("primary", "md")}
-            >
-              Get a free quote from CDG
-            </TrackedAffiliateLink>
+            <Button asChild>
+              <TrackedAffiliateLink
+                href={siteConfig.quoteUrl}
+                ctaPosition="card"
+                ctaText="Get a free quote from CDG"
+                ctaType="quote"
+              >
+                Get a free quote from CDG
+              </TrackedAffiliateLink>
+            </Button>
           </div>
-        </div>
+        </Alert>
       ) : null}
 
       {invoices.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-rule bg-paper p-8">
-          <Heading level={2}>No invoices yet</Heading>
-          <p className="mt-2 text-small text-ink-soft">
-            You can add the client while creating the invoice, then email or copy
-            the public link.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/app/invoices/new" className={buttonClass("primary", "md")}>
-              Create an invoice
-            </Link>
-            <Link href="/app/clients" className={buttonClass("secondary", "md")}>
-              Manage clients
-            </Link>
-          </div>
-        </div>
+        <Card className="mt-10">
+          <CardHeader>
+            <Heading level={2}>No invoices yet</Heading>
+            <CardDescription>
+              You can add the client while creating the invoice, then email or copy
+              the public link.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/app/invoices/new">Create an invoice</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/app/clients">Manage clients</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
-        <ul className="mt-8 divide-y divide-rule overflow-hidden rounded-2xl border border-rule bg-paper">
-          {invoices.map((invoice) => (
-            <li key={invoice.id}>
-              <Link
-                href={`/app/invoices/${invoice.id}`}
-                className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 hover:bg-field sm:px-6"
-              >
-                <div>
-                  <p className="text-small font-semibold text-ink">
-                    Invoice #{invoice.number} · {invoice.client.name}
-                  </p>
-                  <p className="text-caption text-muted">
-                    <span className={invoice.status === "overdue" ? "font-semibold text-verdict" : ""}>{merchantStatusLabel(invoice.status)}</span> · {formatCents(invoice.totalCents, invoice.currency)}{invoice.dueDate ? ` · due ${invoice.dueDate.toISOString().slice(0, 10)}` : ""}
-                  </p>
-                </div>
-                <span className="text-small text-action">Open</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Card className="mt-8">
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Invoice</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Due</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invoices.map((invoice) => (
+                  <TableRow key={invoice.id}>
+                    <TableCell>
+                      <Link href={`/app/invoices/${invoice.id}`} className="font-semibold text-ink hover:text-primary">
+                        Invoice #{invoice.number} · {invoice.client.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          invoice.status === "overdue"
+                            ? "destructive"
+                            : invoice.status === "paid"
+                              ? "default"
+                              : "secondary"
+                        }
+                      >
+                        {merchantStatusLabel(invoice.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="tabular-nums">{formatCents(invoice.totalCents, invoice.currency)}</TableCell>
+                    <TableCell className="text-muted-foreground">{invoice.dueDate ? invoice.dueDate.toISOString().slice(0, 10) : ""}</TableCell>
+                    <TableCell className="text-right">
+                      <Link href={`/app/invoices/${invoice.id}`} className="text-primary underline-offset-4 hover:underline">
+                        Open
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

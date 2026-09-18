@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { buttonClass } from "@/components/ui";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Button } from "@/components/shadcn/button";
 
 type Props = { invoiceId: string; lastRemindedAt?: string | null; clientEmail?: string | null };
 
@@ -36,16 +37,16 @@ export function RemindButton({ invoiceId, lastRemindedAt, clientEmail }: Props) 
 
   return (
     <div className="space-y-2">
-      <button type="button" onClick={onClick} disabled={pending} className={buttonClass("secondary", "md")}>
+      <Button type="button" variant="outline" onClick={onClick} disabled={pending}>
         {pending ? "Sending" : "Send a reminder"}
-      </button>
+      </Button>
       {lastRemindedAt ? (
         <p className="text-caption text-muted">Last reminder sent {lastRemindedAt}.</p>
       ) : null}
       {message ? (
-        <p className="text-small text-ink-soft" role="status">
-          {message}
-        </p>
+        <Alert role="status">
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       ) : null}
     </div>
   );

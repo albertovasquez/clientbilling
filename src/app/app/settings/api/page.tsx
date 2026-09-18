@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { revokeApiKeyAction } from "@/app/app/api-key-actions";
 import { ApiKeyForm } from "@/components/app/ApiKeyForm";
-import { buttonClass, Heading } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/shadcn/table";
+import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { siteConfig } from "@/lib/site";
@@ -27,42 +30,56 @@ export default async function ApiSettingsPage() {
         </p>
       </div>
 
-      <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>Create a key</Heading>
-        <ApiKeyForm />
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Heading level={2}>Create a key</Heading>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ApiKeyForm />
+        </CardContent>
+      </Card>
 
-      <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>Your keys</Heading>
-        {keys.length === 0 ? (
-          <p className="mt-2 text-small text-ink-soft">No keys yet.</p>
-        ) : (
-          <ul className="mt-4 divide-y divide-rule border-y border-rule">
-            {keys.map((k) => (
-              <li key={k.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-small">
-                <div>
-                  <p className="font-semibold text-ink">
-                    {k.name} <span className="font-normal text-muted">({k.prefix}...)</span>
-                  </p>
-                  <p className="text-caption text-muted">
-                    Created {k.createdAt.toISOString().slice(0, 10)}
-                    {k.lastUsedAt ? `, last used ${k.lastUsedAt.toISOString().slice(0, 10)}` : ", never used"}
-                    {k.revokedAt ? `, revoked ${k.revokedAt.toISOString().slice(0, 10)}` : ""}
-                  </p>
-                </div>
-                {!k.revokedAt ? (
-                  <form action={revokeApiKeyAction}>
-                    <input type="hidden" name="id" value={k.id} />
-                    <button type="submit" className={buttonClass("quiet", "md")}>
-                      Revoke
-                    </button>
-                  </form>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Heading level={2}>Your keys</Heading>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {keys.length === 0 ? (
+            <p className="text-small text-ink-soft">No keys yet.</p>
+          ) : (
+            <Table>
+              <TableBody>
+                {keys.map((k) => (
+                  <TableRow key={k.id}>
+                    <TableCell className="font-semibold text-ink">
+                      {k.name} <span className="font-normal text-muted">({k.prefix}...)</span>
+                    </TableCell>
+                    <TableCell className="text-caption text-muted">
+                      Created {k.createdAt.toISOString().slice(0, 10)}
+                      {k.lastUsedAt ? `, last used ${k.lastUsedAt.toISOString().slice(0, 10)}` : ", never used"}
+                      {k.revokedAt ? `, revoked ${k.revokedAt.toISOString().slice(0, 10)}` : ""}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {!k.revokedAt ? (
+                        <form action={revokeApiKeyAction}>
+                          <input type="hidden" name="id" value={k.id} />
+                          <Button type="submit" variant="ghost" size="sm">
+                            Revoke
+                          </Button>
+                        </form>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

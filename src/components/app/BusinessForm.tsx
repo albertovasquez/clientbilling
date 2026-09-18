@@ -2,8 +2,11 @@
 
 import { useActionState } from "react";
 import { updateBusinessAction, type ActionState } from "@/app/app/actions";
-import { buttonClass } from "@/components/ui";
-import { fieldClass, labelClass } from "@/components/app/form-styles";
+import { Alert, AlertDescription } from "@/components/shadcn/alert";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
+import { Textarea } from "@/components/shadcn/textarea";
 
 type Defaults = {
   name?: string;
@@ -38,42 +41,34 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
           ["logoUrl", "Logo URL (optional)", false, "url"],
         ] as const
       ).map(([name, label, required, type]) => (
-        <div key={name}>
-          <label htmlFor={name} className={labelClass}>
-            {label}
-          </label>
-          <input
+        <div key={name} className="grid gap-1.5">
+          <Label htmlFor={name}>{label}</Label>
+          <Input
             id={name}
             name={name}
             type={type}
             required={required}
             defaultValue={(defaults?.[name] as string | undefined) ?? ""}
-            className={fieldClass}
           />
         </div>
       ))}
-      <div>
-        <label htmlFor="paymentInstructions" className={labelClass}>
-          Payment instructions (shown on every invoice)
-        </label>
-        <textarea
+      <div className="grid gap-1.5">
+        <Label htmlFor="paymentInstructions">Payment instructions (shown on every invoice)</Label>
+        <Textarea
           id="paymentInstructions"
           name="paymentInstructions"
           rows={4}
           maxLength={2000}
           defaultValue={defaults?.paymentInstructions ?? ""}
           placeholder={"Example: Pay by bank transfer to First Bank, routing 000000000, account 00000000. Checks to the address above. Net 30."}
-          className={fieldClass}
         />
-        <p className="mt-1 text-caption text-muted">
+        <p className="text-caption text-muted">
           Free text. Do not put card numbers here; ClientBilling never collects card data.
         </p>
       </div>
-      <div>
-        <label htmlFor="payLinkUrl" className={labelClass}>
-          Online payment link (optional)
-        </label>
-        <input
+      <div className="grid gap-1.5">
+        <Label htmlFor="payLinkUrl">Online payment link (optional)</Label>
+        <Input
           id="payLinkUrl"
           name="payLinkUrl"
           type="url"
@@ -81,27 +76,26 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
           maxLength={500}
           placeholder="https://"
           defaultValue={defaults?.payLinkUrl ?? ""}
-          className={fieldClass}
         />
-        <p className="mt-1 text-caption text-muted">
+        <p className="text-caption text-muted">
           If you already have a hosted payment page, for example from your CDG Commerce Quantum
           account or another pay link you use, paste it here. It appears as a Pay online button on
           unpaid invoices. Card details are entered on that page, never on ClientBilling.
         </p>
       </div>
       {state.error ? (
-        <p className="text-small text-verdict" role="alert">
-          {state.error}
-        </p>
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
       ) : null}
       {state.ok ? (
-        <p className="text-small text-action" role="status">
-          Saved.
-        </p>
+        <Alert role="status">
+          <AlertDescription>Saved.</AlertDescription>
+        </Alert>
       ) : null}
-      <button type="submit" disabled={pending} className={buttonClass("primary", "lg")}>
+      <Button type="submit" disabled={pending} size="lg">
         {pending ? "Saving" : "Save business profile"}
-      </button>
+      </Button>
     </form>
   );
 }

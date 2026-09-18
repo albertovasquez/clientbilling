@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { CompareTable, Heading } from "@/components/ui";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import { Heading } from "@/components/ui";
 import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
@@ -79,16 +80,56 @@ export default async function FunnelPage() {
           First-party event counts. Totals: {users} accounts, {invoices} invoices, {distinctSenders} accounts that have sent at least one invoice.
         </p>
       </div>
-      <CompareTable
-        caption="Events by step"
-        columns={["Last 7 days", "Last 30 days"]}
-        rows={rows.map((r) => ({ label: r.label, values: r.values.map(String) }))}
-      />
-      <CompareTable
-        caption="CDG link clicks by type and position, last 30 days"
-        columns={["Clicks"]}
-        rows={clickRows.length ? clickRows.map((r) => ({ label: r.label, values: r.values.map(String) })) : [{ label: "No clicks recorded yet", values: ["0"] }]}
-      />
+      <Table>
+        <TableCaption>Events by step</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">
+              <span className="sr-only">Attribute</span>
+            </TableHead>
+            {["Last 7 days", "Last 30 days"].map((col) => (
+              <TableHead key={col} scope="col">
+                {col}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((r) => (
+            <TableRow key={r.label}>
+              <TableCell className="font-medium">{r.label}</TableCell>
+              {r.values.map((v, i) => (
+                <TableCell key={i} className="tabular-nums text-muted-foreground">
+                  {String(v)}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Table>
+        <TableCaption>CDG link clicks by type and position, last 30 days</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">
+              <span className="sr-only">Attribute</span>
+            </TableHead>
+            <TableHead scope="col">Clicks</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {(clickRows.length ? clickRows : [{ label: "No clicks recorded yet", values: [0] }]).map((r) => (
+            <TableRow key={r.label}>
+              <TableCell className="font-medium">{r.label}</TableCell>
+              {r.values.map((v, i) => (
+                <TableCell key={i} className="tabular-nums text-muted-foreground">
+                  {String(v)}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
