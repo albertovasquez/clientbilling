@@ -1,5 +1,7 @@
 import { setInvoiceStatusAction } from "@/app/app/actions";
 import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
 
 type Props = {
   invoiceId: string;
@@ -26,9 +28,19 @@ export function InvoiceStatusActions({ invoiceId, status }: Props) {
         </form>
       ) : null}
       {status !== "void" ? (
-        <form action={setInvoiceStatusAction}>
+        <form action={setInvoiceStatusAction} className="flex w-full flex-wrap items-end gap-2 sm:w-auto">
           <input type="hidden" name="id" value={invoiceId} />
           <input type="hidden" name="status" value="void" />
+          <div className="grid min-w-[14rem] flex-1 gap-1.5">
+            <Label htmlFor="voidReason">Void reason</Label>
+            <Input
+              id="voidReason"
+              name="reason"
+              required
+              maxLength={500}
+              placeholder="Duplicate, wrong client, canceled work"
+            />
+          </div>
           <Button type="submit" variant="ghost">
             Void
           </Button>

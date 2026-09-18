@@ -178,9 +178,12 @@ async function main() {
   assert(marked.ok && marked.invoice.paidCents === 30000 && marked.invoice.status === "paid", "mark as paid records the balance");
   const rows = await prisma.payment.findMany({ where: { invoiceId: inv.id } });
   assert(rows.length === 2 && rows.some((r) => r.note === "Marked paid"), "two payment rows, one from mark as paid");
-  const voidRes = await setInvoiceStatus(user.id, made[1].id, "void", "app");
+  const voidMissing = await setInvoiceStatus(user.id, made[1].id, "void", "app", "  ");
+  assert(!voidMissing.ok && voidMissing.status === 400, "void without reason rejected");
+  const voidRes = await setInvoiceStatus(user.id, made[1].id, "void", "app", "Duplicate invoice");
+  assert(voidRes.ok && voidRes.invoice.voidReason === "Duplicate invoice", "void stores the reason");
   const onVoid = await recordPayment(user.id, made[1].id, { amountCents: 5 }, "app");
-  assert(voidRes.ok && !onVoid.ok && onVoid.status === 409, "void invoice rejects payments");
+  assert(!onVoid.ok && onVoid.status === 409, "void invoice rejects payments");
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

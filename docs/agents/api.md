@@ -39,7 +39,7 @@ Returns `201 { "client": { "id", "name", "email", "phone", "company", "createdAt
 
 `GET /api/v1/invoices/:id` returns one invoice.
 
-`POST /api/v1/invoices/:id/status` with `{ "status": "sent" | "paid" | "void" }`. Only allowed transitions succeed; `409` otherwise.
+`POST /api/v1/invoices/:id/status` with `{ "status": "sent" | "paid" | "void", "reason"?: "..." }`. Void requires a non-empty `reason` (max 500 characters); `400` without it. Only allowed transitions succeed; `409` otherwise.
 
 `POST /api/v1/invoices/:id/send` emails the invoice, with the PDF attached, to the client on file. `400` if the client has no email, `429` past 20 emails per hour, `503` if email is not enabled on the deployment. On success the invoice becomes `sent`.
 
@@ -68,7 +68,7 @@ Returns `201 { "client": { "id", "name", "email", "phone", "company", "createdAt
   "paidCents": 50000, "balanceCents": 83750,
   "notes": "Net 14.",
   "lineItems": [{ "id": "cmu...", "description": "...", "quantity": 4, "unitPriceCents": 12500 }],
-  "sentAt": "...", "viewedAt": null, "paidAt": null, "voidedAt": null,
+  "sentAt": "...", "viewedAt": null, "paidAt": null, "voidedAt": null, "voidReason": null,
   "createdAt": "...", "updatedAt": "..."
 }
 ```

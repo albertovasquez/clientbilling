@@ -124,11 +124,16 @@ export async function setInvoiceStatus(
   invoiceId: string,
   status: string,
   source: "app" | "api",
+  reason?: string | null,
 ): Promise<StatusResult> {
   if (!manualStatuses.includes(status as InvoiceStatus)) {
     return { ok: false, error: "Status must be sent, paid, or void.", status: 400, code: "invalid" };
   }
   const target = status as InvoiceStatus;
+  const voidReason = (reason ?? "").trim().slice(0, 500);
+  if (target === "void" && voidReason.length < 1) {
+    return { ok: false, error: "A reason is required to void an invoice.", status: 400, code: "invalid" };
+  }
   const invoice = await prisma.invoice.findFirst({ where: { id: invoiceId, userId } });
   if (!invoice) return { ok: false, error: "Invoice not found.", status: 404, code: "not_found" };
   if (!canTransition(invoice.status, target)) {
@@ -141,6 +146,8 @@ export async function setInvoiceStatus(
     return { ok: true, invoice: paid.invoice };
   }
   const now = new Date();
+  const eventMeta =
+    target === "void" ? JSON.stringify({ source, reason: voidReason }) : source;
   const updated = await prisma.invoice.update({
     where: { id: invoice.id },
     data: {
@@ -148,10 +155,15 @@ export async function setInvoiceStatus(
       sentAt: target === "sent" ? (invoice.sentAt ?? now) : invoice.sentAt,
       paidAt: target === "paid" ? now : invoice.paidAt,
       voidedAt: target === "void" ? now : invoice.voidedAt,
-      events: { create: { type: `status_${target}`, meta: source } },
+      voidReason: target === "void" ? voidReason : invoice.voidReason,
+      events: { create: { type: `status_${target}`, meta: eventMeta } },
     },
   });
-  await recordEvent({ name: `invoice_${target}`, userId, payload: { manual: true, source } });
+  await recordEvent({
+    name: `invoice_${target}`,
+    userId,
+    payload: target === "void" ? { manual: true, source, reason: voidReason } : { manual: true, source },
+  });
   return { ok: true, invoice: updated };
 }
 
@@ -187,6 +199,7 @@ export function serializeInvoice(
     viewedAt: invoice.viewedAt?.toISOString() ?? null,
     paidAt: invoice.paidAt?.toISOString() ?? null,
     voidedAt: invoice.voidedAt?.toISOString() ?? null,
+    voidReason: invoice.voidReason ?? null,
     createdAt: invoice.createdAt.toISOString(),
     updatedAt: invoice.updatedAt.toISOString(),
   };

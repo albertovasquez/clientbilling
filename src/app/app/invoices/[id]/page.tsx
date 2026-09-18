@@ -105,6 +105,14 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
               </AlertDescription>
             </Alert>
           ) : null}
+          {query.error === "void_reason" ? (
+            <Alert variant="destructive" role="alert" className="mt-2">
+              <AlertDescription>Enter a reason before voiding this invoice.</AlertDescription>
+            </Alert>
+          ) : null}
+          {invoice.status === "void" && invoice.voidReason ? (
+            <p className="mt-2 text-small text-ink-soft">Void reason: {invoice.voidReason}</p>
+          ) : null}
           <div className="mt-4">
             <InvoiceStatusActions invoiceId={invoice.id} status={invoice.status} />
           </div>
