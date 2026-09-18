@@ -4,9 +4,11 @@ import { CopyLinkButton } from "@/components/app/CopyLinkButton";
 import { InvoiceEditor } from "@/components/app/InvoiceEditor";
 import { InvoiceStatusActions } from "@/components/app/StatusForm";
 import { CollectOnlinePanel } from "@/components/app/CollectOnlinePanel";
+import { RemindButton } from "@/components/app/RemindButton";
 import { SendInvoiceForm } from "@/components/app/SendInvoiceForm";
 import { buttonClass, Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
+import { merchantStatusLabel, openStatuses } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents } from "@/lib/money";
 import { requireUser } from "@/lib/session";
 import { siteConfig } from "@/lib/site";
@@ -27,7 +29,7 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
     include: {
       client: true,
       lineItems: { orderBy: { sortOrder: "asc" } },
-      events: { orderBy: { createdAt: "desc" }, take: 10 },
+      events: { orderBy: { createdAt: "desc" }, take: 25 },
     },
   });
   if (!invoice) notFound();
@@ -42,6 +44,8 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
   });
 
   const cardIntent = invoice.events.find((e) => e.type === "card_intent");
+  const lastReminder = invoice.events.find((e) => e.type === "reminder_sent");
+  const canRemind = openStatuses.includes(invoice.status);
   const publicUrl = `${siteConfig.url}/i/${invoice.publicId}`;
   const editable = invoice.status !== "paid" && invoice.status !== "void";
 
@@ -51,7 +55,7 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
         <div>
           <Heading level={1}>Invoice #{invoice.number}</Heading>
           <p className="mt-2 text-small text-ink-soft">
-            {invoice.client.name} · {invoice.status} ·{" "}
+            {invoice.client.name} · {merchantStatusLabel(invoice.status)} ·{" "}
             {formatCents(invoice.totalCents, invoice.currency)}
           </p>
         </div>
@@ -82,6 +86,15 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
         <div className="mt-4">
           <InvoiceStatusActions invoiceId={invoice.id} status={invoice.status} />
         </div>
+        {canRemind ? (
+          <div className="mt-6 border-t border-rule pt-4">
+            <RemindButton
+              invoiceId={invoice.id}
+              clientEmail={invoice.client.email}
+              lastRemindedAt={lastReminder ? lastReminder.createdAt.toISOString().slice(0, 10) : null}
+            />
+          </div>
+        ) : null}
       </section>
 
       <section className="rounded-2xl border border-rule bg-paper p-6">
