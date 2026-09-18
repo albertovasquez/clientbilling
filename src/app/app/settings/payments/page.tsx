@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
 import { buttonClass, Heading } from "@/components/ui";
-import { flags } from "@/lib/flags";
 import { getBusinessForUser, requireUser } from "@/lib/session";
 import { siteConfig } from "@/lib/site";
 
@@ -11,6 +10,7 @@ export default async function PaymentsSettingsPage() {
   const user = await requireUser();
   const business = await getBusinessForUser(user.id);
   const instructions = business?.paymentInstructions?.trim();
+  const payLink = business?.payLinkUrl?.trim();
 
   return (
     <div className="space-y-8">
@@ -39,15 +39,30 @@ export default async function PaymentsSettingsPage() {
       </section>
 
       <section className="rounded-2xl border border-rule bg-paper p-6">
-        <Heading level={2}>
-          {flags.collectOnline ? "Online card payment" : "Online card payment (planned)"}
-        </Heading>
+        <Heading level={2}>Online payment link</Heading>
+        {payLink ? (
+          <p className="mt-2 break-all text-small text-ink-soft">
+            Payers see a Pay online button that opens {payLink}. Mark invoices paid once the money arrives.
+          </p>
+        ) : (
+          <p className="mt-2 text-small text-ink-soft">
+            None yet. If you have a hosted payment page, for example from a CDG Commerce Quantum
+            account or another pay link you already use, add it and unpaid invoices get a Pay online
+            button. Card details are entered on that page, never on ClientBilling.
+          </p>
+        )}
+        <Link href="/app/settings" className={`${buttonClass("secondary", "md")} mt-4`}>
+          {payLink ? "Edit pay link" : "Add a pay link"}
+        </Link>
+      </section>
+
+      <section className="rounded-2xl border border-rule bg-paper p-6">
+        <Heading level={2}>Need a merchant account?</Heading>
         <p className="mt-2 text-small text-ink-soft">
-          Card payment from the invoice page is planned to run on a CDG Commerce
-          merchant account. It is not available yet. If you want a merchant
-          account in place for that day, request a quote or start an application
-          with CDG now. ClientBilling may earn a commission if you apply through
-          these links; it does not change your pricing.
+          A CDG Commerce merchant account comes with a Quantum gateway and a hosted payment page you
+          can paste above. Interchange-plus pricing pays off above about $10,000 a month of card
+          volume. ClientBilling may earn a commission if you apply through these links; it does not
+          change your pricing.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <TrackedAffiliateLink

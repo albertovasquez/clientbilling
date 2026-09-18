@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { recordEvent } from "@/lib/events";
 
-const allowedNames = new Set(["affiliate_cta_click", "calculator_complete"]);
+const allowedNames = new Set(["affiliate_cta_click", "calculator_complete", "payer_pay_link_click"]);
 
 /** Browser event sink (decision 0007). Accepts a small allowlist of event names. */
 export async function POST(req: Request) {

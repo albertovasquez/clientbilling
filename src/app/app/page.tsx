@@ -12,10 +12,13 @@ export default async function AppHomePage() {
   const user = await requireUser();
   const business = await prisma.businessProfile.findUnique({
     where: { userId: user.id },
-    select: { paymentInstructions: true },
+    select: { paymentInstructions: true, payLinkUrl: true },
   });
+  // Server component; reading the clock here is intentional.
+  // eslint-disable-next-line react-hooks/purity
+  const since = new Date(Date.now() - 30 * 86_400_000);
   const cardIntents = await prisma.event.count({
-    where: { name: "payer_card_intent", userId: user.id, createdAt: { gte: new Date(Date.now() - 30 * 86_400_000) } },
+    where: { name: "payer_card_intent", userId: user.id, createdAt: { gte: since } },
   });
   const invoices = await prisma.invoice.findMany({
     where: { userId: user.id },
@@ -48,13 +51,13 @@ export default async function AppHomePage() {
         </p>
       ) : null}
 
-      {cardIntents > 0 ? (
+      {cardIntents > 0 && !business?.payLinkUrl ? (
         <div className="mt-6 rounded-2xl border border-action/30 bg-action-tint p-5">
           <p className="text-small font-semibold text-ink">
             {cardIntents === 1 ? "A client asked" : `${cardIntents} clients asked`} to pay by card in the last 30 days.
           </p>
           <p className="mt-1 text-small text-ink-soft">
-            Card payment from your invoices is planned to run on a CDG Commerce merchant account. Getting a quote now means the account is ready when it ships.
+            Add a hosted payment page link in Business settings and they can pay online. A CDG Commerce merchant account includes one.
           </p>
           <div className="mt-3">
             <TrackedAffiliateLink

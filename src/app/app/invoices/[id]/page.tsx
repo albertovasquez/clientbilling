@@ -98,6 +98,7 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
 
       <CollectOnlinePanel
         hasPaymentInstructions={Boolean(business?.paymentInstructions?.trim())}
+        hasPayLink={Boolean(business?.payLinkUrl?.trim())}
         invoiceTotalLabel={formatCents(invoice.totalCents, invoice.currency)}
       />
 

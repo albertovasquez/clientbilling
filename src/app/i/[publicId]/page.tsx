@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CardIntentButton } from "@/components/CardIntentButton";
+import { PayLinkButton } from "@/components/PayLinkButton";
 import { ViewBeacon } from "@/components/ViewBeacon";
 import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
-import { flags } from "@/lib/flags";
 import { payerStatusLabel } from "@/lib/invoices/status";
 import { bpsToPercentLabel, formatCents, lineTotalCents } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
@@ -54,6 +54,7 @@ export default async function PublicInvoicePage({ params }: Props) {
   const statusLabel = payerStatusLabel(invoice.status, invoice.dueDate);
   const paid = invoice.status === "paid";
   const instructions = business?.paymentInstructions?.trim();
+  const payLink = business?.payLinkUrl?.trim();
   const addressLine = [business?.city, business?.state, business?.postalCode].filter(Boolean).join(", ");
 
   return (
@@ -195,11 +196,7 @@ export default async function PublicInvoicePage({ params }: Props) {
       {!paid ? (
         <section className="mt-10 rounded-2xl border border-rule bg-field p-6 print:border-0 print:bg-paper print:p-0">
           <h2 className="font-display text-display-sm font-semibold text-ink">How to pay</h2>
-          {flags.collectOnline && business?.quantumConnected ? (
-            <p className="mt-2 text-small text-ink-soft">
-              Online card payment for this invoice is being set up by {merchantName}.
-            </p>
-          ) : null}
+          {payLink ? <PayLinkButton href={payLink} merchantName={merchantName} /> : null}
           {instructions ? (
             <p className="mt-2 whitespace-pre-wrap text-small text-ink-soft">{instructions}</p>
           ) : (
@@ -208,7 +205,7 @@ export default async function PublicInvoicePage({ params }: Props) {
               {business?.email ? ` at ${business.email}` : ""} for payment options.
             </p>
           )}
-          <CardIntentButton publicId={publicId} merchantName={merchantName} />
+          {!payLink ? <CardIntentButton publicId={publicId} merchantName={merchantName} /> : null}
         </section>
       ) : null}
 

@@ -16,7 +16,7 @@ Updated: 2026-09-18. Decisions that shaped this are in `docs/decisions/`.
 4. Public view at `/i/[publicId]` (noindex, payer-first, no affiliate links). "Viewed" is recorded by a client beacon, not on GET.
 5. Send: `/api/invoices/[id]/send` emails the client on file through Resend; "sent" is set only on delivery. Copy link always works. 20 emails per user per hour.
 6. Status transitions follow `src/lib/invoices/status.ts`.
-7. Getting paid: payers see the merchant's payment instructions. Online card payment is planned and off until `COLLECT_ONLINE=on` (decision 0002).
+7. Getting paid: payers see the merchant's payment instructions and, when the merchant has pasted a hosted payment page link, a Pay online button (decision 0014). The merchant marks paid. `COLLECT_ONLINE` is unused.
 
 ## Measurement
 

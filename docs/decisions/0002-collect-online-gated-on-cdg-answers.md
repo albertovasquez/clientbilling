@@ -1,6 +1,6 @@
 # 0002: Collect online is gated on written CDG answers; no connect-existing until then
 
-Status: Accepted 2026-09-18
+Status: Accepted 2026-09-18. Superseded in part by 0014 (no CDG questions will be asked; merchants paste their own pay link instead). The compliance rules here still apply.
 
 ## Context
 
