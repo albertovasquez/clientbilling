@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonClass, Heading } from "@/components/ui";
+import { merchantStatusLabel } from "@/lib/invoices/status";
 import { formatCents } from "@/lib/money";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
@@ -16,7 +17,9 @@ export default async function AppHomePage() {
   });
   // Server component; reading the clock here is intentional.
   // eslint-disable-next-line react-hooks/purity
-  const since = new Date(Date.now() - 30 * 86_400_000);
+  const now = new Date();
+  const since = new Date(now.getTime() - 30 * 86_400_000);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const cardIntents = await prisma.event.count({
     where: { name: "payer_card_intent", userId: user.id, createdAt: { gte: since } },
   });
@@ -26,6 +29,11 @@ export default async function AppHomePage() {
     orderBy: { createdAt: "desc" },
     take: 50,
   });
+  const [open, overdue, paidThisMonth] = await Promise.all([
+    prisma.invoice.aggregate({ where: { userId: user.id, status: { in: ["sent", "viewed", "overdue"] } }, _sum: { totalCents: true }, _count: true }),
+    prisma.invoice.aggregate({ where: { userId: user.id, status: "overdue" }, _sum: { totalCents: true }, _count: true }),
+    prisma.invoice.aggregate({ where: { userId: user.id, status: "paid", paidAt: { gte: monthStart } }, _sum: { totalCents: true }, _count: true }),
+  ]);
 
   return (
     <div>
@@ -40,6 +48,26 @@ export default async function AppHomePage() {
           New invoice
         </Link>
       </div>
+
+      {invoices.length > 0 ? (
+        <dl className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-rule bg-paper p-4">
+            <dt className="text-caption text-muted">Outstanding</dt>
+            <dd className="mt-1 font-display text-display-sm font-semibold tabular-nums text-ink">{formatCents(open._sum.totalCents ?? 0)}</dd>
+            <dd className="text-caption text-muted">{open._count} open</dd>
+          </div>
+          <div className="rounded-2xl border border-rule bg-paper p-4">
+            <dt className="text-caption text-muted">Overdue</dt>
+            <dd className={`mt-1 font-display text-display-sm font-semibold tabular-nums ${overdue._count > 0 ? "text-verdict" : "text-ink"}`}>{formatCents(overdue._sum.totalCents ?? 0)}</dd>
+            <dd className="text-caption text-muted">{overdue._count} past due</dd>
+          </div>
+          <div className="rounded-2xl border border-rule bg-paper p-4">
+            <dt className="text-caption text-muted">Paid this month</dt>
+            <dd className="mt-1 font-display text-display-sm font-semibold tabular-nums text-action">{formatCents(paidThisMonth._sum.totalCents ?? 0)}</dd>
+            <dd className="text-caption text-muted">{paidThisMonth._count} paid</dd>
+          </div>
+        </dl>
+      ) : null}
 
       {!business?.paymentInstructions?.trim() ? (
         <p className="mt-6 rounded-lg border border-verdict-rule bg-verdict-tint px-4 py-3 text-small text-ink-soft">
@@ -102,7 +130,7 @@ export default async function AppHomePage() {
                     Invoice #{invoice.number} · {invoice.client.name}
                   </p>
                   <p className="text-caption text-muted">
-                    {invoice.status} · {formatCents(invoice.totalCents, invoice.currency)}
+                    <span className={invoice.status === "overdue" ? "font-semibold text-verdict" : ""}>{merchantStatusLabel(invoice.status)}</span> · {formatCents(invoice.totalCents, invoice.currency)}{invoice.dueDate ? ` · due ${invoice.dueDate.toISOString().slice(0, 10)}` : ""}
                   </p>
                 </div>
                 <span className="text-small text-action">Open</span>

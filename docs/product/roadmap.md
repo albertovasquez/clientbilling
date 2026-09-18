@@ -7,8 +7,8 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | Item | Why it matters | Agent-operable | CDG dependency |
 | --- | --- | --- | --- |
 | Payer card-intent loop (shipped 2026-09-18) | The honest demand signal: on an unpaid public invoice, "Prefer to pay by card? Let {merchant} know." Records intent, emails the merchant, shows a count in the app. This is the activation trigger for Collect. | Yes: event and email, no policy. | None. Copy says card payment is planned. |
-| Overdue detection and reminders | Nightly cron flips past-due invoices to `overdue`; merchant sends a reminder from the app; optional automatic reminder at +3 and +10 days. | Yes: cron plus an API endpoint. | Resend only. |
-| Aging view on the dashboard | Outstanding by bucket (current, 1 to 30, 31 to 60, 60+), total outstanding, total paid this month. | Yes: read-only query. | None. |
+| Overdue detection and reminders (shipped 2026-09-18; automatic reminders deferred to P1) | Nightly cron flips past-due invoices to `overdue`; merchant sends a reminder from the app; optional automatic reminder at +3 and +10 days. | Yes: cron plus an API endpoint. | Resend only. |
+| Aging view on the dashboard (summary tiles shipped 2026-09-18; buckets later) | Outstanding by bucket (current, 1 to 30, 31 to 60, 60+), total outstanding, total paid this month. | Yes: read-only query. | None. |
 | Branded PDF | Server-rendered PDF from the invoice data with logo and instructions, attached to the email and downloadable from `/i/*`. | Yes: route handler. | None. |
 | Concierge Collect | "Enable card payments" in the app captures business type and monthly volume (CDG's own labels), records the request, emails the founder, and shows the merchant the CDG quote link. The founder walks the merchant through CDG by hand. | Partly: capture is automated, the walk is human. | Uses existing R=470 links only. |
 | Agent surface v1 | Personal API keys; REST endpoints for clients, invoices, send, status; a runbook in `docs/agents/runbooks/` for "create and send", "chase unpaid", "open collect". | This is the item that makes everything else agent-operable. | None. |

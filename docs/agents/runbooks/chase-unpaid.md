@@ -1,9 +1,10 @@
-# Runbook: chase unpaid invoices (until reminders ship)
+# Runbook: chase unpaid invoices
 
-Purpose: help a merchant follow up on unpaid invoices without inventing policy.
+Purpose: help a merchant follow up on unpaid invoices without inventing policy (decision 0015).
 
-1. On `/app`, list invoices with status sent or viewed and a due date in the past.
-2. For each, draft a reminder from the merchant to the client that states the invoice number, amount, due date, the public link, and the payment instructions already on the invoice. Plain, polite, no threats, no fees not on the invoice.
-3. The merchant sends it from their own email, or the agent sends it only through the app once the reminder feature exists (roadmap P0), never from a personal or shared inbox.
+1. On `/app`, the Overdue tile shows the count and amount past due. The list marks overdue invoices.
+2. Open each overdue or opened invoice. Use "Send a reminder". It emails the client on file with the number, amount, due date, public link, pay link if any, and the payment instructions. One reminder per invoice per day.
+3. If the client has no email on file, add one on the client record first, or hand the public link to the merchant to send themselves.
+4. After a week with no response, tell the merchant and let them decide; the agent does not escalate.
 
-Stop and ask: any late fee, interest, collections language, or contacting anyone other than the client on file.
+Stop and ask: any late fee, interest, collections language, contacting anyone other than the client on file, or sending from any address other than the app.
