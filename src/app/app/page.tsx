@@ -5,6 +5,7 @@ import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import { agingBuckets } from "@/lib/invoices/aging";
 import { merchantStatusLabel } from "@/lib/invoices/status";
 import { formatCents } from "@/lib/money";
 import { prisma } from "@/lib/db";
@@ -32,14 +33,25 @@ export default async function AppHomePage() {
     orderBy: { createdAt: "desc" },
     take: 50,
   });
-  const [open, overdue, paidThisMonth] = await Promise.all([
+  const [open, overdue, paidThisMonth, openForAging] = await Promise.all([
     prisma.invoice.aggregate({ where: { userId: user.id, status: { in: ["sent", "viewed", "overdue"] } }, _sum: { totalCents: true, paidCents: true }, _count: true }),
     prisma.invoice.aggregate({ where: { userId: user.id, status: "overdue" }, _sum: { totalCents: true, paidCents: true }, _count: true }),
     prisma.payment.aggregate({ where: { userId: user.id, paidOn: { gte: monthStart } }, _sum: { amountCents: true }, _count: true }),
+    prisma.invoice.findMany({
+      where: { userId: user.id, status: { in: ["sent", "viewed", "overdue"] } },
+      select: { dueDate: true, totalCents: true, paidCents: true },
+    }),
   ]);
   // Outstanding money is what is still owed, net of partial payments (decision 0019).
   const openBalance = (open._sum.totalCents ?? 0) - (open._sum.paidCents ?? 0);
   const overdueBalance = (overdue._sum.totalCents ?? 0) - (overdue._sum.paidCents ?? 0);
+  const aging = agingBuckets(openForAging, now);
+  const agingRows: { label: string; bucket: (typeof aging)["current"] }[] = [
+    { label: "Current", bucket: aging.current },
+    { label: "1 to 30 days", bucket: aging.d1to30 },
+    { label: "31 to 60 days", bucket: aging.d31to60 },
+    { label: "60+ days", bucket: aging.d60plus },
+  ];
 
   return (
     <div>
@@ -84,6 +96,30 @@ export default async function AppHomePage() {
               <p className="text-caption text-muted">{paidThisMonth._count} payments</p>
             </CardContent>
           </Card>
+        </div>
+      ) : null}
+
+      {open._count > 0 ? (
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {agingRows.map((row) => (
+            <Card key={row.label}>
+              <CardHeader>
+                <CardDescription className="text-caption text-muted">{row.label}</CardDescription>
+                <CardTitle
+                  className={`font-display text-display-sm font-semibold tabular-nums ${
+                    row.label !== "Current" && row.bucket.count > 0 ? "text-destructive" : "text-ink"
+                  }`}
+                >
+                  {formatCents(row.bucket.balanceCents)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-caption text-muted">
+                  {row.bucket.count} {row.bucket.count === 1 ? "invoice" : "invoices"}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : null}
 

@@ -5,6 +5,7 @@
  */
 import { compare } from "bcryptjs";
 import { prisma } from "../src/lib/db";
+import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
 import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
 import { setInvoiceStatus } from "../src/lib/invoices/service";
@@ -20,6 +21,28 @@ function assert(cond: unknown, msg: string) {
 }
 
 async function main() {
+  // Aging buckets (pure; no DB)
+  const now = new Date("2026-09-18T15:00:00.000Z");
+  const day = (offset: number) => new Date(Date.UTC(2026, 8, 18 + offset, 12));
+  assert(daysPastDue(day(0), now) === 0, "due today is 0 days past");
+  assert(daysPastDue(day(-1), now) === 1, "due yesterday is 1 day past");
+  assert(daysPastDue(day(-45), now) === 45, "45 days past due");
+  const aged = agingBuckets(
+    [
+      { dueDate: day(5), totalCents: 10000, paidCents: 0 },
+      { dueDate: day(-10), totalCents: 20000, paidCents: 5000 },
+      { dueDate: day(-40), totalCents: 30000, paidCents: 0 },
+      { dueDate: day(-90), totalCents: 40000, paidCents: 10000 },
+      { dueDate: null, totalCents: 7000, paidCents: 0 },
+      { dueDate: day(-5), totalCents: 1000, paidCents: 1000 },
+    ],
+    now,
+  );
+  assert(aged.current.balanceCents === 17000 && aged.current.count === 2, "current includes future due and null dueDate");
+  assert(aged.d1to30.balanceCents === 15000 && aged.d1to30.count === 1, "1-30 net of partial payment");
+  assert(aged.d31to60.balanceCents === 30000 && aged.d31to60.count === 1, "31-60 bucket");
+  assert(aged.d60plus.balanceCents === 30000 && aged.d60plus.count === 1, "60+ net of partial payment");
+
   // Pay links (decision 0014 amendment)
   assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "paypal.me gets the balance");
   assert(payLinkForInvoice("https://www.paypal.me/acmeplumbing/5USD", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "typed amount replaced");
