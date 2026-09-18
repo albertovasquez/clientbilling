@@ -12,11 +12,16 @@ import { fieldClass, labelClass } from "@/components/app/form-styles";
 
 const initial: ActionState = {};
 
-export function SignInForm({ nextPath }: { nextPath?: string }) {
+export function SignInForm({ nextPath, notice }: { nextPath?: string; notice?: string }) {
   const [state, action, pending] = useActionState(signInAction, initial);
   return (
     <form action={action} className="mt-6 space-y-4">
       <input type="hidden" name="next" value={nextPath || "/app"} />
+      {notice ? (
+        <p className="rounded-lg border border-rule bg-field p-3 text-small text-ink" role="status">
+          {notice}
+        </p>
+      ) : null}
       <div>
         <label htmlFor="email" className={labelClass}>
           Email
@@ -50,12 +55,17 @@ export function SignInForm({ nextPath }: { nextPath?: string }) {
         </p>
       ) : null}
       <button type="submit" disabled={pending} className={buttonClass("primary", "lg")}>
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Signing in" : "Sign in"}
       </button>
-      <p className="text-small text-ink-soft">
-        New here?{" "}
-        <Link href="/app/sign-up" className="font-semibold text-action hover:underline">
-          Create an account
+      <p className="flex flex-wrap gap-x-4 text-small text-ink-soft">
+        <span>
+          New here?{" "}
+          <Link href="/app/sign-up" className="font-semibold text-action hover:underline">
+            Create an account
+          </Link>
+        </span>
+        <Link href="/app/reset" className="font-semibold text-action hover:underline">
+          Forgot your password?
         </Link>
       </p>
     </form>
@@ -111,11 +121,18 @@ export function SignUpForm() {
         </p>
       ) : null}
       <button type="submit" disabled={pending} className={buttonClass("primary", "lg")}>
-        {pending ? "Creating…" : "Create account"}
+        {pending ? "Creating" : "Create account"}
       </button>
       <p className="text-caption text-muted">
-        Free invoice UX. Card payments run on CDG Commerce Quantum when you enable
-        collect online. ClientBilling never stores card numbers.
+        Free. By creating an account you accept the{" "}
+        <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
+          terms
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
+          privacy policy
+        </Link>
+        . ClientBilling never stores card numbers.
       </p>
       <p className="text-small text-ink-soft">
         Already have an account?{" "}

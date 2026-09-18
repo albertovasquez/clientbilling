@@ -3,7 +3,8 @@ import { prisma } from "@/lib/db";
 /**
  * Fixed-window rate limit backed by the RateLimit table (decisions 0004, 0006).
  * Returns true when the action is allowed. Windows are keyed by caller-supplied
- * strings such as `send:${userId}` or `signin:${ip}`.
+ * strings such as `send:${userId}` or `signin:${ip}`. `limit` calls are allowed
+ * per window; the next one is refused until the window resets.
  */
 export async function allow(key: string, limit: number, windowSeconds: number): Promise<boolean> {
   const now = new Date();
@@ -11,7 +12,7 @@ export async function allow(key: string, limit: number, windowSeconds: number): 
 
   const row = await prisma.rateLimit.upsert({
     where: { key },
-    create: { key, count: 1, resetAt },
+    create: { key, count: 0, resetAt },
     update: {},
   });
 

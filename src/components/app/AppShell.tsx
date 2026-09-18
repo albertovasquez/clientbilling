@@ -13,10 +13,11 @@ const nav = [
 
 type Props = {
   email?: string | null;
+  isAdmin?: boolean;
   children: React.ReactNode;
 };
 
-export function AppShell({ email, children }: Props) {
+export function AppShell({ email, isAdmin = false, children }: Props) {
   return (
     <div className="min-h-full bg-field">
       <header className="border-b border-rule bg-paper">
@@ -33,7 +34,7 @@ export function AppShell({ email, children }: Props) {
             ) : null}
           </div>
           <nav className="flex flex-wrap items-center gap-1" aria-label="App">
-            {nav.map((item) => (
+            {[...nav, ...(isAdmin ? [{ href: "/app/admin/funnel", label: "Funnel" }] : [])].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
