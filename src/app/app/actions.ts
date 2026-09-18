@@ -166,6 +166,9 @@ const businessSchema = z.object({
     .max(500)
     .refine((v) => v === "" || /^https:\/\/[^\s]+$/i.test(v), "Pay link must start with https://")
     .optional(),
+  defaultDueInDays: z.coerce.number().int().min(0).max(365),
+  defaultTaxRate: z.string().max(16).optional(),
+  defaultNotes: z.string().max(4000).optional(),
 });
 
 export async function updateBusinessAction(
@@ -185,17 +188,28 @@ export async function updateBusinessAction(
     logoUrl: formData.get("logoUrl") || "",
     paymentInstructions: formData.get("paymentInstructions") || undefined,
     payLinkUrl: String(formData.get("payLinkUrl") ?? "").trim(),
+    defaultDueInDays: formData.get("defaultDueInDays") ?? "14",
+    defaultTaxRate: String(formData.get("defaultTaxRate") ?? "0"),
+    defaultNotes: formData.get("defaultNotes") || undefined,
   });
   if (!parsed.success) {
     const payLinkIssue = parsed.error.issues.find((i) => i.path[0] === "payLinkUrl");
     const logoIssue = parsed.error.issues.find((i) => i.path[0] === "logoUrl");
+    const dueIssue = parsed.error.issues.find((i) => i.path[0] === "defaultDueInDays");
     return {
       error: payLinkIssue
         ? "The pay link must be a full https:// address."
         : logoIssue
           ? "The logo URL must be a full https:// address."
-          : "Check the business profile fields.",
+          : dueIssue
+            ? "Default due days must be between 0 and 365."
+            : "Check the business profile fields.",
     };
+  }
+
+  const defaultTaxRateBps = percentToBps(parsed.data.defaultTaxRate ?? "0");
+  if (defaultTaxRateBps < 0 || defaultTaxRateBps > 10_000) {
+    return { error: "Default tax rate must be between 0% and 100%." };
   }
 
   const data = {
@@ -210,6 +224,9 @@ export async function updateBusinessAction(
     logoUrl: parsed.data.logoUrl?.trim() || null,
     paymentInstructions: parsed.data.paymentInstructions?.trim() || null,
     payLinkUrl: parsed.data.payLinkUrl?.trim() || null,
+    defaultDueInDays: parsed.data.defaultDueInDays,
+    defaultTaxRateBps,
+    defaultNotes: parsed.data.defaultNotes?.trim() || null,
   };
 
   await prisma.businessProfile.upsert({

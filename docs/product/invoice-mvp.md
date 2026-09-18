@@ -11,7 +11,7 @@ Updated: 2026-09-18. Decisions that shaped this are in `docs/decisions/`.
 ## Flows
 
 1. Sign up at `/app/sign-up` (email + password). Rate limited per IP.
-2. Business profile at `/app/settings`, including payment instructions that appear on every invoice.
+2. Business profile at `/app/settings`, including payment instructions that appear on every invoice, optional pay link, and default terms (due days, tax rate, notes) that prefill new invoices and recurring schedules.
 3. Create clients and invoices under `/app`. Invoice numbers increment atomically and are unique per user.
 4. Public view at `/i/[publicId]` (noindex, payer-first, no affiliate links) with a PDF at `/i/[publicId]/pdf`; merchants download from `/api/invoices/[id]/pdf` (decision 0016). "Viewed" is recorded by a client beacon, not on GET.
 5. Send: `/api/invoices/[id]/send` emails the client on file through Resend with the PDF attached; "sent" is set only on delivery. Copy link always works. 20 emails per user per hour.
