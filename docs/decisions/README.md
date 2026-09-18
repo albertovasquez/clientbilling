@@ -23,3 +23,4 @@ Format: `NNNN-short-title.md` with sections Status, Context, Decision, Reasons, 
 | 0015 | Overdue is set by a daily sweep; reminders are manual, one a day, to the client on file | Accepted 2026-09-18 |
 | 0016 | Invoice PDFs are rendered server-side from the same data as the page, with built-in fonts | Accepted 2026-09-18 |
 | 0017 | Personal API keys and a small REST surface so agents can operate the product | Accepted 2026-09-18 |
+| 0018 | Recurring schedules generate drafts daily; auto-send is opt-in; missed runs catch up one per day | Accepted 2026-09-18 |
