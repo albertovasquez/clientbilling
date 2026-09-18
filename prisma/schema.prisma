@@ -102,6 +102,11 @@ model BusinessProfile {
   /// Merchant-provided hosted payment page, shown as Pay online (decision 0014). https only.
   payLinkUrl String?
 
+  /// Prefill for new invoices and recurring schedules.
+  defaultDueInDays Int @default(14)
+  defaultTaxRateBps Int @default(0)
+  defaultNotes String? @db.Text
+
   // Quantum connection fields are unused until decision 0002 is revisited.
   // Never store gateway passwords or RestrictKeys.
   quantumConnected     Boolean @default(false)

@@ -1,6 +1,7 @@
 import { BusinessForm } from "@/components/app/BusinessForm";
 import { Alert, AlertDescription } from "@/components/shadcn/alert";
 import { Heading } from "@/components/ui";
+import { bpsToPercentInput } from "@/lib/money";
 import { getBusinessForUser, requireUser } from "@/lib/session";
 
 export const metadata = { title: "Business profile" };
@@ -38,6 +39,9 @@ export default async function SettingsPage({ searchParams }: Props) {
           logoUrl: business?.logoUrl ?? "",
           paymentInstructions: business?.paymentInstructions ?? "",
           payLinkUrl: business?.payLinkUrl ?? "",
+          defaultDueInDays: String(business?.defaultDueInDays ?? 14),
+          defaultTaxRate: bpsToPercentInput(business?.defaultTaxRateBps ?? 0),
+          defaultNotes: business?.defaultNotes ?? "",
         }}
       />
     </div>

@@ -20,6 +20,9 @@ type Defaults = {
   logoUrl?: string;
   paymentInstructions?: string;
   payLinkUrl?: string;
+  defaultDueInDays?: string;
+  defaultTaxRate?: string;
+  defaultNotes?: string;
 };
 
 const initial: ActionState = {};
@@ -82,6 +85,43 @@ export function BusinessForm({ defaults }: { defaults?: Defaults }) {
           account, or a PayPal.me link, paste it here. It appears as a Pay online button on unpaid
           invoices. PayPal.me links open with the balance due filled in. Card details are entered
           on that page, never on ClientBilling.
+        </p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-1.5">
+          <Label htmlFor="defaultDueInDays">Default due (days after issue)</Label>
+          <Input
+            id="defaultDueInDays"
+            name="defaultDueInDays"
+            type="number"
+            min={0}
+            max={365}
+            required
+            defaultValue={defaults?.defaultDueInDays ?? "14"}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="defaultTaxRate">Default tax rate (%)</Label>
+          <Input
+            id="defaultTaxRate"
+            name="defaultTaxRate"
+            inputMode="decimal"
+            defaultValue={defaults?.defaultTaxRate ?? "0"}
+          />
+        </div>
+      </div>
+      <div className="grid gap-1.5">
+        <Label htmlFor="defaultNotes">Default invoice notes (optional)</Label>
+        <Textarea
+          id="defaultNotes"
+          name="defaultNotes"
+          rows={3}
+          maxLength={4000}
+          defaultValue={defaults?.defaultNotes ?? ""}
+          placeholder="Example: Net 14. Thank you for your business."
+        />
+        <p className="text-caption text-muted">
+          Prefills new invoices and recurring schedules. You can still change them per invoice.
         </p>
       </div>
       {state.error ? (

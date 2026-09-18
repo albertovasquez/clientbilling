@@ -27,6 +27,18 @@ export function bpsToPercentLabel(bps: number): string {
   return `${(bps / 100).toFixed(2)}%`;
 }
 
+/** Form value for a tax rate input (no % suffix). Trailing zeros trimmed when whole. */
+export function bpsToPercentInput(bps: number): string {
+  const n = bps / 100;
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+/** YYYY-MM-DD due date that is `days` UTC calendar days after today. */
+export function dueDateIsoFromDays(days: number, now = new Date()): string {
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + days));
+  return d.toISOString().slice(0, 10);
+}
+
 /** Quantities are stored as Decimal(12,4). Round before computing so display matches storage. */
 export function normalizeQuantity(raw: string | number): number {
   const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[,\s]/g, ""));

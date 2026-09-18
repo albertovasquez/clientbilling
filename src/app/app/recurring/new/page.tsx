@@ -3,13 +3,20 @@ import { RecurringForm } from "@/components/app/RecurringForm";
 import { Heading } from "@/components/ui";
 import { prisma } from "@/lib/db";
 import { cadences } from "@/lib/invoices/recurring-dates";
+import { bpsToPercentInput } from "@/lib/money";
 import { requireUser } from "@/lib/session";
 
 export const metadata = { title: "New recurring schedule" };
 
 export default async function NewRecurringPage() {
   const user = await requireUser();
-  const clients = await prisma.client.findMany({ where: { userId: user.id }, orderBy: { name: "asc" }, select: { id: true, name: true } });
+  const [clients, business] = await Promise.all([
+    prisma.client.findMany({ where: { userId: user.id }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.businessProfile.findUnique({
+      where: { userId: user.id },
+      select: { defaultDueInDays: true, defaultTaxRateBps: true, defaultNotes: true },
+    }),
+  ]);
   const today = new Date().toISOString().slice(0, 10);
 
   return (
@@ -23,7 +30,17 @@ export default async function NewRecurringPage() {
           </Link>
         ) : null}
       </p>
-      <RecurringForm mode="create" clients={clients} cadences={cadences} defaults={{ nextRunAt: today }} />
+      <RecurringForm
+        mode="create"
+        clients={clients}
+        cadences={cadences}
+        defaults={{
+          nextRunAt: today,
+          dueInDays: String(business?.defaultDueInDays ?? 14),
+          taxRate: bpsToPercentInput(business?.defaultTaxRateBps ?? 0),
+          notes: business?.defaultNotes ?? "",
+        }}
+      />
     </div>
   );
 }
