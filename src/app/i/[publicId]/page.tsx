@@ -210,7 +210,9 @@ export default async function PublicInvoicePage({ params }: Props) {
       ) : null}
 
       <footer className="mt-10 flex flex-wrap items-center justify-between gap-2 border-t border-rule pt-4 text-caption text-muted print:hidden">
-        <span>Print this page to save a PDF.</span>
+        <a href={`/i/${publicId}/pdf`} className="underline underline-offset-2 hover:text-ink">
+          Download PDF
+        </a>
         <span>
           Invoice software by{" "}
           <Link href="/" className="underline underline-offset-2 hover:text-ink">
