@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
+import { CollectRequestForm } from "@/components/app/CollectRequestForm";
 import { buttonClass, Heading } from "@/components/ui";
+import { cdgBusinessTypes, cdgPlans } from "@/lib/cdg";
 import { getBusinessForUser, requireUser } from "@/lib/session";
 import { siteConfig } from "@/lib/site";
 
@@ -61,29 +62,14 @@ export default async function PaymentsSettingsPage() {
         <p className="mt-2 text-small text-ink-soft">
           A CDG Commerce merchant account comes with a Quantum gateway and a hosted payment page you
           can paste above. Interchange-plus pricing pays off above about $10,000 a month of card
-          volume. ClientBilling may earn a commission if you apply through these links; it does not
-          change your pricing.
+          volume. Tell us two things and a person will walk you through it, or go straight to CDG.
         </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <TrackedAffiliateLink
-            href={siteConfig.quoteUrl}
-            ctaPosition="card"
-            ctaText="Get a free quote from CDG"
-            ctaType="quote"
-            className={buttonClass("primary", "md")}
-          >
-            Get a free quote from CDG
-          </TrackedAffiliateLink>
-          <TrackedAffiliateLink
-            href={siteConfig.affiliateSignupUrl}
-            ctaPosition="card"
-            ctaText="Start a CDG application"
-            ctaType="apply"
-            className={buttonClass("secondary", "md")}
-          >
-            Start a CDG application
-          </TrackedAffiliateLink>
-        </div>
+        <CollectRequestForm
+          businessTypes={cdgBusinessTypes}
+          volumeBands={cdgPlans.map((p) => p.bandShort)}
+          quoteUrl={siteConfig.quoteUrl}
+          applyUrl={siteConfig.affiliateSignupUrl}
+        />
       </section>
     </div>
   );
