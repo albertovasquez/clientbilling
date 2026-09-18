@@ -9,6 +9,7 @@ import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
 import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
 import { fetchLogoForPdf, isAllowedLogoUrl } from "../src/lib/invoices/logo";
+import { partitionStatementInvoices, statementBalanceCents } from "../src/lib/invoices/statements";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
 import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
 import { setInvoiceStatus } from "../src/lib/invoices/service";
@@ -103,6 +104,16 @@ async function main() {
   assert(nextAutoReminderKind(10, new Set([3])) === 10, "day 10 picks +10");
   assert(nextAutoReminderKind(15, new Set()) === 3, "catch-up prefers +3 before +10");
   assert(nextAutoReminderKind(15, new Set([3, 10])) === null, "both sent means done");
+
+  // Client statement helpers
+  const statementRows = [
+    { id: "1", number: "1", status: "overdue" as const, issueDate: new Date(), dueDate: new Date(), currency: "USD", totalCents: 10000, paidCents: 2500, paidAt: null },
+    { id: "2", number: "2", status: "paid" as const, issueDate: new Date(), dueDate: null, currency: "USD", totalCents: 5000, paidCents: 5000, paidAt: new Date() },
+    { id: "3", number: "3", status: "draft" as const, issueDate: new Date(), dueDate: null, currency: "USD", totalCents: 9000, paidCents: 0, paidAt: null },
+  ];
+  assert(statementBalanceCents(statementRows) === 7500, "statement balance nets open invoices only");
+  const parts = partitionStatementInvoices(statementRows);
+  assert(parts.open.length === 1 && parts.paid.length === 1 && parts.other.length === 1, "statement partitions open/paid/other");
 
   // Pay links (decision 0014 amendment)
   assert(payLinkForInvoice("https://paypal.me/acmeplumbing", 1234) === "https://paypal.me/acmeplumbing/12.34USD", "paypal.me gets the balance");
