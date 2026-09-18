@@ -16,16 +16,15 @@ export default async function SignUpPage() {
   return (
     <Section>
       <Container width="article">
-        <Heading level={1}>Create an invoice account</Heading>
+        <Heading level={1}>Create a free invoice account</Heading>
         <p className="mt-4 text-body text-ink-soft">
-          Free invoice create and send. Unpaid invoices work without payments
-          connected. When you want card collect, apply to CDG or connect an
-          existing Quantum gateway. ClientBilling never stores card data.
+          Create, send, and track invoices. Your payment instructions go on every
+          invoice so clients know how to pay you. ClientBilling never stores card
+          data and is not a payment processor.
         </p>
         {!process.env.DATABASE_URL ? (
           <p className="mt-4 rounded-lg border border-verdict-rule bg-verdict-tint p-4 text-small text-ink">
-            DATABASE_URL is not set on this deployment yet. Add Postgres in
-            Vercel env vars, then return here to sign up.
+            Sign-up is not available on this deployment yet.
           </p>
         ) : null}
         <SignUpForm />

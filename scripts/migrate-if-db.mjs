@@ -41,7 +41,7 @@ async function needsBaseline() {
   const prisma = new PrismaClient({ datasources: { db: { url: env.DIRECT_URL } } });
   try {
     const rows = await prisma.$queryRawUnsafe(
-      `SELECT to_regclass('public."Invoice"') AS invoice, to_regclass('public._prisma_migrations') AS migrations`,
+      `SELECT to_regclass('public."Invoice"')::text AS invoice, to_regclass('public._prisma_migrations')::text AS migrations`,
     );
     const row = Array.isArray(rows) ? rows[0] : null;
     return Boolean(row && row.invoice && !row.migrations);
