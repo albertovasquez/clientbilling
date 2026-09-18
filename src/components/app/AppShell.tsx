@@ -8,7 +8,8 @@ const nav = [
   { href: "/app/clients", label: "Clients" },
   { href: "/app/invoices/new", label: "New invoice" },
   { href: "/app/settings", label: "Business" },
-  { href: "/app/settings/payments", label: "Collect online" },
+  { href: "/app/settings/payments", label: "Getting paid" },
+  { href: "/app/settings/api", label: "API" },
 ];
 
 type Props = {

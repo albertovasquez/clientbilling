@@ -11,7 +11,7 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | Aging view on the dashboard (summary tiles shipped 2026-09-18; buckets later) | Outstanding by bucket (current, 1 to 30, 31 to 60, 60+), total outstanding, total paid this month. | Yes: read-only query. | None. |
 | Branded PDF (shipped 2026-09-18; logo on PDF later) | Server-rendered PDF from the invoice data with logo and instructions, attached to the email and downloadable from `/i/*`. | Yes: route handler. | None. |
 | Concierge Collect (shipped 2026-09-18) | "Enable card payments" in the app captures business type and monthly volume (CDG's own labels), records the request, emails the founder, and shows the merchant the CDG quote link. The founder walks the merchant through CDG by hand. | Partly: capture is automated, the walk is human. | Uses existing R=470 links only. |
-| Agent surface v1 | Personal API keys; REST endpoints for clients, invoices, send, status; a runbook in `docs/agents/runbooks/` for "create and send", "chase unpaid", "open collect". | This is the item that makes everything else agent-operable. | None. |
+| Agent surface v1 (shipped 2026-09-18; no webhooks or updates yet) | Personal API keys; REST endpoints for clients, invoices, send, status; a runbook in `docs/agents/runbooks/` for "create and send", "chase unpaid", "open collect". | This is the item that makes everything else agent-operable. | None. |
 
 ## P1: after CDG answers, or in parallel where independent
 

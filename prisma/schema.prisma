@@ -33,6 +33,7 @@ model User {
   invoices Invoice[]
   accounts Account[]
   sessions Session[]
+  apiKeys  ApiKey[]
 }
 
 model Account {
@@ -194,6 +195,22 @@ model Event {
   createdAt DateTime @default(now())
 
   @@index([name, createdAt])
+  @@index([userId])
+}
+
+/// Personal API keys (decision 0017). Raw key shown once; only the SHA-256 is stored.
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  keyHash    String    @unique
+  prefix     String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 

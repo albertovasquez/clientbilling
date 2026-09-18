@@ -15,8 +15,6 @@ export default async function AppHomePage() {
     where: { userId: user.id },
     select: { paymentInstructions: true, payLinkUrl: true },
   });
-  // Server component; reading the clock here is intentional.
-  // eslint-disable-next-line react-hooks/purity
   const now = new Date();
   const since = new Date(now.getTime() - 30 * 86_400_000);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
