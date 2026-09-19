@@ -43,9 +43,9 @@ export async function GET(req: Request) {
         payload: { from: d.status, via: "cron" },
       });
       await snapshotInvoice(tx, d.id, actor);
+      await enqueueWebhook(tx, d.userId, "invoice.overdue", { invoiceId: d.id }, actor);
     });
     await recordEvent({ name: "invoice_overdue", userId: d.userId, payload: { invoiceId: d.id } });
-    await enqueueWebhook(d.userId, "invoice.overdue", { invoiceId: d.id }, actor);
   }
 
   return NextResponse.json({ ok: true, flipped: due.length });

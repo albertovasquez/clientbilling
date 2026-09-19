@@ -126,11 +126,17 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreateIn
       payload: { source: input.source, totalCents: created.totalCents, number: created.number },
     });
     await snapshotInvoice(tx, created.id, actor);
+    await enqueueWebhook(
+      tx,
+      input.userId,
+      "invoice.created",
+      { invoiceId: created.id, number: created.number, totalCents: created.totalCents },
+      actor,
+    );
     return created;
   });
 
   await recordEvent({ name: "invoice_created", userId: input.userId, payload: { totalCents: invoice.totalCents, source: input.source } });
-  await enqueueWebhook(input.userId, "invoice.created", { invoiceId: invoice.id, number: invoice.number, totalCents: invoice.totalCents }, actor);
   return { ok: true, invoice, actor };
 }
 
@@ -201,6 +207,11 @@ export async function setInvoiceStatus(
           : { source, from: invoice.status },
     });
     await snapshotInvoice(tx, invoice.id, who);
+    if (target === "sent") {
+      await enqueueWebhook(tx, userId, "invoice.sent", { invoiceId: invoice.id, number: invoice.number }, who);
+    } else if (target === "paid") {
+      await enqueueWebhook(tx, userId, "invoice.paid", { invoiceId: invoice.id, number: invoice.number }, who);
+    }
     return row;
   });
   await recordEvent({
@@ -208,11 +219,6 @@ export async function setInvoiceStatus(
     userId,
     payload: target === "void" ? { manual: true, source, reason: voidReason } : { manual: true, source },
   });
-  if (target === "sent") {
-    await enqueueWebhook(userId, "invoice.sent", { invoiceId: invoice.id, number: invoice.number }, who);
-  } else if (target === "paid") {
-    await enqueueWebhook(userId, "invoice.paid", { invoiceId: invoice.id, number: invoice.number }, who);
-  }
   return { ok: true, invoice: updated, actor: who };
 }
 

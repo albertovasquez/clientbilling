@@ -46,8 +46,8 @@ export async function POST(req: Request) {
       payload: { from: invoice.status },
     });
     await snapshotInvoice(tx, invoice.id, actor);
+    await enqueueWebhook(tx, invoice.userId, "invoice.viewed", { invoiceId: invoice.id }, actor);
   });
   await recordEvent({ name: "invoice_viewed", userId: invoice.userId });
-  await enqueueWebhook(invoice.userId, "invoice.viewed", { invoiceId: invoice.id }, actor);
   return NextResponse.json({ ok: true });
 }

@@ -12,6 +12,7 @@ import { beginIdempotency } from "../src/lib/billing/idempotency";
 import { prisma } from "../src/lib/db";
 import { serializePayment } from "../src/lib/invoices/payments";
 import { deliverDueWebhooks } from "../src/lib/webhooks/deliver";
+import { enqueueWebhook } from "../src/lib/webhooks/enqueue";
 import { generateWebhookSecret } from "../src/lib/webhooks/sign";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
@@ -396,6 +397,43 @@ async function main() {
   );
   assert(received.every((r) => typeof r.signature === "string" && r.signature.includes("v1=")), "deliveries were signed");
   server.close();
+
+  // Issue #65: a delivery row and the mutation it describes commit together or
+  // not at all. Before the fix, enqueueing used the global client, so a
+  // transaction that rolled back still left the row behind: an event announcing
+  // a mutation that never happened.
+  const beforeRollback = await prisma.webhookDelivery.count({ where: { endpointId: endpoint.id } });
+  try {
+    await prisma.$transaction(async (tx) => {
+      await enqueueWebhook(tx, user.id, "invoice.created", { invoiceId: "rolled-back" }, userActor(user.id));
+      throw new Error("simulated failure after enqueue");
+    });
+  } catch {
+    /* expected: the throw is the point */
+  }
+  const afterRollback = await prisma.webhookDelivery.count({ where: { endpointId: endpoint.id } });
+  assert(afterRollback === beforeRollback, "a rolled-back mutation queues no webhook");
+
+  await prisma.$transaction(async (tx) => {
+    await enqueueWebhook(tx, user.id, "invoice.paid", { invoiceId: "committed" }, userActor(user.id));
+  });
+  const afterCommit = await prisma.webhookDelivery.count({ where: { endpointId: endpoint.id } });
+  assert(afterCommit === beforeRollback + 1, "a committed mutation queues its webhook");
+
+  // The duplicate case stays tolerated: the same event twice is not an error.
+  const twice = "evt_duplicate_probe";
+  await prisma.$transaction(async (tx) => {
+    await enqueueWebhook(tx, user.id, "invoice.sent", { invoiceId: "dup" }, userActor(user.id), twice);
+  });
+  let duplicateThrew = false;
+  try {
+    await prisma.$transaction(async (tx) => {
+      await enqueueWebhook(tx, user.id, "invoice.sent", { invoiceId: "dup" }, userActor(user.id), twice);
+    });
+  } catch {
+    duplicateThrew = true;
+  }
+  assert(!duplicateThrew, "a repeated eventId is tolerated, not thrown");
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");
