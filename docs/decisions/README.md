@@ -29,4 +29,5 @@ Format: `NNNN-short-title.md` with sections Status, Context, Decision, Reasons, 
 | 0021 | Product first: "Bill clients. Know what getting paid costs." Payments are rails attached to the record; ClientBilling Proof is the next phase | Accepted 2026-09-18 |
 | 0022 | Free for people, paid for machines: a Machine tier (proposed $29) and residuals as two separate engines; the proof seal is never paywalled; revises 0010 | Accepted 2026-09-18 |
 | 0023 | The homepage's CDG numbers are derived from the rates module, even where the approved proof drew a different figure | Accepted 2026-09-19 |
+| 0024 | U.S.-first; Colombia and Brazil deferred behind demand triggers; FX becomes a first-class object; 0014 reopens for CDG economics only | Accepted 2026-09-19 |
 | 0021 | Full Content Security Policy and CI harness (check + Postgres flow tests) | Accepted 2026-09-18 |

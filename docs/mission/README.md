@@ -14,7 +14,7 @@ Reading order
 8. `../decisions/`: the record of choices already made. Newer supersedes older.
 9. `../STYLE_GUIDE.md`: tokens, primitives, voice, CTA ladder.
 10. `../brand/brief.md`: the Carbon Copy identity and the three proofs it must pass (decision 0021); `../brand/proofs/` holds the approved artboards; `../STYLE_GUIDE.md` section 2 holds the target tokens.
-11. `../strategy/`: research and briefs. Read `2026-09-18-research-profitable-differentiated-product.md` (the current plan: competitive landscape, two revenue engines, proof architecture, eight-week roadmap) and, for the longer horizon, `2026-09-18-research-niche-and-monetization.md`. Both carry editor's notes; decisions override them.
+11. `../strategy/`: research and briefs. Read `2026-09-18-research-profitable-differentiated-product.md` (the current plan: competitive landscape, two revenue engines, proof architecture, eight-week roadmap) and, for the longer horizon, `2026-09-18-research-niche-and-monetization.md`. `2026-09-19-research-colombia-brazil-beachhead.md` proposes a different initial market; decision 0024 defers it behind demand triggers, so read it for the FX argument and the country-neutral architecture test, not for roadmap. All carry editor's notes; decisions override them.
 
 Ownership
 

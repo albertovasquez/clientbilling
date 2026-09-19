@@ -12,8 +12,15 @@ Owner: founder for terms, residuals, and permitted claims. Agents may update lin
 | Preferred Quantum pay method for third-party invoices (Interactive, Web Order Form, ILF)? | Open. Question 3. | Same. |
 | Branding or claim restrictions from CDG? | None found published as of 2026-09-17. Asked as question 4. | Research report, `docs/research/2026-09-17-traffic-gap-report.md`. |
 | Sandbox credentials contact? | Open. Question 5. | Same. |
+| Is compensation a one-time bounty, an ongoing residual, or both? | Open. Asked 2026-09-19 under 0024. | `docs/decisions/0024`, "The CDG inquiry". |
+| If residual, what is the basis: processing volume, markup, net processing revenue, gateway revenue, or another measure? | Open. Same inquiry. | Same. |
+| How long are residuals paid while a referred merchant remains active? | Open. Same inquiry. | Same. |
+| If the partner agreement ends, is there a contractual tail? | Open. Same inquiry. | Same. |
+| How is a merchant attributed to us, and does attribution survive a plan or product change? | Open. Same inquiry. Partially answered for the quote form by row 1. | Same. |
 
-Per decision 0014 (2026-09-18), these questions are not being asked. There is no integration with CDG or Quantum, no residual is claimed, and merchants paste their own pay link. `COLLECT_ONLINE` stays off.
+Per decision 0014 (2026-09-18), the integration questions are not being asked. There is no integration with CDG or Quantum, no residual is claimed, and merchants paste their own pay link. `COLLECT_ONLINE` stays off.
+
+Decision 0024 (2026-09-19) reopens this narrowly: the five economics and attribution rows above are being asked, because they decide whether the U.S. monetization thesis has recurring economics. The inquiry carries no API discussion, no feature request, and no integration commitment. Until an answer arrives in writing, recurring CDG revenue is modelled at $0 (0022). The integration-permission and Quantum pay-method rows stay closed.
 
 ## Allowed destinations
 
