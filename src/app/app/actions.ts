@@ -8,6 +8,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn, signOut } from "@/auth";
+import { userActor } from "@/lib/billing/actor";
+import { appendBillingEvent } from "@/lib/billing/events";
+import { snapshotInvoice } from "@/lib/billing/versions";
 import { createInvoice, parseDueDate, parseLines, setInvoiceStatus } from "@/lib/invoices/service";
 import { isAdminEmail } from "@/lib/admin";
 import { assertDatabase, prisma } from "@/lib/db";
@@ -423,6 +426,7 @@ export async function updateInvoiceAction(
   const dueDate = parseDueDate(String(formData.get("dueDate") ?? ""));
   const notes = String(formData.get("notes") ?? "").trim().slice(0, 4000) || null;
 
+  const actor = userActor(user.id);
   await prisma.$transaction(async (tx) => {
     await tx.invoiceLineItem.deleteMany({ where: { invoiceId: id } });
     await tx.invoice.update({
@@ -444,6 +448,15 @@ export async function updateInvoiceAction(
         events: { create: { type: "updated" } },
       },
     });
+    await appendBillingEvent(tx, {
+      userId: user.id,
+      aggregateType: "invoice",
+      aggregateId: id,
+      type: "revised",
+      actor,
+      payload: { totalCents: totals.totalCents, clientId: client.id },
+    });
+    await snapshotInvoice(tx, id, actor);
   });
 
   revalidatePath(`/app/invoices/${id}`);

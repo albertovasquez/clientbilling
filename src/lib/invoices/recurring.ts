@@ -1,3 +1,4 @@
+import { systemActor } from "@/lib/billing/actor";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { sendInvoiceEmail } from "@/lib/invoices/email";
@@ -23,6 +24,7 @@ export async function runSchedule(scheduleId: string, now = new Date()): Promise
   if (lines.length === 0) return { scheduleId, error: "Schedule has no line items." };
 
   const dueDate = new Date(now.getTime() + schedule.dueInDays * 86_400_000);
+  const actor = systemActor("cron");
   const created = await createInvoice({
     userId: schedule.userId,
     clientId: schedule.clientId,
@@ -32,6 +34,7 @@ export async function runSchedule(scheduleId: string, now = new Date()): Promise
     notes: schedule.notes,
     source: "recurring",
     recurringScheduleId: schedule.id,
+    actor,
   });
   if (!created.ok) {
     await recordEvent({ name: "recurring_failed", userId: schedule.userId, payload: { scheduleId, error: created.error } });
@@ -45,7 +48,7 @@ export async function runSchedule(scheduleId: string, now = new Date()): Promise
 
   let sent = false;
   if (schedule.autoSend) {
-    const result = await sendInvoiceEmail(schedule.userId, created.invoice.id);
+    const result = await sendInvoiceEmail(schedule.userId, created.invoice.id, actor);
     sent = result.ok;
   }
   await recordEvent({ name: "recurring_run", userId: schedule.userId, payload: { scheduleId, invoiceId: created.invoice.id, sent } });

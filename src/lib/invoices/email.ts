@@ -1,3 +1,7 @@
+import type { Actor } from "@/lib/billing/actor";
+import { userActor } from "@/lib/billing/actor";
+import { appendBillingEvent } from "@/lib/billing/events";
+import { snapshotInvoice } from "@/lib/billing/versions";
 import { prisma } from "@/lib/db";
 import { emailEnabled, sendEmail } from "@/lib/email";
 import { recordEvent } from "@/lib/events";
@@ -12,7 +16,9 @@ import { siteConfig } from "@/lib/site";
  * Outbound invoice email flows shared by the app routes and the API
  * (decisions 0004, 0015, 0017). Recipient is always the client on file.
  */
-export type EmailResult = { ok: true; to: string } | { ok: false; status: number; error: string };
+export type EmailResult =
+  | { ok: true; to: string; actor: Actor }
+  | { ok: false; status: number; error: string };
 
 const REMINDER_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
@@ -28,7 +34,11 @@ async function loadForEmail(userId: string, invoiceId: string) {
   });
 }
 
-export async function sendInvoiceEmail(userId: string, invoiceId: string): Promise<EmailResult> {
+export async function sendInvoiceEmail(
+  userId: string,
+  invoiceId: string,
+  actor?: Actor,
+): Promise<EmailResult> {
   if (!process.env.DATABASE_URL) return { ok: false, status: 503, error: "Invoice database is not configured." };
   if (!emailEnabled()) {
     return { ok: false, status: 503, error: "Email sending is not enabled yet. Copy the public link and share it directly." };
@@ -80,19 +90,36 @@ export async function sendInvoiceEmail(userId: string, invoiceId: string): Promi
     return { ok: false, status: 502, error: "The email could not be sent. Copy the public link and share it directly." };
   }
 
-  await prisma.invoice.update({
-    where: { id: invoice.id },
-    data: {
-      status: invoice.status === "draft" ? "sent" : invoice.status,
-      sentAt: invoice.sentAt ?? new Date(),
-      events: { create: { type: "email_sent", meta: JSON.stringify({ to }) } },
-    },
+  const who = actor ?? userActor(userId);
+  const becameSent = invoice.status === "draft";
+  await prisma.$transaction(async (tx) => {
+    await tx.invoice.update({
+      where: { id: invoice.id },
+      data: {
+        status: becameSent ? "sent" : invoice.status,
+        sentAt: invoice.sentAt ?? new Date(),
+        events: { create: { type: "email_sent", meta: JSON.stringify({ to }) } },
+      },
+    });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "invoice",
+      aggregateId: invoice.id,
+      type: becameSent ? "sent" : "email_sent",
+      actor: who,
+      payload: { to, via: "email", from: invoice.status },
+    });
+    if (becameSent) await snapshotInvoice(tx, invoice.id, who);
   });
   await recordEvent({ name: "invoice_sent", userId, payload: { via: "email" } });
-  return { ok: true, to };
+  return { ok: true, to, actor: who };
 }
 
-export async function sendInvoiceReminder(userId: string, invoiceId: string): Promise<EmailResult> {
+export async function sendInvoiceReminder(
+  userId: string,
+  invoiceId: string,
+  actor?: Actor,
+): Promise<EmailResult> {
   if (!process.env.DATABASE_URL) return { ok: false, status: 503, error: "Invoice database is not configured." };
   if (!emailEnabled()) {
     return { ok: false, status: 503, error: "Email sending is not enabled yet. Copy the public link and follow up directly." };
@@ -135,7 +162,18 @@ export async function sendInvoiceReminder(userId: string, invoiceId: string): Pr
   const ok = await sendEmail({ to, subject: `Reminder: invoice #${invoice.number} from ${fromName}`, text, replyTo: business?.email || undefined });
   if (!ok) return { ok: false, status: 502, error: "The reminder could not be sent. Try again later." };
 
-  await prisma.invoiceEvent.create({ data: { invoiceId: invoice.id, type: "reminder_sent", meta: JSON.stringify({ to }) } });
+  const who = actor ?? userActor(userId);
+  await prisma.$transaction(async (tx) => {
+    await tx.invoiceEvent.create({ data: { invoiceId: invoice.id, type: "reminder_sent", meta: JSON.stringify({ to }) } });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "invoice",
+      aggregateId: invoice.id,
+      type: "reminder_sent",
+      actor: who,
+      payload: { to },
+    });
+  });
   await recordEvent({ name: "invoice_reminder_sent", userId });
-  return { ok: true, to };
+  return { ok: true, to, actor: who };
 }

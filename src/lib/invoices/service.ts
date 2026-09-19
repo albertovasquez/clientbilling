@@ -1,4 +1,8 @@
 import type { Client, Invoice, InvoiceLineItem, InvoiceStatus } from "@prisma/client";
+import type { Actor } from "@/lib/billing/actor";
+import { userActor } from "@/lib/billing/actor";
+import { appendBillingEvent } from "@/lib/billing/events";
+import { snapshotInvoice } from "@/lib/billing/versions";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { newPublicInvoiceId } from "@/lib/invoices/ids";
@@ -48,9 +52,13 @@ export type CreateInvoiceInput = {
   notes: string | null;
   source: "app" | "api" | "recurring";
   recurringScheduleId?: string | null;
+  /** Who created the invoice. Defaults to the account owner. */
+  actor?: Actor;
 };
 
-export type CreateInvoiceResult = { ok: true; invoice: Invoice } | { ok: false; error: string; status: number };
+export type CreateInvoiceResult =
+  | { ok: true; invoice: Invoice; actor: Actor }
+  | { ok: false; error: string; status: number };
 
 export async function createInvoice(input: CreateInvoiceInput): Promise<CreateInvoiceResult> {
   const business = await prisma.businessProfile.findUnique({ where: { userId: input.userId } });
@@ -70,6 +78,7 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreateIn
 
   const totals = computeInvoiceTotals(input.lines, input.taxRateBps);
   const publicId = newPublicInvoiceId();
+  const actor = input.actor ?? userActor(input.userId);
 
   const invoice = await prisma.$transaction(async (tx) => {
     if (!clientId && input.newClient) {
@@ -84,7 +93,7 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreateIn
       data: { nextInvoiceNumber: { increment: 1 } },
       select: { nextInvoiceNumber: true },
     });
-    return tx.invoice.create({
+    const created = await tx.invoice.create({
       data: {
         publicId,
         userId: input.userId,
@@ -107,14 +116,24 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreateIn
         events: { create: { type: "created", meta: input.source } },
       },
     });
+    await appendBillingEvent(tx, {
+      userId: input.userId,
+      aggregateType: "invoice",
+      aggregateId: created.id,
+      type: "created",
+      actor,
+      payload: { source: input.source, totalCents: created.totalCents, number: created.number },
+    });
+    await snapshotInvoice(tx, created.id, actor);
+    return created;
   });
 
   await recordEvent({ name: "invoice_created", userId: input.userId, payload: { totalCents: invoice.totalCents, source: input.source } });
-  return { ok: true, invoice };
+  return { ok: true, invoice, actor };
 }
 
 export type StatusResult =
-  | { ok: true; invoice: Invoice }
+  | { ok: true; invoice: Invoice; actor: Actor }
   | { ok: false; error: string; status: number; code: "not_found" | "transition" | "invalid" };
 
 const manualStatuses: InvoiceStatus[] = ["sent", "paid", "void"];
@@ -125,6 +144,7 @@ export async function setInvoiceStatus(
   status: string,
   source: "app" | "api",
   reason?: string | null,
+  actor?: Actor,
 ): Promise<StatusResult> {
   if (!manualStatuses.includes(status as InvoiceStatus)) {
     return { ok: false, error: "Status must be sent, paid, or void.", status: 400, code: "invalid" };
@@ -139,32 +159,54 @@ export async function setInvoiceStatus(
   if (!canTransition(invoice.status, target)) {
     return { ok: false, error: `Cannot move an invoice from ${invoice.status} to ${target}.`, status: 409, code: "transition" };
   }
+  const who = actor ?? userActor(userId);
   // Marking paid records the balance as a payment so totals reconcile (decision 0019).
   if (target === "paid" && balanceCents(invoice) > 0) {
-    const paid = await recordPayment(userId, invoice.id, { amountCents: balanceCents(invoice), method: "other", note: "Marked paid" }, source);
+    const paid = await recordPayment(
+      userId,
+      invoice.id,
+      { amountCents: balanceCents(invoice), method: "other", note: "Marked paid" },
+      source,
+      who,
+    );
     if (!paid.ok) return { ok: false, error: paid.error, status: paid.status, code: "invalid" };
-    return { ok: true, invoice: paid.invoice };
+    return { ok: true, invoice: paid.invoice, actor: who };
   }
   const now = new Date();
   const eventMeta =
     target === "void" ? JSON.stringify({ source, reason: voidReason }) : source;
-  const updated = await prisma.invoice.update({
-    where: { id: invoice.id },
-    data: {
-      status: target,
-      sentAt: target === "sent" ? (invoice.sentAt ?? now) : invoice.sentAt,
-      paidAt: target === "paid" ? now : invoice.paidAt,
-      voidedAt: target === "void" ? now : invoice.voidedAt,
-      voidReason: target === "void" ? voidReason : invoice.voidReason,
-      events: { create: { type: `status_${target}`, meta: eventMeta } },
-    },
+  const updated = await prisma.$transaction(async (tx) => {
+    const row = await tx.invoice.update({
+      where: { id: invoice.id },
+      data: {
+        status: target,
+        sentAt: target === "sent" ? (invoice.sentAt ?? now) : invoice.sentAt,
+        paidAt: target === "paid" ? now : invoice.paidAt,
+        voidedAt: target === "void" ? now : invoice.voidedAt,
+        voidReason: target === "void" ? voidReason : invoice.voidReason,
+        events: { create: { type: `status_${target}`, meta: eventMeta } },
+      },
+    });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "invoice",
+      aggregateId: invoice.id,
+      type: target === "void" ? "voided" : target,
+      actor: who,
+      payload:
+        target === "void"
+          ? { source, reason: voidReason, from: invoice.status }
+          : { source, from: invoice.status },
+    });
+    await snapshotInvoice(tx, invoice.id, who);
+    return row;
   });
   await recordEvent({
     name: `invoice_${target}`,
     userId,
     payload: target === "void" ? { manual: true, source, reason: voidReason } : { manual: true, source },
   });
-  return { ok: true, invoice: updated };
+  return { ok: true, invoice: updated, actor: who };
 }
 
 /** JSON shape for the API. camelCase, cents as integers, dates as ISO strings. */
