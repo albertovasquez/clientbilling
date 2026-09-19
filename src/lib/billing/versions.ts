@@ -1,5 +1,5 @@
 import type { Actor } from "@/lib/billing/actor";
-import { canonicalJson, utcTimestamp } from "@/lib/billing/canonical";
+import { canonicalJson, utcDate, utcTimestamp } from "@/lib/billing/canonical";
 import type { BillingTx } from "@/lib/billing/events";
 
 /**
@@ -22,8 +22,8 @@ export async function snapshotInvoice(tx: BillingTx, invoiceId: string, actor: A
     number: invoice.number,
     status: invoice.status,
     clientId: invoice.clientId,
-    issueDate: utcTimestamp(invoice.issueDate),
-    dueDate: invoice.dueDate ? utcTimestamp(invoice.dueDate) : null,
+    issueDate: utcDate(invoice.issueDate),
+    dueDate: invoice.dueDate ? utcDate(invoice.dueDate) : null,
     currency: invoice.currency,
     notes: invoice.notes,
     taxRateBps: invoice.taxRateBps,

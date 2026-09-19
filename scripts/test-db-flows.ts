@@ -5,8 +5,10 @@
  */
 import { compare } from "bcryptjs";
 import { userActor } from "../src/lib/billing/actor";
-import { beginIdempotency, storeIdempotency } from "../src/lib/billing/idempotency";
+import { withIdempotency } from "../src/lib/billing/api-mutate";
+import { beginIdempotency } from "../src/lib/billing/idempotency";
 import { prisma } from "../src/lib/db";
+import { serializePayment } from "../src/lib/invoices/payments";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
 import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
@@ -253,23 +255,45 @@ async function main() {
   assert(ver2 >= 2, "payment bumps invoice version");
 
   const idemBody = JSON.stringify({ amountCents: 5000, method: "cash" });
+  const keyA = `idem-${Date.now()}`;
+  const apiKey = await prisma.apiKey.create({
+    data: { userId: user.id, name: "test", keyHash: `hash-${keyA}`, prefix: "cb_live_test" },
+  });
   const idemReq = (key: string, body: string) =>
-    new Request("http://localhost/api/v1/invoices/x/payments", {
+    new Request(`http://localhost/api/v1/invoices/${billed.invoice.id}/payments`, {
       method: "POST",
       headers: { "Idempotency-Key": key, "Content-Type": "application/json" },
       body,
     });
-  const keyA = `idem-${Date.now()}`;
-  const first = await beginIdempotency(user.id, idemReq(keyA, idemBody), idemBody);
-  assert(first.ok, "idempotency begin accepts new key");
-  if (!first.ok) throw new Error("unreachable");
-  await storeIdempotency(user.id, first.key, first.fingerprint, 201, { payment: { id: "p1" } });
-  const replay = await beginIdempotency(user.id, idemReq(keyA, idemBody), idemBody);
-  assert(!replay.ok && replay.response.status === 201 && replay.response.headers.get("Idempotency-Replayed") === "true", "same key+body replays");
+  const paymentsBefore = await prisma.payment.count({ where: { invoiceId: billed.invoice.id } });
+  const firstRes = await withIdempotency({ ok: true, userId: user.id, keyId: apiKey.id }, idemReq(keyA, idemBody), async ({ body, actor }) => {
+    const result = await recordPayment(
+      user.id,
+      billed.invoice.id,
+      { amountCents: Number(body?.amountCents), method: body?.method == null ? null : String(body.method) },
+      "api",
+      actor,
+    );
+    if (!result.ok) return { error: result.error, status: result.status };
+    return { status: 201, body: { payment: serializePayment(result.payment) } };
+  });
+  assert(firstRes.status === 201, "first idempotent payment succeeds");
+  const replayRes = await withIdempotency({ ok: true, userId: user.id, keyId: apiKey.id }, idemReq(keyA, idemBody), async () => {
+    throw new Error("handler must not run on replay");
+  });
+  assert(replayRes.status === 201 && replayRes.headers.get("Idempotency-Replayed") === "true", "same key+body replays without re-running");
+  const paymentsAfter = await prisma.payment.count({ where: { invoiceId: billed.invoice.id } });
+  assert(paymentsAfter === paymentsBefore + 1, "duplicate idempotent request does not create a second payment");
   const conflict = await beginIdempotency(user.id, idemReq(keyA, JSON.stringify({ amountCents: 1 })), JSON.stringify({ amountCents: 1 }));
   assert(!conflict.ok && conflict.response.status === 409, "same key different body conflicts");
   const missing = await beginIdempotency(user.id, new Request("http://localhost/api/v1/invoices", { method: "POST", body: "{}" }), "{}");
   assert(!missing.ok && missing.response.status === 400, "missing Idempotency-Key rejected");
+  const concurrent = await Promise.all([
+    beginIdempotency(user.id, idemReq(`race-${keyA}`, idemBody), idemBody),
+    beginIdempotency(user.id, idemReq(`race-${keyA}`, idemBody), idemBody),
+  ]);
+  assert(concurrent.filter((r) => r.ok).length === 1, "concurrent same-key claims admit exactly one");
+  assert(concurrent.some((r) => !r.ok && r.response.status === 409), "the other concurrent claim is in progress or conflict");
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

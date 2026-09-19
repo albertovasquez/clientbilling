@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
@@ -9,8 +10,10 @@ export type IdempotencyBegin =
   | { ok: false; response: NextResponse };
 
 /**
- * Require Idempotency-Key on a mutating API request. Replays a stored response
- * when the fingerprint matches; conflicts when the same key has a different body.
+ * Claim an Idempotency-Key before running the handler. Inserts a pending row so
+ * concurrent same-key requests cannot both mutate. Replays a stored response
+ * when the fingerprint matches; conflicts when the body differs or another
+ * request still holds the claim.
  */
 export async function beginIdempotency(
   userId: string,
@@ -28,28 +31,69 @@ export async function beginIdempotency(
     };
   }
   const fingerprint = fingerprintRequest(req.method, new URL(req.url).pathname, rawBody);
+  const expiresAt = new Date(Date.now() + TTL_MS);
+
+  try {
+    await prisma.idempotencyRecord.create({
+      data: {
+        userId,
+        key,
+        requestFingerprint: fingerprint,
+        responseStatus: 0,
+        responseBody: "",
+        expiresAt,
+      },
+    });
+    return { ok: true, key, fingerprint };
+  } catch (error) {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") {
+      throw error;
+    }
+  }
+
   const existing = await prisma.idempotencyRecord.findUnique({
     where: { userId_key: { userId, key } },
   });
-  if (existing && existing.expiresAt.getTime() > Date.now()) {
-    if (existing.requestFingerprint !== fingerprint) {
-      return {
-        ok: false,
-        response: NextResponse.json(
-          { error: "Idempotency-Key was already used with a different request" },
-          { status: 409 },
-        ),
-      };
-    }
+  if (!existing || existing.expiresAt.getTime() <= Date.now()) {
+    // Expired or missing after race: replace and claim.
+    await prisma.idempotencyRecord.deleteMany({ where: { userId, key } });
+    await prisma.idempotencyRecord.create({
+      data: {
+        userId,
+        key,
+        requestFingerprint: fingerprint,
+        responseStatus: 0,
+        responseBody: "",
+        expiresAt,
+      },
+    });
+    return { ok: true, key, fingerprint };
+  }
+  if (existing.requestFingerprint !== fingerprint) {
     return {
       ok: false,
-      response: new NextResponse(existing.responseBody, {
-        status: existing.responseStatus,
-        headers: { "Content-Type": "application/json", "Idempotency-Replayed": "true" },
-      }),
+      response: NextResponse.json(
+        { error: "Idempotency-Key was already used with a different request" },
+        { status: 409 },
+      ),
     };
   }
-  return { ok: true, key, fingerprint };
+  if (existing.responseStatus === 0) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: "A request with this Idempotency-Key is already in progress" },
+        { status: 409 },
+      ),
+    };
+  }
+  return {
+    ok: false,
+    response: new NextResponse(existing.responseBody, {
+      status: existing.responseStatus,
+      headers: { "Content-Type": "application/json", "Idempotency-Replayed": "true" },
+    }),
+  };
 }
 
 export async function storeIdempotency(
@@ -61,17 +105,9 @@ export async function storeIdempotency(
 ): Promise<void> {
   const responseBody = JSON.stringify(body);
   const expiresAt = new Date(Date.now() + TTL_MS);
-  await prisma.idempotencyRecord.upsert({
+  await prisma.idempotencyRecord.update({
     where: { userId_key: { userId, key } },
-    create: {
-      userId,
-      key,
-      requestFingerprint: fingerprint,
-      responseStatus: status,
-      responseBody,
-      expiresAt,
-    },
-    update: {
+    data: {
       requestFingerprint: fingerprint,
       responseStatus: status,
       responseBody,

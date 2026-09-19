@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { systemActor } from "@/lib/billing/actor";
+import { appendBillingEvent } from "@/lib/billing/events";
+import { snapshotInvoice } from "@/lib/billing/versions";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { allow, ipFromHeaders } from "@/lib/rate-limit";
@@ -23,13 +26,25 @@ export async function POST(req: Request) {
   // Drafts are private (decision 0020); a beacon for one is ignored.
   if (!invoice || invoice.viewedAt || invoice.status === "draft") return NextResponse.json({ ok: true });
 
-  await prisma.invoice.update({
-    where: { id: invoice.id },
-    data: {
-      viewedAt: new Date(),
-      status: invoice.status === "sent" ? "viewed" : invoice.status,
-      events: { create: { type: "viewed" } },
-    },
+  const actor = systemActor("payer_view");
+  await prisma.$transaction(async (tx) => {
+    await tx.invoice.update({
+      where: { id: invoice.id },
+      data: {
+        viewedAt: new Date(),
+        status: invoice.status === "sent" ? "viewed" : invoice.status,
+        events: { create: { type: "viewed" } },
+      },
+    });
+    await appendBillingEvent(tx, {
+      userId: invoice.userId,
+      aggregateType: "invoice",
+      aggregateId: invoice.id,
+      type: "viewed",
+      actor,
+      payload: { from: invoice.status },
+    });
+    await snapshotInvoice(tx, invoice.id, actor);
   });
   await recordEvent({ name: "invoice_viewed", userId: invoice.userId });
   return NextResponse.json({ ok: true });

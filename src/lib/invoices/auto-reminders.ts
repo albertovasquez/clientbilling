@@ -1,3 +1,4 @@
+import { systemActor } from "@/lib/billing/actor";
 import { daysPastDue } from "@/lib/invoices/aging";
 import {
   nextAutoReminderKind,
@@ -57,7 +58,7 @@ export async function runDueAutoReminders(now = new Date()): Promise<AutoReminde
     const kind = nextAutoReminderKind(days, sentKinds);
     if (!kind) continue;
 
-    const sent = await sendInvoiceReminder(invoice.userId, invoice.id);
+    const sent = await sendInvoiceReminder(invoice.userId, invoice.id, systemActor("cron"));
     if (!sent.ok) {
       results.push({ invoiceId: invoice.id, kind, error: sent.error });
       await recordEvent({
