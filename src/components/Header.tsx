@@ -24,14 +24,22 @@ function NavLinks({ keyPrefix }: { keyPrefix: string }) {
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-rule bg-paper/95 backdrop-blur">
-      <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+          className="group flex shrink-0 items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action sm:gap-2.5"
           aria-label={siteConfig.name}
         >
           <RecordMark />
-          <span className="font-display text-body font-semibold text-ink group-hover:text-action sm:text-display-sm">
+          {/*
+            The site name stays visible and whole at every width (style guide,
+            site navigation): a truncated wordmark reading "Client..." is not
+            the site name, so it never truncates. At 320px the row buys the
+            space from padding, from gaps, and from one step down in the
+            wordmark's own size below 360px. The button keeps text-small,
+            which is the size the type scale gives buttons.
+          */}
+          <span className="whitespace-nowrap font-display text-body font-semibold text-ink group-hover:text-action max-[360px]:text-small sm:text-display-sm">
             {siteConfig.name}
           </span>
         </Link>
@@ -40,8 +48,12 @@ export function Header() {
           <NavLinks keyPrefix="bar" />
         </nav>
 
-        <div className="flex shrink-0 items-center gap-1.5">
-          <CtaButton cta={siteConfig.headerCta} position="nav" className="whitespace-nowrap" />
+        <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          <CtaButton
+            cta={siteConfig.headerCta}
+            position="nav"
+            className="whitespace-nowrap max-sm:px-2.5"
+          />
           <details className="group relative lg:hidden">
             <summary
               className="flex cursor-pointer list-none items-center rounded-md p-2 text-ink-soft hover:bg-field hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"

@@ -15,6 +15,18 @@ function amountText(cents: number): string {
   return formatCents(cents).replace(/^\$/, "");
 }
 
+/**
+ * Swaps hyphens for non-breaking ones (U+2011), so a wrapped rail name breaks
+ * at its space rather than mid-word. The glyph is the same; only the break
+ * opportunity changes. Display only: the labels in payment-costs.ts stay ASCII
+ * because tests match them and the API will serialize them. The tradeoff is
+ * that copied text and find-in-page carry U+2011, so they will not match a
+ * typed "interchange-plus".
+ */
+function nonBreakingHyphens(text: string): string {
+  return text.replace(/-/g, "‑");
+}
+
 /** How one cost row reads on the table: the bank row is the highlighted, cheapest rail. */
 function rowView(row: PaymentCost) {
   const bank = row.rail === "bank_transfer";
@@ -71,12 +83,12 @@ export function HeroInvoice({ snapshots }: Props) {
   }
 
   return (
-    <div className="relative mb-3 mr-3">
+    <div className="relative mb-3 mr-3 min-w-0">
       <div aria-hidden className="absolute inset-0 translate-x-3 translate-y-3 rounded bg-carbon-tint" />
       <div aria-hidden className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded bg-carbon-tint opacity-60" />
       <article
         aria-label="Example invoice, file copy"
-        className="relative flex flex-col gap-4 rounded border border-rule bg-sheet p-5 sm:p-7"
+        className="relative flex flex-col gap-4 rounded border border-rule bg-sheet p-4 sm:p-7"
       >
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -136,7 +148,16 @@ export function HeroInvoice({ snapshots }: Props) {
             {rows.map((row) => (
               <tr key={row.key} className={`border-t border-rule ${row.rowClass}`}>
                 <th scope="row" className={`py-2 pr-3 text-left font-normal text-ink ${row.labelClass}`}>
-                  <span className="whitespace-nowrap">{row.label}</span>
+                  {/*
+                    Two guards, for two different widths. From sm up the card
+                    has room, so the name stays on one line. Below sm it must
+                    wrap, and the non-breaking hyphen makes it wrap at the
+                    space: "Card, interchange-" above "plus" reads as a typo
+                    rather than a rail name. The fee formula keeps nowrap at
+                    every width: it is a value from the record and must not
+                    break across lines.
+                  */}
+                  <span className="sm:whitespace-nowrap">{nonBreakingHyphens(row.label)}</span>
                   <span className="block text-caption text-muted">{row.detail}</span>
                 </th>
                 <td className="py-2 pl-3 text-right font-mono text-ink">
