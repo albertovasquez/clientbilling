@@ -110,12 +110,12 @@ export async function sendInvoiceEmail(
       actor: who,
       payload: { to, via: "email", from: invoice.status },
     });
-    if (becameSent) await snapshotInvoice(tx, invoice.id, who);
+    if (becameSent) {
+      await snapshotInvoice(tx, invoice.id, who);
+      await enqueueWebhook(tx, userId, "invoice.sent", { invoiceId: invoice.id, number: invoice.number, to }, who);
+    }
   });
   await recordEvent({ name: "invoice_sent", userId, payload: { via: "email" } });
-  if (becameSent) {
-    await enqueueWebhook(userId, "invoice.sent", { invoiceId: invoice.id, number: invoice.number, to }, who);
-  }
   return { ok: true, to, actor: who };
 }
 

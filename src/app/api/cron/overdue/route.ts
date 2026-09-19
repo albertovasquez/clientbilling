@@ -30,23 +30,41 @@ export async function GET(req: Request) {
   }
 
   const actor = systemActor("cron");
+  let flipped = 0;
+  const failed: string[] = [];
   for (const d of due) {
-    await prisma.$transaction(async (tx) => {
-      await tx.invoice.update({ where: { id: d.id }, data: { status: "overdue" } });
-      await tx.invoiceEvent.create({ data: { invoiceId: d.id, type: "status_overdue", meta: "cron" } });
-      await appendBillingEvent(tx, {
-        userId: d.userId,
-        aggregateType: "invoice",
-        aggregateId: d.id,
-        type: "overdue",
-        actor,
-        payload: { from: d.status, via: "cron" },
+    // One invoice per transaction, and one bad invoice does not end the sweep.
+    // The rest would otherwise wait for tomorrow's run.
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.invoice.update({ where: { id: d.id }, data: { status: "overdue" } });
+        await tx.invoiceEvent.create({ data: { invoiceId: d.id, type: "status_overdue", meta: "cron" } });
+        await appendBillingEvent(tx, {
+          userId: d.userId,
+          aggregateType: "invoice",
+          aggregateId: d.id,
+          type: "overdue",
+          actor,
+          payload: { from: d.status, via: "cron" },
+        });
+        await snapshotInvoice(tx, d.id, actor);
+        await enqueueWebhook(tx, d.userId, "invoice.overdue", { invoiceId: d.id }, actor);
       });
-      await snapshotInvoice(tx, d.id, actor);
-    });
-    await recordEvent({ name: "invoice_overdue", userId: d.userId, payload: { invoiceId: d.id } });
-    await enqueueWebhook(d.userId, "invoice.overdue", { invoiceId: d.id }, actor);
+      flipped += 1;
+      await recordEvent({ name: "invoice_overdue", userId: d.userId, payload: { invoiceId: d.id } });
+    } catch (error) {
+      failed.push(d.id);
+      console.error("[cron-overdue] invoice failed", d.id, error instanceof Error ? error.message : error);
+    }
   }
 
-  return NextResponse.json({ ok: true, flipped: due.length });
+  // Report what actually happened, not how many were due. Losing every
+  // invoice means the database went away after the initial read, which a
+  // monitor watching status codes should see rather than read as a quiet
+  // success. Losing some is the resilience this loop is for.
+  const lostEverything = due.length > 0 && failed.length === due.length;
+  return NextResponse.json(
+    { ok: !lostEverything, flipped, ...(failed.length ? { failed: failed.length } : {}) },
+    lostEverything ? { status: 500 } : undefined,
+  );
 }

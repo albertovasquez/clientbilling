@@ -117,6 +117,16 @@ export async function recordPayment(
       payload: { invoiceId: invoice.id, amountCents: amount, method, source },
     });
     await snapshotInvoice(tx, invoice.id, who);
+    await enqueueWebhook(
+      tx,
+      userId,
+      "payment.recorded",
+      { invoiceId: invoice.id, paymentId: payment.id, amountCents: amount, method, settles },
+      who,
+    );
+    if (settles) {
+      await enqueueWebhook(tx, userId, "invoice.paid", { invoiceId: invoice.id, number: invoice.number }, who);
+    }
     return { payment, invoice: updated };
   });
 
@@ -125,15 +135,6 @@ export async function recordPayment(
     userId,
     payload: { amountCents: amount, method, partial: !settles, source },
   });
-  await enqueueWebhook(
-    userId,
-    "payment.recorded",
-    { invoiceId: invoice.id, paymentId: result.payment.id, amountCents: amount, method, settles },
-    who,
-  );
-  if (settles) {
-    await enqueueWebhook(userId, "invoice.paid", { invoiceId: invoice.id, number: invoice.number }, who);
-  }
   return { ok: true, ...result, actor: who };
 }
 
