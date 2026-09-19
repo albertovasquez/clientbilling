@@ -16,3 +16,5 @@ export { ProsCons } from "./ProsCons";
 export { Disclosure } from "./Disclosure";
 export { Breadcrumb } from "./Breadcrumb";
 export { AuthorCard } from "./AuthorCard";
+export { RecordMark } from "./RecordMark";
+export { CopyLabel, type CopyKind } from "./CopyLabel";

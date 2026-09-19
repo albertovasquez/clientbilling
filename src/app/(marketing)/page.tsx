@@ -1,3 +1,4 @@
+import { HeroInvoice } from "@/components/HeroInvoice";
 import { PostCard } from "@/components/PostCard";
 import {
   Button,
@@ -19,6 +20,7 @@ import {
   cdgPlans,
   cdgSources,
 } from "@/lib/cdg";
+import { exampleInvoiceSnapshots } from "@/lib/example-invoice";
 import { getFeaturedPosts } from "@/lib/posts";
 
 const companyRows = [
@@ -56,25 +58,33 @@ const questions = [
 export default function HomePage() {
   const featured = getFeaturedPosts(3);
   const interchangePlus = cdgPlan("interchangePlus");
-
   return (
     <>
-      <Section>
+      <Section id="top">
         <Container>
-          <Heading level={1} className="max-w-prose-guide">
-            Get paid better, and know what a merchant account costs before you
-            sign
-          </Heading>
-          <p className="mt-6 max-w-prose-guide text-body text-ink-soft">
-            ClientBilling explains merchant accounts, processing fees, and
-            billing in plain words, then shows you the rates CDG Commerce
-            publishes so you can decide with real numbers instead of a sales
-            pitch.
-          </p>
-          <Disclosure className="mt-4" />
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <CtaButton cta="compare" position="hero" size="lg" />
-            <CtaButton cta="quote" position="hero" variant="secondary" size="lg" />
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-10">
+            <div className="flex flex-col gap-6">
+              <Heading level={1} className="text-balance">
+                Bill clients.
+                <br className="hidden sm:inline" /> Know what getting paid costs.
+              </Heading>
+              <p className="max-w-prose-guide text-pretty text-body text-ink-soft">
+                Free invoicing that applies payment costs to the invoice before you send it. Every
+                number has a source.
+              </p>
+              <p className="-mt-2 text-small text-muted">
+                For people, software, and agents. Same invoice. Same rules.
+              </p>
+              <Disclosure className="-mt-2" />
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <CtaButton cta="signUp" position="hero" size="lg" event="hero_signup_click" />
+                <CtaButton cta="api" position="hero" variant="secondary" size="lg" />
+              </div>
+              <p className="font-mono text-caption text-muted">
+                No card on file. No plan to pick. Your data exports as CSV.
+              </p>
+            </div>
+            <HeroInvoice snapshots={exampleInvoiceSnapshots()} />
           </div>
         </Container>
       </Section>

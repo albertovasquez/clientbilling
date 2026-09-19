@@ -40,3 +40,7 @@ Four weeks of funnel data exist, or a CDG answer changes the money model.
 ## Amended 2026-09-18
 
 The founder's second report (`docs/strategy/2026-09-18-research-profitable-differentiated-product.md`) tightened the positioning claim, resolved the copy terminology, narrowed anchoring to material events, and specified the agent wedge; those changes are folded in above. Revenue tiers moved to 0022.
+
+## Amended 2026-09-19
+
+The shipped hero (ticket #44) carries the subhead without its last sentence, "Every important version can be verified", because the proof engine is the next phase and the homepage does not claim what it cannot yet do. The sentence returns with the verification page (week 7).

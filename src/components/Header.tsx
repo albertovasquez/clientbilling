@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CtaButton } from "@/components/ui";
+import { CtaButton, RecordMark } from "@/components/ui";
 import { siteConfig } from "@/lib/site";
 
 /**
@@ -15,12 +15,7 @@ export function Header() {
           className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
           aria-label={siteConfig.name}
         >
-          <span
-            aria-hidden
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-action font-display text-small font-semibold text-paper"
-          >
-            CB
-          </span>
+          <RecordMark />
           <span className="hidden font-display text-display-sm font-semibold text-ink group-hover:text-action sm:inline">
             {siteConfig.name}
           </span>

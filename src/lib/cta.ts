@@ -13,9 +13,11 @@ export type CtaKey =
   | "exploreRetail"
   | "exploreMobile"
   | "exploreRecurring"
-  | "exploreB2b";
+  | "exploreB2b"
+  | "signUp"
+  | "api";
 
-export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore";
+export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore" | "product";
 
 export type CtaPosition =
   | "hero"
@@ -97,6 +99,20 @@ export const ctas: Record<CtaKey, Cta> = {
     label: "Read the B2B payments guide",
     href: "/cdgcommerce/b2b",
     type: "explore",
+    external: false,
+  },
+  signUp: {
+    key: "signUp",
+    label: "Create an invoice, free",
+    href: "/app/sign-up",
+    type: "product",
+    external: false,
+  },
+  api: {
+    key: "api",
+    label: "See the API",
+    href: "/docs/api",
+    type: "product",
     external: false,
   },
 };
