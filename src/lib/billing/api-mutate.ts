@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Actor } from "@/lib/billing/actor";
-import { apiKeyActor, serializeActor } from "@/lib/billing/actor";
+import { serializeActor } from "@/lib/billing/actor";
 import {
   beginIdempotency,
   parseRawJson,
@@ -8,7 +8,12 @@ import {
   storeIdempotency,
 } from "@/lib/billing/idempotency";
 
-export type ApiAuthOk = { ok: true; userId: string; keyId: string };
+export type ApiAuthOk = {
+  ok: true;
+  userId: string;
+  keyId: string;
+  actor: Actor;
+};
 
 /**
  * Run a state-changing API handler under an Idempotency-Key. Replays stored
@@ -27,7 +32,7 @@ export async function withIdempotency<T extends Record<string, unknown>>(
   const begun = await beginIdempotency(auth.userId, req, rawBody);
   if (!begun.ok) return begun.response;
 
-  const actor = apiKeyActor(auth.keyId);
+  const actor = auth.actor;
   const body = parseRawJson<Record<string, unknown>>(rawBody);
   const result = await run({ body, actor, rawBody });
   if ("error" in result) {

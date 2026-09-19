@@ -1,0 +1,114 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ClientBilling API",
+    "version": "1.0.0",
+    "description": "REST API for scripts and agents operating a merchant account (decisions 0017, 0025, 0026)."
+  },
+  "servers": [{ "url": "https://www.clientbilling.com" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "cb_live_"
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "maxLength": 256 },
+        "description": "Required on POST and DELETE. Same key and body replays; different body returns 409."
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/api/v1/clients": {
+      "get": {
+        "summary": "List clients",
+        "responses": { "200": { "description": "Client list" } }
+      },
+      "post": {
+        "summary": "Create a client",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/api/v1/invoices": {
+      "get": {
+        "summary": "List invoices",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["draft", "sent", "viewed", "overdue", "paid", "void"]
+            }
+          }
+        ],
+        "responses": { "200": { "description": "Invoice list" } }
+      },
+      "post": {
+        "summary": "Create a draft invoice",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "responses": { "201": { "description": "Created with actor provenance" } }
+      }
+    },
+    "/api/v1/invoices/{id}": {
+      "get": {
+        "summary": "Get one invoice",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Invoice" } }
+      }
+    },
+    "/api/v1/invoices/{id}/send": {
+      "post": {
+        "summary": "Email the invoice",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "responses": { "200": { "description": "Sent" } }
+      }
+    },
+    "/api/v1/invoices/{id}/remind": {
+      "post": {
+        "summary": "Send a reminder",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "responses": { "200": { "description": "Reminded" } }
+      }
+    },
+    "/api/v1/invoices/{id}/status": {
+      "post": {
+        "summary": "Change status to sent, paid, or void",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "responses": { "200": { "description": "Updated" } }
+      }
+    },
+    "/api/v1/invoices/{id}/payments": {
+      "get": {
+        "summary": "List payments",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Payments" } }
+      },
+      "post": {
+        "summary": "Record a payment",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "responses": { "201": { "description": "Recorded" } }
+      }
+    }
+  }
+}

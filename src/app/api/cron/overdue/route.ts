@@ -5,6 +5,7 @@ import { snapshotInvoice } from "@/lib/billing/versions";
 import { cronAuthorized } from "@/lib/cron-auth";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
+import { enqueueWebhook } from "@/lib/webhooks/enqueue";
 
 /**
  * Daily overdue sweep (decision 0015). Vercel Cron calls this with
@@ -44,6 +45,7 @@ export async function GET(req: Request) {
       await snapshotInvoice(tx, d.id, actor);
     });
     await recordEvent({ name: "invoice_overdue", userId: d.userId, payload: { invoiceId: d.id } });
+    await enqueueWebhook(d.userId, "invoice.overdue", { invoiceId: d.id }, actor);
   }
 
   return NextResponse.json({ ok: true, flipped: due.length });

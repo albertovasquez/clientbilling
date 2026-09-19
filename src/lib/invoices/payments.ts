@@ -5,6 +5,7 @@ import { appendBillingEvent } from "@/lib/billing/events";
 import { snapshotInvoice } from "@/lib/billing/versions";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
+import { enqueueWebhook } from "@/lib/webhooks/enqueue";
 
 /**
  * Payment records (decision 0019). The merchant records money they received;
@@ -124,6 +125,15 @@ export async function recordPayment(
     userId,
     payload: { amountCents: amount, method, partial: !settles, source },
   });
+  await enqueueWebhook(
+    userId,
+    "payment.recorded",
+    { invoiceId: invoice.id, paymentId: result.payment.id, amountCents: amount, method, settles },
+    who,
+  );
+  if (settles) {
+    await enqueueWebhook(userId, "invoice.paid", { invoiceId: invoice.id, number: invoice.number }, who);
+  }
   return { ok: true, ...result, actor: who };
 }
 

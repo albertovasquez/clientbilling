@@ -9,7 +9,7 @@
     "lint": "eslint",
     "style:check": "node scripts/style-check.mjs",
     "check": "tsc --noEmit && eslint && node scripts/style-check.mjs && npm run test:pure",
-    "test:pure": "tsx scripts/test-payment-costs.ts && tsx scripts/test-example-invoice.ts && tsx scripts/test-navigation.ts && tsx scripts/test-payments-example.ts && tsx scripts/test-homepage-contract.ts && tsx scripts/test-billing-canonical.ts",
+    "test:pure": "tsx scripts/test-payment-costs.ts && tsx scripts/test-example-invoice.ts && tsx scripts/test-navigation.ts && tsx scripts/test-payments-example.ts && tsx scripts/test-homepage-contract.ts && tsx scripts/test-billing-canonical.ts && tsx scripts/test-webhooks.ts",
     "test:db": "tsx scripts/test-db-flows.ts",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",

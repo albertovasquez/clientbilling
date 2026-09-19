@@ -1,10 +1,12 @@
 import { createHash, randomBytes } from "node:crypto";
+import type { Actor } from "@/lib/billing/actor";
+import { ALL_SCOPES_STRING, hasScope, parseScopes, scopeError, type ApiScope } from "@/lib/api-scopes";
 import { prisma } from "@/lib/db";
 import { allow } from "@/lib/rate-limit";
 
 /**
- * Personal API keys (decision 0017). The raw key is shown once; only its
- * SHA-256 is stored. Keys act as the user who created them.
+ * Personal API keys (decisions 0017, 0026). The raw key is shown once; only its
+ * SHA-256 is stored. Keys may bind to a service account for actor identity.
  */
 const PREFIX = "cb_live_";
 
@@ -18,7 +20,14 @@ export function generateApiKey(): { raw: string; hash: string; prefix: string } 
 }
 
 export type ApiAuth =
-  | { ok: true; userId: string; keyId: string }
+  | {
+      ok: true;
+      userId: string;
+      keyId: string;
+      scopes: Set<ApiScope>;
+      serviceAccountId: string | null;
+      actor: Actor;
+    }
   | { ok: false; status: number; error: string };
 
 /** Authenticate `Authorization: Bearer cb_live_...`. 120 requests per key per minute. */
@@ -36,9 +45,20 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuth> {
   if (!(await allow(`api:${key.id}`, 120, 60))) {
     return { ok: false, status: 429, error: "Rate limit: 120 requests per minute per key" };
   }
-  // Touch lastUsedAt at most once a minute to keep writes cheap.
   if (!key.lastUsedAt || Date.now() - key.lastUsedAt.getTime() > 60_000) {
     prisma.apiKey.update({ where: { id: key.id }, data: { lastUsedAt: new Date() } }).catch(() => undefined);
   }
-  return { ok: true, userId: key.userId, keyId: key.id };
+  const scopes = parseScopes(key.scopes || ALL_SCOPES_STRING);
+  const serviceAccountId = key.serviceAccountId;
+  const actor: Actor = serviceAccountId
+    ? { type: "service_account", id: serviceAccountId, authorizationId: key.id }
+    : { type: "api_key", id: key.id, authorizationId: key.id };
+  return { ok: true, userId: key.userId, keyId: key.id, scopes, serviceAccountId, actor };
+}
+
+export function requireScope(auth: Extract<ApiAuth, { ok: true }>, required: ApiScope): ApiAuth {
+  if (!hasScope(auth.scopes, required)) {
+    return { ok: false, status: 403, error: scopeError(required) };
+  }
+  return auth;
 }

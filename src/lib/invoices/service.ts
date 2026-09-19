@@ -10,6 +10,7 @@ import { balanceCents, recordPayment } from "@/lib/invoices/payments";
 import { canTransition } from "@/lib/invoices/status";
 import { computeInvoiceTotals, dollarsToCents, normalizeQuantity } from "@/lib/money";
 import { siteConfig } from "@/lib/site";
+import { enqueueWebhook } from "@/lib/webhooks/enqueue";
 
 /**
  * Invoice domain operations shared by the app's server actions and the API
@@ -129,6 +130,7 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<CreateIn
   });
 
   await recordEvent({ name: "invoice_created", userId: input.userId, payload: { totalCents: invoice.totalCents, source: input.source } });
+  await enqueueWebhook(input.userId, "invoice.created", { invoiceId: invoice.id, number: invoice.number, totalCents: invoice.totalCents }, actor);
   return { ok: true, invoice, actor };
 }
 
@@ -206,6 +208,11 @@ export async function setInvoiceStatus(
     userId,
     payload: target === "void" ? { manual: true, source, reason: voidReason } : { manual: true, source },
   });
+  if (target === "sent") {
+    await enqueueWebhook(userId, "invoice.sent", { invoiceId: invoice.id, number: invoice.number }, who);
+  } else if (target === "paid") {
+    await enqueueWebhook(userId, "invoice.paid", { invoiceId: invoice.id, number: invoice.number }, who);
+  }
   return { ok: true, invoice: updated, actor: who };
 }
 

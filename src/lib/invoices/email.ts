@@ -11,6 +11,7 @@ import { formatCents } from "@/lib/money";
 import { payLinkForInvoice } from "@/lib/pay-link";
 import { allow } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site";
+import { enqueueWebhook } from "@/lib/webhooks/enqueue";
 
 /**
  * Outbound invoice email flows shared by the app routes and the API
@@ -112,6 +113,9 @@ export async function sendInvoiceEmail(
     if (becameSent) await snapshotInvoice(tx, invoice.id, who);
   });
   await recordEvent({ name: "invoice_sent", userId, payload: { via: "email" } });
+  if (becameSent) {
+    await enqueueWebhook(userId, "invoice.sent", { invoiceId: invoice.id, number: invoice.number, to }, who);
+  }
   return { ok: true, to, actor: who };
 }
 

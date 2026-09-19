@@ -4,6 +4,7 @@
   "crons": [
     { "path": "/api/cron/overdue", "schedule": "0 6 * * *" },
     { "path": "/api/cron/recurring", "schedule": "15 6 * * *" },
-    { "path": "/api/cron/reminders", "schedule": "30 6 * * *" }
+    { "path": "/api/cron/reminders", "schedule": "30 6 * * *" },
+    { "path": "/api/cron/webhooks", "schedule": "*/5 * * * *" }
   ]
 }

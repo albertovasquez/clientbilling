@@ -1,4 +1,4 @@
-import { authenticateApiRequest } from "@/lib/api-keys";
+import { authenticateApiRequest, requireScope } from "@/lib/api-keys";
 import { withIdempotency } from "@/lib/billing/api-mutate";
 import { apiError } from "@/lib/api-response";
 import { prisma } from "@/lib/db";
@@ -11,8 +11,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   const { id } = await ctx.params;
 
   return withIdempotency(auth, req, async ({ body, actor }) => {
+    const status = String(body?.status ?? "");
+    const needed = status === "void" ? "invoice:void" : status === "sent" ? "invoice:send" : status === "paid" ? "payment:record" : null;
+    if (!needed) return { error: "Status must be sent, paid, or void.", status: 400 };
+    const gated = requireScope(auth, needed);
+    if (!gated.ok) return { error: gated.error, status: gated.status };
     const reason = typeof body?.reason === "string" ? body.reason : undefined;
-    const result = await setInvoiceStatus(auth.userId, id, String(body?.status ?? ""), "api", reason, actor);
+    const result = await setInvoiceStatus(auth.userId, id, status, "api", reason, actor);
     if (!result.ok) return { error: result.error, status: result.status };
     const full = await prisma.invoice.findUniqueOrThrow({
       where: { id: result.invoice.id },

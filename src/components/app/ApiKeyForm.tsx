@@ -6,10 +6,15 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/shadcn/alert";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
+import { API_SCOPES } from "@/lib/api-scopes";
 
 const initial: ApiKeyState = {};
 
-export function ApiKeyForm() {
+export function ApiKeyForm({
+  serviceAccounts,
+}: {
+  serviceAccounts: { id: string; name: string }[];
+}) {
   const [state, action, pending] = useActionState(createApiKeyAction, initial);
 
   if (state.rawKey) {
@@ -27,16 +32,48 @@ export function ApiKeyForm() {
   }
 
   return (
-    <form action={action} className="mt-4 flex max-w-xl flex-wrap items-end gap-3">
-      <div className="grid min-w-[14rem] flex-1 gap-1.5">
+    <form action={action} className="mt-4 grid max-w-xl gap-4">
+      <div className="grid gap-1.5">
         <Label htmlFor="name">Key name</Label>
         <Input id="name" name="name" required maxLength={60} placeholder="ops agent" />
       </div>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Creating" : "Create key"}
-      </Button>
+      {serviceAccounts.length > 0 ? (
+        <div className="grid gap-1.5">
+          <Label htmlFor="serviceAccountId">Service account (optional)</Label>
+          <select
+            id="serviceAccountId"
+            name="serviceAccountId"
+            className="flex h-9 w-full rounded-md border border-rule bg-sheet px-3 text-small text-ink"
+            defaultValue=""
+          >
+            <option value="">Act as API key</option>
+            {serviceAccounts.map((sa) => (
+              <option key={sa.id} value={sa.id}>
+                {sa.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+      <fieldset className="grid gap-2">
+        <legend className="text-small font-medium text-ink">Scopes</legend>
+        <p className="text-caption text-muted">Leave all unchecked to grant every scope.</p>
+        <div className="grid gap-1 sm:grid-cols-2">
+          {API_SCOPES.map((scope) => (
+            <label key={scope} className="flex items-center gap-2 text-small text-ink">
+              <input type="checkbox" name="scope" value={scope} className="accent-carbon" />
+              <code>{scope}</code>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Creating" : "Create key"}
+        </Button>
+      </div>
       {state.error ? (
-        <Alert variant="destructive" role="alert" className="w-full">
+        <Alert variant="destructive" role="alert">
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       ) : null}

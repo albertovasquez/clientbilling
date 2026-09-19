@@ -45,6 +45,8 @@ model User {
   schedules RecurringSchedule[]
   billingEvents BillingEvent[]
   idempotencyRecords IdempotencyRecord[]
+  serviceAccounts ServiceAccount[]
+  webhookEndpoints WebhookEndpoint[]
 }
 
 model Account {
@@ -311,20 +313,76 @@ model Event {
   @@index([userId])
 }
 
-/// Personal API keys (decision 0017). Raw key shown once; only the SHA-256 is stored.
-model ApiKey {
-  id         String    @id @default(cuid())
-  userId     String
-  name       String
-  keyHash    String    @unique
-  prefix     String
-  createdAt  DateTime  @default(now())
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
+/// Service-account actor identity for machine keys (decision 0026).
+model ServiceAccount {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKeys ApiKey[]
 
   @@index([userId])
+}
+
+/// Personal API keys (decisions 0017, 0026). Raw key shown once; only the SHA-256 is stored.
+model ApiKey {
+  id               String    @id @default(cuid())
+  userId           String
+  name             String
+  keyHash          String    @unique
+  prefix           String
+  /// Space-separated scopes. Existing keys get all V1 scopes on migrate.
+  scopes           String    @default("")
+  serviceAccountId String?
+  createdAt        DateTime  @default(now())
+  lastUsedAt       DateTime?
+  revokedAt        DateTime?
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceAccount ServiceAccount? @relation(fields: [serviceAccountId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([serviceAccountId])
+}
+
+/// Outbound webhook endpoint (decision 0026). Secret shown once.
+model WebhookEndpoint {
+  id        String    @id @default(cuid())
+  userId    String
+  url       String
+  secret    String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([userId])
+}
+
+/// At-least-once webhook delivery log with retries (decision 0026).
+model WebhookDelivery {
+  id             String    @id @default(cuid())
+  endpointId     String
+  eventId        String
+  type           String
+  payload        String    @db.Text
+  status         String    @default("pending")
+  attempts       Int       @default(0)
+  nextAttemptAt  DateTime  @default(now())
+  lastStatusCode Int?
+  lastError      String?
+  createdAt      DateTime  @default(now())
+  deliveredAt    DateTime?
+
+  endpoint WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, eventId])
+  @@index([status, nextAttemptAt])
 }
 
 /// Fixed-window counters for rate limiting auth and email actions (decisions 0004, 0006).
