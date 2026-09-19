@@ -19,7 +19,7 @@ export async function allowSandboxWrite(
     return {
       ok: false,
       status: 429,
-      error: `Sandbox write allowance is ${SANDBOX_WRITES_PER_DAY} per day. Use a live key or wait for the window to reset.`,
+      error: `Test key write allowance is ${SANDBOX_WRITES_PER_DAY} a day. Use a live key or wait for the window to reset.`,
     };
   }
   return { ok: true };

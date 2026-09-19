@@ -107,9 +107,14 @@ export default function InvoicingApiForAgentsPage() {
             with that actor.
           </p>
           <p className="mt-4 text-body text-ink-soft">
-            Sandbox keys use the <code>cb_test_</code> prefix and share a free allowance of 100 writes
-            per day on REST and MCP. Live keys are unrestricted until the Machine tier is enforced.
-            The <code>machineEnabled</code> flag is reserved for that gate and does not block keys
+            Test keys use the <code>cb_test_</code> prefix and share an allowance of 100 writes a day
+            on REST and MCP, currently free. Live keys have no daily write quota today; both kinds
+            are held to 120 requests a minute. A Machine tier is planned, its pricing is not set,
+            and the terms give 30 days of notice before anything free becomes paid.
+          </p>
+          <p className="mt-4 text-body text-ink-soft">
+            Test keys act on your real account. They create real invoices and record real payments,
+            so a send from a test key reaches the client on file. There is no separate test dataset
             today.
           </p>
           <p className="mt-6 text-body text-ink-soft">
