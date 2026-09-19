@@ -5,6 +5,7 @@ import { snapshotInvoice } from "@/lib/billing/versions";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { allow, ipFromHeaders } from "@/lib/rate-limit";
+import { enqueueWebhook } from "@/lib/webhooks/enqueue";
 
 /** View beacon for public invoices. Unauthenticated by design; it only records a timestamp. */
 export async function POST(req: Request) {
@@ -47,5 +48,6 @@ export async function POST(req: Request) {
     await snapshotInvoice(tx, invoice.id, actor);
   });
   await recordEvent({ name: "invoice_viewed", userId: invoice.userId });
+  await enqueueWebhook(invoice.userId, "invoice.viewed", { invoiceId: invoice.id }, actor);
   return NextResponse.json({ ok: true });
 }

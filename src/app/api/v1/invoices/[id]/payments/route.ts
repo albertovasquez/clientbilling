@@ -1,4 +1,4 @@
-import { authenticateApiRequest } from "@/lib/api-keys";
+import { authenticateApiRequest, requireScope } from "@/lib/api-keys";
 import { withIdempotency } from "@/lib/billing/api-mutate";
 import { apiError, apiOk } from "@/lib/api-response";
 import { prisma } from "@/lib/db";
@@ -9,6 +9,8 @@ import { serializeInvoice } from "@/lib/invoices/service";
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.error);
+  const gated = requireScope(auth, "payment:read");
+  if (!gated.ok) return apiError(gated.status, gated.error);
   const { id } = await ctx.params;
   const invoice = await prisma.invoice.findFirst({ where: { id, userId: auth.userId }, select: { id: true } });
   if (!invoice) return apiError(404, "Invoice not found");
@@ -24,9 +26,11 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.error);
+  const gated = requireScope(auth, "payment:record");
+  if (!gated.ok) return apiError(gated.status, gated.error);
   const { id } = await ctx.params;
 
-  return withIdempotency(auth, req, async ({ body, actor }) => {
+  return withIdempotency(gated, req, async ({ body, actor }) => {
     if (!body) return { error: "Body must be JSON", status: 400 };
     const result = await recordPayment(
       auth.userId,

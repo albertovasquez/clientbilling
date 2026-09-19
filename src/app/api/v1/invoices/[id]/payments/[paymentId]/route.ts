@@ -1,4 +1,4 @@
-import { authenticateApiRequest } from "@/lib/api-keys";
+import { authenticateApiRequest, requireScope } from "@/lib/api-keys";
 import { withIdempotency } from "@/lib/billing/api-mutate";
 import { apiError } from "@/lib/api-response";
 import { prisma } from "@/lib/db";
@@ -9,9 +9,11 @@ import { serializeInvoice } from "@/lib/invoices/service";
 export async function DELETE(req: Request, ctx: { params: Promise<{ id: string; paymentId: string }> }) {
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.error);
+  const gated = requireScope(auth, "payment:record");
+  if (!gated.ok) return apiError(gated.status, gated.error);
   const { id, paymentId } = await ctx.params;
 
-  return withIdempotency(auth, req, async ({ actor }) => {
+  return withIdempotency(gated, req, async ({ actor }) => {
     const payment = await prisma.payment.findFirst({
       where: { id: paymentId, invoiceId: id, userId: auth.userId },
       select: { id: true },

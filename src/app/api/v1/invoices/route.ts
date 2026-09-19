@@ -1,6 +1,6 @@
 import type { InvoiceStatus } from "@prisma/client";
 import { z } from "zod";
-import { authenticateApiRequest } from "@/lib/api-keys";
+import { authenticateApiRequest, requireScope } from "@/lib/api-keys";
 import { withIdempotency } from "@/lib/billing/api-mutate";
 import { apiError, apiOk } from "@/lib/api-response";
 import { prisma } from "@/lib/db";
@@ -22,6 +22,8 @@ const createSchema = z.object({
 export async function GET(req: Request) {
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.error);
+  const gated = requireScope(auth, "invoice:read");
+  if (!gated.ok) return apiError(gated.status, gated.error);
   const url = new URL(req.url);
   const status = url.searchParams.get("status");
   if (status && !statuses.includes(status as InvoiceStatus)) return apiError(400, `status must be one of ${statuses.join(", ")}`);
@@ -38,8 +40,10 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.error);
+  const gated = requireScope(auth, "invoice:write");
+  if (!gated.ok) return apiError(gated.status, gated.error);
 
-  return withIdempotency(auth, req, async ({ body, actor }) => {
+  return withIdempotency(gated, req, async ({ body, actor }) => {
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
       return { error: "lines[] with description and unitPrice is required; clientId or newClient.name is required", status: 400 };

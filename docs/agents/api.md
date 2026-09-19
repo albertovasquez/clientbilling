@@ -17,7 +17,31 @@ Successful mutations include provenance:
 }
 ```
 
-Material mutations also append a hashed `BillingEvent` and, when the invoice projection changes, an `InvoiceVersion`. Scopes, service accounts, and webhooks ship in the next machine-API week.
+Material mutations also append a hashed `BillingEvent` and, when the invoice projection changes, an `InvoiceVersion`.
+
+## Scopes and service accounts
+
+Keys carry scopes (decision 0026). Missing a required scope returns `403`. The set is: `invoice:read`, `invoice:write`, `invoice:send`, `invoice:void`, `reminder:send`, `payment:read`, `payment:record`, `cost:read`, `proof:read`. Bind a key to a service account under Settings, API keys when the actor on mutations should be that service account rather than the key itself.
+
+OpenAPI 3.1: `GET /docs/api/openapi.json`.
+
+## Webhooks
+
+Register an HTTPS endpoint under Settings, API keys. Each delivery POSTs JSON:
+
+```json
+{
+  "id": "evt_...",
+  "type": "invoice.sent",
+  "occurredAt": "2026-09-19T12:00:00.000Z",
+  "organizationId": "userId",
+  "data": { "invoiceId": "..." },
+  "actor": { "type": "service_account", "id": "...", "authorizationId": "..." },
+  "proofStatus": "pending"
+}
+```
+
+Header `ClientBilling-Signature: t=<unix>,v1=<hmac_sha256_hex>` signs `${t}.${rawBody}` with the endpoint secret. Reject timestamps older than five minutes. Event types: `invoice.created`, `invoice.sent`, `invoice.viewed`, `invoice.paid`, `payment.recorded`, `invoice.overdue`. Delivery is at-least-once with retries.
 
 ## Clients
 
@@ -107,4 +131,4 @@ curl -s -X POST https://www.clientbilling.com/api/v1/invoices/INVOICE_ID/payment
 
 ## Not in v1 yet
 
-Updating or deleting invoices and clients, webhooks, scopes, service accounts, team access. Poll `GET /api/v1/invoices` for status changes until signed webhooks ship.
+Updating or deleting invoices and clients, team access, MCP (week 5).

@@ -4,11 +4,15 @@
  * Exercises: password reset tokens, rate limit windows, invoice number uniqueness.
  */
 import { compare } from "bcryptjs";
+import { hashApiKey } from "../src/lib/api-keys";
+import { ALL_SCOPES_STRING, hasScope, parseScopes } from "../src/lib/api-scopes";
 import { userActor } from "../src/lib/billing/actor";
 import { withIdempotency } from "../src/lib/billing/api-mutate";
 import { beginIdempotency } from "../src/lib/billing/idempotency";
 import { prisma } from "../src/lib/db";
 import { serializePayment } from "../src/lib/invoices/payments";
+import { deliverDueWebhooks } from "../src/lib/webhooks/deliver";
+import { generateWebhookSecret } from "../src/lib/webhooks/sign";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
 import { csvCell, csvFilename, invoicesToCsv, paymentsToCsv } from "../src/lib/invoices/export-csv";
@@ -266,7 +270,10 @@ async function main() {
       body,
     });
   const paymentsBefore = await prisma.payment.count({ where: { invoiceId: billed.invoice.id } });
-  const firstRes = await withIdempotency({ ok: true, userId: user.id, keyId: apiKey.id }, idemReq(keyA, idemBody), async ({ body, actor }) => {
+  const firstRes = await withIdempotency(
+    { ok: true, userId: user.id, keyId: apiKey.id, actor: userActor(user.id) },
+    idemReq(keyA, idemBody),
+    async ({ body, actor }) => {
     const result = await recordPayment(
       user.id,
       billed.invoice.id,
@@ -276,11 +283,16 @@ async function main() {
     );
     if (!result.ok) return { error: result.error, status: result.status };
     return { status: 201, body: { payment: serializePayment(result.payment) } };
-  });
+  },
+  );
   assert(firstRes.status === 201, "first idempotent payment succeeds");
-  const replayRes = await withIdempotency({ ok: true, userId: user.id, keyId: apiKey.id }, idemReq(keyA, idemBody), async () => {
+  const replayRes = await withIdempotency(
+    { ok: true, userId: user.id, keyId: apiKey.id, actor: userActor(user.id) },
+    idemReq(keyA, idemBody),
+    async () => {
     throw new Error("handler must not run on replay");
-  });
+  },
+  );
   assert(replayRes.status === 201 && replayRes.headers.get("Idempotency-Replayed") === "true", "same key+body replays without re-running");
   const paymentsAfter = await prisma.payment.count({ where: { invoiceId: billed.invoice.id } });
   assert(paymentsAfter === paymentsBefore + 1, "duplicate idempotent request does not create a second payment");
@@ -294,6 +306,96 @@ async function main() {
   ]);
   assert(concurrent.filter((r) => r.ok).length === 1, "concurrent same-key claims admit exactly one");
   assert(concurrent.some((r) => !r.ok && r.response.status === 409), "the other concurrent claim is in progress or conflict");
+
+  // Scopes, service accounts, webhooks (decision 0026 / epic #34)
+  assert(hasScope(parseScopes("invoice:read"), "invoice:read"), "scope parse allows invoice:read");
+  assert(!hasScope(parseScopes("invoice:read"), "payment:record"), "scope parse denies payment:record");
+  const sa = await prisma.serviceAccount.create({ data: { userId: user.id, name: "agent" } });
+  const saKey = await prisma.apiKey.create({
+    data: {
+      userId: user.id,
+      name: "sa",
+      keyHash: hashApiKey(`cb_live_sa_${Date.now()}`),
+      prefix: "cb_live_sa",
+      scopes: ALL_SCOPES_STRING,
+      serviceAccountId: sa.id,
+    },
+  });
+  const saCreated = await createInvoice({
+    userId: user.id,
+    clientId: client.id,
+    lines: [{ description: "Agent work", quantity: 1, unitPriceCents: 1000 }],
+    taxRateBps: 0,
+    dueDate: null,
+    notes: null,
+    source: "api",
+    actor: { type: "service_account", id: sa.id, authorizationId: saKey.id },
+  });
+  assert(saCreated.ok, "service-account create succeeds");
+  if (!saCreated.ok) throw new Error("unreachable");
+  const saEvent = await prisma.billingEvent.findFirst({
+    where: { aggregateId: saCreated.invoice.id, type: "created" },
+  });
+  assert(saEvent?.actorType === "service_account" && saEvent.actorId === sa.id, "service-account actor on billing event");
+
+  // Create → mark sent → observe via local webhook receiver (epic #34 exit).
+  const http = await import("node:http");
+  const received: { type?: string; raw: string; signature?: string }[] = [];
+  const server = http.createServer((req, res) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      const raw = Buffer.concat(chunks).toString("utf8");
+      let type: string | undefined;
+      try {
+        type = JSON.parse(raw).type;
+      } catch {
+        type = undefined;
+      }
+      received.push({ type, raw, signature: req.headers["clientbilling-signature"] as string | undefined });
+      res.writeHead(200);
+      res.end("ok");
+    });
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const addr = server.address();
+  if (!addr || typeof addr === "string") throw new Error("no listen port");
+  const hookUrl = `http://127.0.0.1:${addr.port}/hooks`;
+  const secret = generateWebhookSecret();
+  const endpoint = await prisma.webhookEndpoint.create({
+    data: { userId: user.id, url: hookUrl, secret },
+  });
+  // createInvoice already enqueued invoice.created when saCreated ran before the endpoint existed.
+  const observe = await createInvoice({
+    userId: user.id,
+    clientId: client.id,
+    lines: [{ description: "Observe", quantity: 1, unitPriceCents: 2500 }],
+    taxRateBps: 0,
+    dueDate: null,
+    notes: null,
+    source: "api",
+    actor: { type: "service_account", id: sa.id, authorizationId: saKey.id },
+  });
+  assert(observe.ok, "observe invoice created");
+  if (!observe.ok) throw new Error("unreachable");
+  const sent = await setInvoiceStatus(user.id, observe.invoice.id, "sent", "api", null, {
+    type: "service_account",
+    id: sa.id,
+    authorizationId: saKey.id,
+  });
+  assert(sent.ok, "observe invoice marked sent");
+  const pending = await prisma.webhookDelivery.count({
+    where: { endpointId: endpoint.id, status: "pending" },
+  });
+  assert(pending >= 2, "created and sent webhooks queued");
+  const delivered = await deliverDueWebhooks(20);
+  assert(delivered.delivered >= 2, "webhook deliveries succeeded against local receiver");
+  assert(
+    received.some((r) => r.type === "invoice.created") && received.some((r) => r.type === "invoice.sent"),
+    "receiver saw invoice.created and invoice.sent",
+  );
+  assert(received.every((r) => typeof r.signature === "string" && r.signature.includes("v1=")), "deliveries were signed");
+  server.close();
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

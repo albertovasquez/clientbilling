@@ -28,7 +28,11 @@ export default async function ApiDocsPage() {
         </Heading>
         <p className="mt-4 text-body text-ink-soft">
           For scripts and agents that run an invoicing account on its owner&apos;s behalf. Create a key
-          under Settings, API keys in the app.
+          under Settings, API keys in the app. Machine-readable OpenAPI is at{" "}
+          <a href="/docs/api/openapi.json" className="text-action underline-offset-4 hover:underline">
+            /docs/api/openapi.json
+          </a>
+          .
         </p>
         <Disclosure compact className="mt-4" />
         <div className="prose prose-billing mt-10 max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
