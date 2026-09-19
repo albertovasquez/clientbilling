@@ -111,9 +111,10 @@ export default function InvoicingApiForAgentsPage() {
             and the terms give 30 days of notice before anything free becomes paid.
           </p>
           <p className="mt-4 text-body text-ink-soft">
-            Test keys act on your real account. They create real invoices and record real payments,
-            so a send from a test key reaches the client on file. There is no separate test dataset
-            today.
+            Test keys act on your real account. They create real invoices and record real payments
+            against them, and there is no separate test dataset today. They cannot send email: a
+            send or a reminder from a test key is refused, because it would reach the real client
+            on file. Use a live key to test the send path.
           </p>
           <p className="mt-6 text-body text-ink-soft">
             Full HTTP details live in the{" "}

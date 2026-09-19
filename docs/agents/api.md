@@ -29,7 +29,9 @@ OpenAPI 3.1: `GET /docs/api/openapi.json`.
 
 Keys come in two kinds. Live keys use the `cb_live_` prefix; test keys use `cb_test_`. Both authenticate the same way and are held to 120 requests a minute.
 
-A test key adds a write allowance of 100 a day per account, shared across REST and MCP, and returns `429` past it. That allowance is the only difference. **A test key acts on your real account**: it creates real invoices, records real payments, and a send from one emails the client on file. There is no separate test dataset today.
+A test key adds a write allowance of 100 a day per account, shared across REST and MCP, and returns `429` past it.
+
+**A test key acts on your real account**: it creates real invoices and records real payments against them. There is no separate test dataset today. It cannot send email: `POST /api/v1/invoices/:id/send`, `POST /api/v1/invoices/:id/remind`, and the `send_invoice` and `send_reminder` MCP tools all return `403` for a `cb_test_` key, because a send would reach the real client on file (decision 0028). Use a live key to test the send path.
 
 ## Webhooks
 

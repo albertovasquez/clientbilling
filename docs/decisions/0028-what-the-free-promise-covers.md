@@ -1,6 +1,6 @@
 # 0028: What the free promise covers
 
-Status: **Proposed. The founder decides.** Clarifies 0022. Raised by issue #69 and the review of #63 and #64.
+Status: Accepted 2026-09-19. Clarifies 0022. Raised by issue #69 and the review of #63 and #64.
 
 ## Context
 
@@ -18,30 +18,34 @@ The internal evidence favours the narrow reading: both 0026 and 0027 treat enfor
 
 ## Decision
 
-**The founder picks one. Delete the other before this record is accepted.**
+"Nothing that is free today becomes paid for existing accounts" (0022) applies to the human invoicing product listed under "Human invoicing stays free" and to the proof seal. It does not apply to machine access: the REST API, MCP, webhooks, service accounts, or write quotas on live keys.
 
-### Option A, narrow (recommended)
+When the Machine tier launches, every account, including those created before launch, receives the 30-day notice in the terms and is then subject to Machine-tier quotas and pricing. The free test-key allowance remains.
 
-Clarifies 0022. "Nothing that is free today becomes paid for existing accounts" applies to the human invoicing product listed under "Human invoicing stays free" and to the proof seal. It does not apply to machine access: the REST API, MCP, webhooks, service accounts, or write quotas on live keys. When the Machine tier launches, every account, including those created before launch, receives the 30-day notice in the terms and is then subject to Machine-tier quotas and pricing. The free test-key allowance remains. Public copy may describe current live-key limits as they stand today; such copy promises notice, not continuation.
+Public copy may describe current live-key limits as they stand today. Such copy promises notice, not continuation.
 
-### Option B, broad
-
-Clarifies 0022. "Nothing that is free today becomes paid for existing accounts" applies to every capability an account could use at no charge on 2026-09-19, including the REST API, MCP, webhooks, and live keys without a daily write quota. Accounts created before the Machine tier launch date keep that access at no charge for as long as the account exists. The Machine tier may charge those accounts only for capabilities introduced after that date. The terms page and the agent landing must state this grandfather explicitly before launch.
+Test keys do not send email. A `cb_test_` key is refused on any tool or endpoint that would email a client, because the one irreversible thing a developer can do while testing is contact someone else's customer. Everything else a test key does is reversible by the account owner.
 
 ## Reasons
 
-Narrow keeps the business model 0022 describes. Broad means the Machine tier can never charge any account that exists today for API or MCP usage, because 0027 already made live keys unrestricted, so "higher quotas" has nothing to be higher than. That removes the early cohort from the revenue engine 0022 projects most recurring revenue from, and creates an incentive to sign up before launch purely to be grandfathered.
+The narrow reading keeps the business model 0022 describes. The broad reading would mean the Machine tier can never charge any account that exists today for API or MCP usage, because 0027 already made live keys unrestricted, so "higher quotas" would have nothing to be higher than. That removes the early cohort from the revenue engine 0022 projects most recurring revenue from, and rewards signing up before launch purely to be grandfathered.
 
-Narrow costs honesty work: every public sentence about machine limits has to promise notice rather than continuation, which reads less generously on a developer landing. PR #73 already does that.
+The decisive evidence is internal: 0026 and 0027 both plan to enforce production write quotas. That work could never apply to any existing account under the broad reading, so two accepted decisions would be planning something the promise forbade.
+
+This costs honesty work. Every public sentence about machine limits now promises notice rather than continuation, which reads less generously on a developer landing than "unrestricted" did. That is the right trade: a stated 30 days is a real commitment, where "unrestricted" was both false (live keys carry 120 requests a minute) and a promise nobody approved.
+
+The email rule is narrower than isolation and answers the only irreversible risk. A test key writing a draft or recording a payment is reversible by the owner. A test key emailing someone's client is not, and a developer who assumes "test" means a separate dataset will do exactly that. Blocking the send is small, and it does not foreclose real isolation later.
 
 ## Consequences
 
-Under A: no code change. The copy in PR #73 stands as written. This record is the thing a reader is pointed at if they quote 0022's sentence back.
+The copy in PR #73 stands as written. This record is what a reader is pointed at if they quote 0022's sentence back.
 
-Under B: the terms page must state the grandfather before the Machine tier launches, and that is a stop-and-ask edit under the mission's legal-page rule. The agent landing must state it too. The Machine tier's revenue model needs revisiting, since its first cohort is exempt by construction.
+Sends are refused for `cb_test_` keys on the REST send and remind endpoints and on the `send_invoice` and `send_reminder` MCP tools, with an error naming the reason. Creating, voiding, and recording payments are unchanged.
 
-Note that the public terms today promise less than either reading: "The app is free today. If that changes, we will announce it at least 30 days in advance and existing invoices will stay accessible." That is notice plus invoice access, with no grandfather of any feature. Option A leaves that line true. Option B makes it incomplete.
+The public terms still say "The app is free today. If that changes, we will announce it at least 30 days in advance and existing invoices will stay accessible." This decision leaves that true, so no legal-page edit is needed.
+
+Real test and live data isolation is not decided here. If it is ever wanted, the cheapest moment is before the proof engine anchors the event log, because retrofitting a live/test split into an append-only hash chain afterwards is materially harder.
 
 ## Revisit
 
-When Machine-tier pricing is set. If A was taken, confirm the 30-day notice goes to every account. If B was taken, confirm the terms and the landing state the grandfather before any charge exists.
+When Machine-tier pricing is set: confirm the 30-day notice goes to every account, including those created before launch. Also revisit if a developer asks for a way to test the send path, which the email rule deliberately forecloses.
