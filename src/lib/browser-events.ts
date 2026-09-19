@@ -8,6 +8,7 @@ export const browserEventNames = [
   "payer_pay_link_click",
   "cost_table_edit",
   "hero_signup_click",
+  "proof_strip_click",
 ] as const;
 
 export type BrowserEventName = (typeof browserEventNames)[number];

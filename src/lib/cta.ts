@@ -14,6 +14,7 @@ export type CtaKey =
   | "exploreMobile"
   | "exploreRecurring"
   | "exploreB2b"
+  | "compareCosts"
   | "signUp"
   | "createInvoice"
   | "api";
@@ -101,6 +102,20 @@ export const ctas: Record<CtaKey, Cta> = {
     href: "/cdgcommerce/b2b",
     type: "explore",
     external: false,
+  },
+  /**
+   * The homepage Payments section (ticket #45, decision 0021). Same quote
+   * destination and the same quote type as the `quote` rung, so attribution
+   * and click recording are unchanged; the label is the one the merchant is
+   * reading at that moment, which is about their card costs and not about
+   * CDG's form. The founder specified this label in issue #45.
+   */
+  compareCosts: {
+    key: "compareCosts",
+    label: "Compare your card costs",
+    href: siteConfig.quoteUrl,
+    type: "quote",
+    external: true,
   },
   signUp: {
     key: "signUp",

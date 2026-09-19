@@ -70,7 +70,7 @@ All in `src/components/ui`, imported from `@/components/ui`.
 
 | Component | Use it for | Do not use it for |
 | --- | --- | --- |
-| `Section` | every top-level block; alternate `band="field"` to separate topics; `rule` for a hairline | nesting inside another Section |
+| `Section` | every top-level block; alternate `band="field"` to separate topics and `band="sheet"` for a block that reads as a document; `rule` for a hairline | nesting inside another Section |
 | `Container` | width and gutter inside a Section | anything else |
 | `Heading` | all headings; `level` is semantic, `size` is visual | body text |
 | `Kicker` | one sentence-case line above a heading that carries information (updated date, section) | decorative labels, all caps |
@@ -153,6 +153,7 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 | apply | Start a CDG application | CDG secure application, agent 470 | apply |
 | exploreOnline, exploreRetail, exploreMobile | Explore CDG online / in-person / mobile payments | CDG solution pages, agent 470 | explore |
 | exploreRecurring, exploreB2b | Read the recurring billing / B2B payments guide | internal | explore |
+| compareCosts | Compare your card costs | CDG quote form, agent 470 | quote |
 | signUp | Create an invoice, free | /app/sign-up | product |
 | createInvoice | Create an invoice | /app/sign-up | product |
 | api | See the API | /docs/api | product |
@@ -160,6 +161,9 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 Placement
 
 - Homepage hero: `signUp` primary with `event="hero_signup_click"` and `api` secondary (decision 0021). No CDG rung in the homepage hero.
+- Homepage Payments section: `compareCosts`, the quote rung worded for a merchant reading about
+  their own card costs, with the commission sentence beside it (decision 0021, ticket #45). It is
+  the only CDG link on the homepage.
 - Hero of a CDG page: `compare` primary and `quote` secondary. Never `apply` in a hero.
 - After the first pricing content (RateLockup group or CompareTable): `quote` primary, `fit` or `compare` secondary, inside a DecisionCard.
 - End of review, hub, and comparison pages: VerdictBox with `quote` primary and `apply` secondary.
@@ -182,7 +186,7 @@ Four rules from the brand brief come first: state the number; state its source; 
 - No arrows in link text. The link is the affordance.
 - No all-caps labels. Use a Kicker in sentence case only when it carries information.
 
-Banned in visitor-facing copy (the check script fails on these): "as CDG states", "as CDG publishes", "as CDG lists", "mid-funnel", "bottom-of-funnel", "hard convert", "soft CTA", "secondary hard", "R=470", "tracked link", "money page".
+Banned in visitor-facing copy (the check script fails on these): "as CDG states", "as CDG publishes", "as CDG lists", "mid-funnel", "bottom-of-funnel", "hard convert", "soft CTA", "secondary hard", "R=470", "tracked link", "money page". The check also fails on any claim that a fee, rate, price, or cost is hidden, in either word order: competitors publish their rates, and decision 0021 forbids the claim. Layout classes and `aria-hidden` are not claims and are skipped.
 
 ## 6. Attribution
 

@@ -35,6 +35,27 @@ const rules = [
     applies: (file) => !isLibConfig(file),
   },
   {
+    /**
+     * Decision 0021 and the voice rules: competitors publish their rates, so
+     * the site never says or implies that a fee or a rate is hidden. Catches
+     * "hide"/"hidden"/"hides"/"hiding" within a few words of fee, rate,
+     * pricing, or cost, in either order.
+     */
+    name: "hidden fee claim",
+    test: (line) => {
+      // "hidden" is also a layout utility (hidden sm:inline, sm:hidden), and
+      // those carry no claim. Drop class attributes before matching prose.
+      const prose = line
+        .replace(/class(?:Name)?=(?:"[^"]*"|'[^']*'|\{`[^`]*`\})/g, "")
+        .replace(/aria-hidden(?:=(?:"[^"]*"|\{[^}]*\}))?/g, "");
+      const m = prose.match(
+        /\b(hid(?:e|es|den|ing))\b[^.!?]{0,40}?\b(fees?|rates?|pricing|costs?)\b|\b(fees?|rates?|pricing|costs?)\b[^.!?]{0,40}?\b(hid(?:e|es|den|ing))\b/i,
+      );
+      return m ? m[0].slice(0, 40) : undefined;
+    },
+    applies: (file) => !isLibConfig(file),
+  },
+  {
     name: "em or en dash",
     test: (line) => (/[—–]/.test(line) ? "dash" : undefined),
     applies: () => true,
