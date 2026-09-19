@@ -44,4 +44,4 @@ Payers are never an audience for CDG links. Merchants are.
 
 ## When this file must be updated
 
-Any answer from CDG, any change to a CDG URL, any new CTA rung, and any change to how CDG is scored or described. The PR cites this file and `north-star.md`.
+Any answer from CDG, any change to a CDG URL, any new CDG-typed CTA rung (compare, fit, quote, apply, explore), and any change to how CDG is scored or described. The PR cites this file and `north-star.md`. A product rung that carries no CDG destination is not a change to this file.

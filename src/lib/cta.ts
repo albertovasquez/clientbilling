@@ -15,6 +15,7 @@ export type CtaKey =
   | "exploreRecurring"
   | "exploreB2b"
   | "signUp"
+  | "createInvoice"
   | "api";
 
 export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore" | "product";
@@ -104,6 +105,19 @@ export const ctas: Record<CtaKey, Cta> = {
   signUp: {
     key: "signUp",
     label: "Create an invoice, free",
+    href: "/app/sign-up",
+    type: "product",
+    external: false,
+  },
+  /**
+   * The header button (decision 0021, ticket #46). It goes to sign-up, whose
+   * heading and product paragraph sit above the form, so the click still lands
+   * on context. 0021 superseded 0001's navigation clause; the Invoices nav item
+   * is what carries the product page.
+   */
+  createInvoice: {
+    key: "createInvoice",
+    label: "Create an invoice",
     href: "/app/sign-up",
     type: "product",
     external: false,

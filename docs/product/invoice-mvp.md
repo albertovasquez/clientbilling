@@ -1,6 +1,6 @@
 # Invoice MVP (Level B)
 
-Updated: 2026-09-18. Decisions that shaped this are in `docs/decisions/`.
+Updated: 2026-09-18. Navigation and the payments hub added by ticket #46. Decisions that shaped this are in `docs/decisions/`.
 
 ## Architecture
 
@@ -21,6 +21,12 @@ Updated: 2026-09-18. Decisions that shaped this are in `docs/decisions/`.
 10. Recurring: schedules at `/app/recurring`; a daily cron (`/api/cron/recurring`, 06:15 UTC, `CRON_SECRET`) generates one draft per due schedule and advances it; auto-send optional (decision 0018).
 9. API: personal keys at `/app/settings/api`, endpoints under `/api/v1/*`, reference at `/docs/api` and `docs/agents/api.md` (decision 0017). Invoice rules live in `src/lib/invoices/service.ts` and `src/lib/invoices/email.ts`, shared by the app and the API.
 8. Concierge Collect: "Enable card payments" on the payments settings page captures business type and volume band, records `collect_requested`, and emails the first `ADMIN_EMAILS` address; the founder follows `docs/agents/runbooks/concierge-collect.md` (decision 0009).
+
+## Marketing pages
+
+The header reads Invoices, Payments, For agents, Developers, Guides, Sign in, with "Create an invoice" as the button (decision 0021). Items and the button rung come from `src/lib/site.ts`; the button goes to `/app/sign-up`, whose heading and product paragraph sit above the form, and the Invoices item carries the product page, so the two never share a destination (0021 superseded 0001's navigation clause). CDG is not in the header: the review, the comparison posts, and the calculator keep their URLs and stay linked from the footer and the guides. Below `lg` the six items collapse into a native `details` disclosure so a 390 px phone keeps the site name and the button visible without JavaScript.
+
+`/payments` is the hub the Payments item points at: the three rails on the example invoice with fee and expected net, the two card pricing models, bank transfer, and the guides. Every number comes from `src/lib/payment-costs.ts` and `src/lib/cdg.ts` with its source and date; interchange reads "varies by card" rather than an estimate. The CDG quote link carries the affiliate reference with the disclosure beside it.
 
 ## Vertical kits
 
@@ -52,7 +58,7 @@ First-party `Event` table (decision 0007). Server events: `signup`, `invoice_cre
 4. Add `ADMIN_EMAILS` to see the funnel page, and `CRON_SECRET` so the daily overdue sweep runs.
 5. Monthly: delete `Event` rows older than 180 days (`DELETE FROM "Event" WHERE "createdAt" < now() - interval '180 days'`).
 6. Never put Quantum RestrictKeys or gateway passwords in env or the database.
-7. Tests: `npx tsx scripts/test-payment-costs.ts` (pure, no database) checks the payment-cost calculator; `DATABASE_URL=... npx tsx scripts/test-db-flows.ts` checks reset tokens, rate limits, numbering, payments, and pay links against a throwaway Postgres. Run both before a PR that touches invoices, payments, or rates.
+7. Tests: `npm run check` runs typecheck, lint, the style check, and then `npm run test:pure` (the payment-cost calculator, the homepage example invoice, and the navigation contract; no database needed). `DATABASE_URL=... npx tsx scripts/test-db-flows.ts` checks reset tokens, rate limits, numbering, payments, and pay links against a throwaway Postgres; run it before a PR that touches invoices or payments.
 
 ## Residual diligence
 

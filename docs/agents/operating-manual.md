@@ -23,7 +23,7 @@ How an autonomous agent works in this repository. Read `docs/mission/README.md` 
 Do not proceed on your own when a change would:
 
 1. Touch anything in `docs/mission/compliance-boundary.md`: card data, funds, merchant-of-record status, gateway credentials.
-2. Add, remove, or rewrite a CDG URL, a CTA rung, or a claim about CDG's fees, terms, residuals, or the integration. This includes the fee calculator's presets and the `cdg.ts` facts.
+2. Add, remove, or rewrite a CDG URL; add, remove, or rewrite a CTA rung of type compare, fit, quote, apply, or explore, or change where one may appear; or make a claim about CDG's fees, terms, residuals, or the integration. This includes the fee calculator's presets and the `cdg.ts` facts. Product rungs, and any rung an accepted decision or a founder-filed issue already specifies, are within remit.
 3. Change pricing or "free" promises, the terms of service, the privacy policy, or the affiliate disclosure.
 4. Turn on `COLLECT_ONLINE` or build against the Quantum pay path.
 5. Delete or rewrite user data, run a destructive migration, or change the database region or connection.
