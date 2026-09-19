@@ -7,7 +7,7 @@ type BadgeProps = {
 };
 
 const tones = {
-  verdict: "border-verdict-rule bg-verdict-tint text-verdict",
+  verdict: "border-rule-due bg-due-tint text-due",
   neutral: "border-rule bg-field text-ink-soft",
 } as const;
 

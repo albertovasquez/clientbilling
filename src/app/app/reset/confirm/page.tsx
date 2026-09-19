@@ -25,7 +25,7 @@ export default async function ResetConfirmPage({ searchParams }: Props) {
         ) : (
           <p className="mt-4 text-body text-ink-soft">
             This reset link is incomplete.{" "}
-            <Link href="/app/reset" className="font-semibold text-action hover:underline">
+            <Link href="/app/reset" className="font-semibold text-carbon hover:underline">
               Request a new one
             </Link>
             .

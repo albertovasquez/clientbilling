@@ -21,7 +21,7 @@ export function AuthorCard({ className = "" }: AuthorCardProps) {
       </span>
       <div>
         <p className="text-small font-semibold text-ink">
-          <Link href={author.path} className="hover:text-action">
+          <Link href={author.path} className="hover:text-carbon">
             {author.name}
           </Link>
         </p>

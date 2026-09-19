@@ -25,7 +25,7 @@ export default async function NewRecurringPage() {
       <p className="mt-2 text-small text-ink-soft">
         Same client, same lines, every period.{" "}
         {clients.length === 0 ? (
-          <Link href="/app/clients/new" className="text-action underline-offset-4 hover:underline">
+          <Link href="/app/clients/new" className="text-carbon underline-offset-4 hover:underline">
             Add a client first.
           </Link>
         ) : null}

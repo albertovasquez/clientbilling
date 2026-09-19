@@ -31,7 +31,7 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
           return (
             <li key={`${item.label}-${i}`} className="flex min-w-0 items-center gap-2">
               {item.href && !last ? (
-                <Link href={item.href} className="hover:text-action">
+                <Link href={item.href} className="hover:text-carbon">
                   {item.label}
                 </Link>
               ) : (

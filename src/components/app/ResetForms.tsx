@@ -38,7 +38,7 @@ export function ResetRequestForm() {
       </Button>
       <p className="text-small text-ink-soft">
         Remembered it?{" "}
-        <Link href="/app/sign-in" className="font-semibold text-action hover:underline">
+        <Link href="/app/sign-in" className="font-semibold text-carbon hover:underline">
           Sign in
         </Link>
       </p>
@@ -78,7 +78,7 @@ export function ResetConfirmForm({ email, token }: { email: string; token: strin
         <Alert variant="destructive" role="alert">
           <AlertDescription>
             {state.error}{" "}
-            <Link href="/app/reset" className="font-semibold text-action hover:underline">
+            <Link href="/app/reset" className="font-semibold text-carbon hover:underline">
               Request a new link
             </Link>
           </AlertDescription>

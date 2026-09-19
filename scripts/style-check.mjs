@@ -61,6 +61,21 @@ const rules = [
     applies: () => true,
   },
   {
+    /**
+     * The Carbon Copy tokens replaced action, verdict, and their variants in
+     * #42, and #49 removed the aliases. A retired utility now resolves to
+     * nothing, so it fails silently: the element simply loses its color.
+     */
+    name: "retired token utility",
+    test: (line) => {
+      const m = line.match(
+        /\b(bg|text|border|ring|outline|divide|from|to|via|fill|stroke|decoration|placeholder)-(action|action-hover|action-tint|verdict|verdict-tint|verdict-rule)\b/,
+      );
+      return m ? `${m[0]} (use the carbon or due name)` : undefined;
+    },
+    applies: () => true,
+  },
+  {
     name: "raw palette class outside ui/",
     test: (line) => {
       const m = line.match(

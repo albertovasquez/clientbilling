@@ -174,7 +174,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </Heading>
             <p className="mt-4 text-body text-ink-soft">{post.description}</p>
             <p className="mt-5 text-small text-muted">
-              <Link href={author.path} className="font-semibold text-ink hover:text-action">
+              <Link href={author.path} className="font-semibold text-ink hover:text-carbon">
                 {author.name}
               </Link>
               <span className="mx-2" aria-hidden>
@@ -288,7 +288,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     <a
                       href={source.href}
                       rel="noopener noreferrer"
-                      className="text-action underline-offset-2 hover:underline"
+                      className="text-carbon underline-offset-2 hover:underline"
                     >
                       {source.label}
                     </a>
