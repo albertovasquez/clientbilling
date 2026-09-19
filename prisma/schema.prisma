@@ -43,6 +43,8 @@ model User {
   sessions Session[]
   apiKeys  ApiKey[]
   schedules RecurringSchedule[]
+  billingEvents BillingEvent[]
+  idempotencyRecords IdempotencyRecord[]
 }
 
 model Account {
@@ -176,6 +178,7 @@ model Invoice {
   lineItems InvoiceLineItem[]
   events    InvoiceEvent[]
   payments  Payment[]
+  versions  InvoiceVersion[]
 
   @@unique([userId, number])
   @@index([userId])
@@ -232,6 +235,66 @@ model InvoiceEvent {
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
+}
+
+/// Append-only billing events with actor and hash chain (decision 0025).
+/// userId stands in for organizationId until team roles ship. InvoiceEvent
+/// remains for UI/cooldown queries; material mutations dual-write here.
+model BillingEvent {
+  id              String   @id @default(cuid())
+  userId          String
+  aggregateType   String
+  aggregateId     String
+  sequence        Int
+  type            String
+  actorType       String
+  actorId         String
+  authorizationId String?
+  payload         String   @db.Text
+  nonce           String
+  previousHash    String
+  eventHash       String
+  schemaVersion   String
+  occurredAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, aggregateType, aggregateId, sequence])
+  @@index([userId, occurredAt])
+  @@index([aggregateType, aggregateId])
+}
+
+/// Immutable invoice snapshot after each material change (decision 0025).
+model InvoiceVersion {
+  id        String   @id @default(cuid())
+  invoiceId String
+  version   Int
+  snapshot  String   @db.Text
+  actorType String
+  actorId   String
+  createdAt DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@unique([invoiceId, version])
+  @@index([invoiceId])
+}
+
+/// Idempotency keys for state-changing API requests (decision 0025).
+model IdempotencyRecord {
+  id                 String   @id @default(cuid())
+  userId             String
+  key                String
+  requestFingerprint String
+  responseStatus     Int
+  responseBody       String   @db.Text
+  createdAt          DateTime @default(now())
+  expiresAt          DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([expiresAt])
 }
 
 /// First-party product events (decision 0007). No cookies, no fingerprinting.

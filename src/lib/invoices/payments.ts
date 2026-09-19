@@ -1,4 +1,8 @@
 import type { Invoice, Payment, PaymentMethod } from "@prisma/client";
+import type { Actor } from "@/lib/billing/actor";
+import { userActor } from "@/lib/billing/actor";
+import { appendBillingEvent } from "@/lib/billing/events";
+import { snapshotInvoice } from "@/lib/billing/versions";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 
@@ -33,7 +37,7 @@ export type PaymentInput = {
 };
 
 export type PaymentResult =
-  | { ok: true; payment: Payment; invoice: Invoice }
+  | { ok: true; payment: Payment; invoice: Invoice; actor: Actor }
   | { ok: false; error: string; status: number };
 
 function parseMethod(raw: string | null | undefined): PaymentMethod | null {
@@ -55,6 +59,7 @@ export async function recordPayment(
   invoiceId: string,
   input: PaymentInput,
   source: "app" | "api",
+  actor?: Actor,
 ): Promise<PaymentResult> {
   const amount = Math.round(Number(input.amountCents));
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -76,6 +81,7 @@ export async function recordPayment(
   }
 
   const settles = amount === balance;
+  const who = actor ?? userActor(userId);
   const result = await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.create({
       data: { invoiceId: invoice.id, userId, amountCents: amount, method, paidOn, note, source },
@@ -93,6 +99,23 @@ export async function recordPayment(
         },
       },
     });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "invoice",
+      aggregateId: invoice.id,
+      type: settles ? "paid" : "payment_recorded",
+      actor: who,
+      payload: { paymentId: payment.id, amountCents: amount, method, source, settles },
+    });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "payment",
+      aggregateId: payment.id,
+      type: "recorded",
+      actor: who,
+      payload: { invoiceId: invoice.id, amountCents: amount, method, source },
+    });
+    await snapshotInvoice(tx, invoice.id, who);
     return { payment, invoice: updated };
   });
 
@@ -101,23 +124,25 @@ export async function recordPayment(
     userId,
     payload: { amountCents: amount, method, partial: !settles, source },
   });
-  return { ok: true, ...result };
+  return { ok: true, ...result, actor: who };
 }
 
 /** Remove a payment record. A paid invoice reopens when its balance returns. */
 export async function deletePayment(
   userId: string,
   paymentId: string,
-): Promise<{ ok: true; invoice: Invoice } | { ok: false; error: string; status: number }> {
+  actor?: Actor,
+): Promise<{ ok: true; invoice: Invoice; actor: Actor } | { ok: false; error: string; status: number }> {
   const payment = await prisma.payment.findFirst({ where: { id: paymentId, userId }, include: { invoice: true } });
   if (!payment) return { ok: false, error: "Payment not found.", status: 404 };
   const inv = payment.invoice;
   const reopens = inv.status === "paid";
   const reopenedStatus = reopens ? reopenStatus(inv) : inv.status;
+  const who = actor ?? userActor(userId);
 
   const invoice = await prisma.$transaction(async (tx) => {
     await tx.payment.delete({ where: { id: payment.id } });
-    return tx.invoice.update({
+    const updated = await tx.invoice.update({
       where: { id: inv.id },
       data: {
         paidCents: Math.max(0, inv.paidCents - payment.amountCents),
@@ -125,9 +150,27 @@ export async function deletePayment(
         events: { create: { type: "payment_removed", meta: JSON.stringify({ amountCents: payment.amountCents }) } },
       },
     });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "invoice",
+      aggregateId: inv.id,
+      type: "payment_removed",
+      actor: who,
+      payload: { paymentId: payment.id, amountCents: payment.amountCents, reopened: reopens },
+    });
+    await appendBillingEvent(tx, {
+      userId,
+      aggregateType: "payment",
+      aggregateId: payment.id,
+      type: "removed",
+      actor: who,
+      payload: { invoiceId: inv.id, amountCents: payment.amountCents },
+    });
+    await snapshotInvoice(tx, inv.id, who);
+    return updated;
   });
   await recordEvent({ name: "payment_removed", userId, payload: { amountCents: payment.amountCents, reopened: reopens } });
-  return { ok: true, invoice };
+  return { ok: true, invoice, actor: who };
 }
 
 /** Where a paid invoice goes back to when a payment is removed. */

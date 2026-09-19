@@ -1,8 +1,23 @@
 # ClientBilling API v1
 
-For scripts and agents operating a merchant's account with the merchant's consent (decision 0017). Base URL `https://www.clientbilling.com`. All requests carry `Authorization: Bearer cb_live_...`, created at `/app/settings/api`. A key acts as the account that created it. 120 requests per key per minute. Errors are `{ "error": "..." }` with a meaningful status.
+For scripts and agents operating a merchant's account with the merchant's consent (decisions 0017, 0025). Base URL `https://www.clientbilling.com`. All requests carry `Authorization: Bearer cb_live_...`, created at `/app/settings/api`. A key acts as the account that created it. 120 requests per key per minute. Errors are `{ "error": "..." }` with a meaningful status.
 
 Money is integer cents. Dates are ISO 8601. `status` is one of `draft`, `sent`, `viewed`, `overdue`, `paid`, `void`.
+
+## Idempotency and actors
+
+Every state-changing request (`POST`, `DELETE`) under `/api/v1` must send `Idempotency-Key: <opaque string up to 256 chars>`. The same key with the same method, path, and body returns the original response with `Idempotency-Replayed: true`. The same key with a different body returns `409`. Keys are remembered for 24 hours per account.
+
+Successful mutations include provenance:
+
+```json
+{
+  "actor": { "type": "api_key", "id": "cmu...", "authorizationId": "cmu..." },
+  "request": { "idempotencyKey": "create-1001" }
+}
+```
+
+Material mutations also append a hashed `BillingEvent` and, when the invoice projection changes, an `InvoiceVersion`. Scopes, service accounts, and webhooks ship in the next machine-API week.
 
 ## Clients
 
@@ -90,6 +105,6 @@ curl -s -X POST https://www.clientbilling.com/api/v1/invoices/INVOICE_ID/payment
   -d '{"amountCents":50000,"method":"check","paidOn":"2026-09-18","note":"Check 1042"}'
 ```
 
-## Not in v1
+## Not in v1 yet
 
-Updating or deleting invoices and clients, webhooks, scopes, team access. Poll `GET /api/v1/invoices` for status changes.
+Updating or deleting invoices and clients, webhooks, scopes, service accounts, team access. Poll `GET /api/v1/invoices` for status changes until signed webhooks ship.

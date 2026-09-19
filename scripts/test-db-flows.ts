@@ -4,6 +4,8 @@
  * Exercises: password reset tokens, rate limit windows, invoice number uniqueness.
  */
 import { compare } from "bcryptjs";
+import { userActor } from "../src/lib/billing/actor";
+import { beginIdempotency, storeIdempotency } from "../src/lib/billing/idempotency";
 import { prisma } from "../src/lib/db";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
@@ -12,7 +14,7 @@ import { fetchLogoForPdf, isAllowedLogoUrl } from "../src/lib/invoices/logo";
 import { partitionStatementInvoices, statementBalanceCents } from "../src/lib/invoices/statements";
 import { createResetToken, resetPasswordWithToken } from "../src/lib/password-reset";
 import { deletePayment, recordPayment } from "../src/lib/invoices/payments";
-import { setInvoiceStatus } from "../src/lib/invoices/service";
+import { createInvoice, setInvoiceStatus } from "../src/lib/invoices/service";
 import { bpsToPercentInput, dueDateIsoFromDays } from "../src/lib/money";
 import { payLinkForInvoice, payLinkKind } from "../src/lib/pay-link";
 import { allow } from "../src/lib/rate-limit";
@@ -211,6 +213,63 @@ async function main() {
   assert(voidRes.ok && voidRes.invoice.voidReason === "Duplicate invoice", "void stores the reason");
   const onVoid = await recordPayment(user.id, made[1].id, { amountCents: 5 }, "app");
   assert(!onVoid.ok && onVoid.status === 409, "void invoice rejects payments");
+
+  // Billing events, versions, idempotency (decision 0025 / epic #33)
+  const billed = await createInvoice({
+    userId: user.id,
+    clientId: client.id,
+    lines: [{ description: "Consulting", quantity: 1, unitPriceCents: 50000 }],
+    taxRateBps: 0,
+    dueDate: null,
+    notes: null,
+    source: "api",
+    actor: userActor(user.id),
+  });
+  assert(billed.ok, "createInvoice for billing record");
+  if (!billed.ok) throw new Error("unreachable");
+  const be1 = await prisma.billingEvent.findMany({
+    where: { aggregateType: "invoice", aggregateId: billed.invoice.id },
+    orderBy: { sequence: "asc" },
+  });
+  assert(be1.length === 1 && be1[0]!.sequence === 1, "first billing event is sequence 1");
+  assert(be1[0]!.actorType === "user" && be1[0]!.actorId === user.id, "mutation has a user actor");
+  assert(be1[0]!.previousHash === "" && /^[a-f0-9]{64}$/.test(be1[0]!.eventHash), "genesis hash chain");
+  const ver1 = await prisma.invoiceVersion.findMany({ where: { invoiceId: billed.invoice.id }, orderBy: { version: "asc" } });
+  assert(ver1.length === 1 && ver1[0]!.version === 1, "create writes invoice version 1");
+
+  await prisma.invoice.update({
+    where: { id: billed.invoice.id },
+    data: { status: "sent", sentAt: new Date(), totalCents: 50000, subtotalCents: 50000 },
+  });
+  const payOnce = await recordPayment(user.id, billed.invoice.id, { amountCents: 10000, method: "check" }, "api", userActor(user.id));
+  assert(payOnce.ok, "partial payment on billed invoice");
+  const be2 = await prisma.billingEvent.findMany({
+    where: { aggregateType: "invoice", aggregateId: billed.invoice.id },
+    orderBy: { sequence: "asc" },
+  });
+  assert(be2.length >= 2 && be2[1]!.previousHash === be1[0]!.eventHash, "second event chains previousHash");
+  assert(be2[1]!.actorType === "user", "payment event has actor");
+  const ver2 = await prisma.invoiceVersion.count({ where: { invoiceId: billed.invoice.id } });
+  assert(ver2 >= 2, "payment bumps invoice version");
+
+  const idemBody = JSON.stringify({ amountCents: 5000, method: "cash" });
+  const idemReq = (key: string, body: string) =>
+    new Request("http://localhost/api/v1/invoices/x/payments", {
+      method: "POST",
+      headers: { "Idempotency-Key": key, "Content-Type": "application/json" },
+      body,
+    });
+  const keyA = `idem-${Date.now()}`;
+  const first = await beginIdempotency(user.id, idemReq(keyA, idemBody), idemBody);
+  assert(first.ok, "idempotency begin accepts new key");
+  if (!first.ok) throw new Error("unreachable");
+  await storeIdempotency(user.id, first.key, first.fingerprint, 201, { payment: { id: "p1" } });
+  const replay = await beginIdempotency(user.id, idemReq(keyA, idemBody), idemBody);
+  assert(!replay.ok && replay.response.status === 201 && replay.response.headers.get("Idempotency-Replayed") === "true", "same key+body replays");
+  const conflict = await beginIdempotency(user.id, idemReq(keyA, JSON.stringify({ amountCents: 1 })), JSON.stringify({ amountCents: 1 }));
+  assert(!conflict.ok && conflict.response.status === 409, "same key different body conflicts");
+  const missing = await beginIdempotency(user.id, new Request("http://localhost/api/v1/invoices", { method: "POST", body: "{}" }), "{}");
+  assert(!missing.ok && missing.response.status === 400, "missing Idempotency-Key rejected");
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

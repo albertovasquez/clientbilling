@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { systemActor } from "@/lib/billing/actor";
+import { appendBillingEvent } from "@/lib/billing/events";
+import { snapshotInvoice } from "@/lib/billing/versions";
 import { cronAuthorized } from "@/lib/cron-auth";
 import { prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
@@ -19,22 +22,29 @@ export async function GET(req: Request) {
   const now = new Date();
   const due = await prisma.invoice.findMany({
     where: { status: { in: ["sent", "viewed"] }, dueDate: { lt: now } },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, status: true },
   });
   if (due.length === 0) {
     return NextResponse.json({ ok: true, flipped: 0 });
   }
 
-  const ids = due.map((d) => d.id);
-  await prisma.$transaction([
-    prisma.invoice.updateMany({ where: { id: { in: ids } }, data: { status: "overdue" } }),
-    prisma.invoiceEvent.createMany({
-      data: ids.map((invoiceId) => ({ invoiceId, type: "status_overdue", meta: "cron" })),
-    }),
-  ]);
+  const actor = systemActor("cron");
   for (const d of due) {
+    await prisma.$transaction(async (tx) => {
+      await tx.invoice.update({ where: { id: d.id }, data: { status: "overdue" } });
+      await tx.invoiceEvent.create({ data: { invoiceId: d.id, type: "status_overdue", meta: "cron" } });
+      await appendBillingEvent(tx, {
+        userId: d.userId,
+        aggregateType: "invoice",
+        aggregateId: d.id,
+        type: "overdue",
+        actor,
+        payload: { from: d.status, via: "cron" },
+      });
+      await snapshotInvoice(tx, d.id, actor);
+    });
     await recordEvent({ name: "invoice_overdue", userId: d.userId, payload: { invoiceId: d.id } });
   }
 
-  return NextResponse.json({ ok: true, flipped: ids.length });
+  return NextResponse.json({ ok: true, flipped: due.length });
 }

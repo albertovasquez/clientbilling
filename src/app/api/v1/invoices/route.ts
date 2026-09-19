@@ -1,7 +1,8 @@
 import type { InvoiceStatus } from "@prisma/client";
 import { z } from "zod";
 import { authenticateApiRequest } from "@/lib/api-keys";
-import { apiError, apiOk, readJson } from "@/lib/api-response";
+import { withIdempotency } from "@/lib/billing/api-mutate";
+import { apiError, apiOk } from "@/lib/api-response";
 import { prisma } from "@/lib/db";
 import { createInvoice, parseDueDate, parseLines, serializeInvoice } from "@/lib/invoices/service";
 import { percentToBps } from "@/lib/money";
@@ -33,32 +34,39 @@ export async function GET(req: Request) {
   return apiOk({ invoices: invoices.map(serializeInvoice) });
 }
 
-/** POST /api/v1/invoices: create a draft invoice. Body: clientId or newClient, lines, taxRate, dueDate, notes. */
+/** POST /api/v1/invoices: create a draft invoice. Requires Idempotency-Key. */
 export async function POST(req: Request) {
   const auth = await authenticateApiRequest(req);
   if (!auth.ok) return apiError(auth.status, auth.error);
-  const body = await readJson(req);
-  const parsed = createSchema.safeParse(body);
-  if (!parsed.success) return apiError(400, "lines[] with description and unitPrice is required; clientId or newClient.name is required");
 
-  const lines = parseLines(parsed.data.lines.map((l) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice })));
-  if (!lines.ok) return apiError(400, lines.error);
+  return withIdempotency(auth, req, async ({ body, actor }) => {
+    const parsed = createSchema.safeParse(body);
+    if (!parsed.success) {
+      return { error: "lines[] with description and unitPrice is required; clientId or newClient.name is required", status: 400 };
+    }
 
-  const result = await createInvoice({
-    userId: auth.userId,
-    clientId: parsed.data.clientId ?? null,
-    newClient: parsed.data.newClient ? { name: parsed.data.newClient.name, email: parsed.data.newClient.email?.toLowerCase() ?? null } : null,
-    lines: lines.lines,
-    taxRateBps: percentToBps(parsed.data.taxRate ?? 0),
-    dueDate: parseDueDate(parsed.data.dueDate),
-    notes: parsed.data.notes?.trim().slice(0, 4000) || null,
-    source: "api",
+    const lines = parseLines(parsed.data.lines.map((l) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice })));
+    if (!lines.ok) return { error: lines.error, status: 400 };
+
+    const result = await createInvoice({
+      userId: auth.userId,
+      clientId: parsed.data.clientId ?? null,
+      newClient: parsed.data.newClient
+        ? { name: parsed.data.newClient.name, email: parsed.data.newClient.email?.toLowerCase() ?? null }
+        : null,
+      lines: lines.lines,
+      taxRateBps: percentToBps(parsed.data.taxRate ?? 0),
+      dueDate: parseDueDate(parsed.data.dueDate),
+      notes: parsed.data.notes?.trim().slice(0, 4000) || null,
+      source: "api",
+      actor,
+    });
+    if (!result.ok) return { error: result.error, status: result.status };
+
+    const full = await prisma.invoice.findUniqueOrThrow({
+      where: { id: result.invoice.id },
+      include: { client: { select: { id: true, name: true, email: true } }, lineItems: { orderBy: { sortOrder: "asc" } } },
+    });
+    return { status: 201, body: { invoice: serializeInvoice(full) } };
   });
-  if (!result.ok) return apiError(result.status, result.error);
-
-  const full = await prisma.invoice.findUniqueOrThrow({
-    where: { id: result.invoice.id },
-    include: { client: { select: { id: true, name: true, email: true } }, lineItems: { orderBy: { sortOrder: "asc" } } },
-  });
-  return apiOk({ invoice: serializeInvoice(full) }, 201);
 }
