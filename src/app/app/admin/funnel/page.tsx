@@ -22,6 +22,9 @@ const steps: { name: string; label: string }[] = [
   { name: "api_key_created", label: "API keys created" },
   { name: "recurring_run", label: "Recurring invoices generated" },
   { name: "calculator_complete", label: "Fee calculator completions" },
+  { name: "cost_table_edit", label: "Homepage cost table edits" },
+  { name: "hero_signup_click", label: "Hero sign-up clicks" },
+  { name: "proof_strip_click", label: "Proof strip clicks" },
   { name: "affiliate_cta_click", label: "CDG link clicks" },
   { name: "password_reset_requested", label: "Password resets requested" },
 ];

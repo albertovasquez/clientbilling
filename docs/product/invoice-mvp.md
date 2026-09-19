@@ -34,7 +34,7 @@ Marketing pages at `/for` and `/for/[slug]` for contractors, agencies, consultan
 
 ## Measurement
 
-First-party `Event` table (decision 0007). Server events: `signup`, `invoice_created`, `invoice_sent`, `invoice_viewed`, `invoice_paid`, `invoice_void`, `payment_recorded`, `payment_removed`. Browser events through `POST /api/events`: `affiliate_cta_click`, `calculator_complete`. Funnel page at `/app/admin/funnel` for `ADMIN_EMAILS`.
+First-party `Event` table (decision 0007). Server events: `signup`, `invoice_created`, `invoice_sent`, `invoice_viewed`, `invoice_paid`, `invoice_void`, `payment_recorded`, `payment_removed`. Browser events through `POST /api/events`: `affiliate_cta_click`, `calculator_complete`, `payer_pay_link_click`, and the three homepage events from decision 0021, `cost_table_edit`, `hero_signup_click`, and `proof_strip_click`. The allowlist is `src/lib/browser-events.ts`; a name not on it is refused. Funnel page at `/app/admin/funnel` for `ADMIN_EMAILS`.
 
 ## Env
 
@@ -58,7 +58,7 @@ First-party `Event` table (decision 0007). Server events: `signup`, `invoice_cre
 4. Add `ADMIN_EMAILS` to see the funnel page, and `CRON_SECRET` so the daily overdue sweep runs.
 5. Monthly: delete `Event` rows older than 180 days (`DELETE FROM "Event" WHERE "createdAt" < now() - interval '180 days'`).
 6. Never put Quantum RestrictKeys or gateway passwords in env or the database.
-7. Tests: `npm run check` runs typecheck, lint, the style check, and then `npm run test:pure` (the payment-cost calculator, the homepage example invoice, and the navigation contract; no database needed). `DATABASE_URL=... npx tsx scripts/test-db-flows.ts` checks reset tokens, rate limits, numbering, payments, and pay links against a throwaway Postgres; run it before a PR that touches invoices or payments.
+7. Tests: `npm run check` runs typecheck, lint, the style check, and then `npm run test:pure` (the payment-cost calculator, the homepage example invoice, the navigation contract, the homepage Payments example, and the homepage body contract; no database needed). `DATABASE_URL=... npx tsx scripts/test-db-flows.ts` checks reset tokens, rate limits, numbering, payments, and pay links against a throwaway Postgres; run it before a PR that touches invoices or payments.
 
 ## Residual diligence
 

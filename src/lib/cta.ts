@@ -14,9 +14,11 @@ export type CtaKey =
   | "exploreMobile"
   | "exploreRecurring"
   | "exploreB2b"
+  | "compareCosts"
   | "signUp"
   | "createInvoice"
-  | "api";
+  | "api"
+  | "apiReference";
 
 export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore" | "product";
 
@@ -102,6 +104,20 @@ export const ctas: Record<CtaKey, Cta> = {
     type: "explore",
     external: false,
   },
+  /**
+   * The homepage Payments section (ticket #45, decision 0021). Same quote
+   * destination and the same quote type as the `quote` rung, so attribution
+   * and click recording are unchanged; the label is the one the merchant is
+   * reading at that moment, which is about their card costs and not about
+   * CDG's form. The founder specified this label in issue #45.
+   */
+  compareCosts: {
+    key: "compareCosts",
+    label: "Compare your card costs",
+    href: siteConfig.quoteUrl,
+    type: "quote",
+    external: true,
+  },
   signUp: {
     key: "signUp",
     label: "Create an invoice, free",
@@ -125,6 +141,18 @@ export const ctas: Record<CtaKey, Cta> = {
   api: {
     key: "api",
     label: "See the API",
+    href: "/docs/api",
+    type: "product",
+    external: false,
+  },
+  /**
+   * The homepage Developers section (ticket #45). Same destination as `api`,
+   * worded for a reader who has just seen the JSON and wants the reference
+   * rather than an introduction. The founder specified this label in #45.
+   */
+  apiReference: {
+    key: "apiReference",
+    label: "Read the API reference",
     href: "/docs/api",
     type: "product",
     external: false,

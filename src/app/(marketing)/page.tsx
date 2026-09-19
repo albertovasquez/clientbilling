@@ -1,63 +1,103 @@
+import { EventLink } from "@/components/EventLink";
 import { HeroInvoice } from "@/components/HeroInvoice";
-import { PostCard } from "@/components/PostCard";
 import {
   Button,
   Container,
+  CopyLabel,
   CtaButton,
   DecisionCard,
   Disclosure,
-  FactRows,
   Heading,
-  RateLockup,
+  RecordMark,
   Section,
   SourceNote,
+  formatCheckedDate,
 } from "@/components/ui";
-import {
-  CDG_CHECKED,
-  cdgBusinessTypes,
-  cdgCompany,
-  cdgPlan,
-  cdgPlans,
-  cdgSources,
-} from "@/lib/cdg";
-import { exampleInvoiceSnapshots } from "@/lib/example-invoice";
-import { getFeaturedPosts } from "@/lib/posts";
+import { CDG_CHECKED, cdgSources } from "@/lib/cdg";
+import { exampleInvoice, exampleInvoiceSnapshots } from "@/lib/example-invoice";
+import { formatCents } from "@/lib/money";
+import { exampleAccount, exampleAccountMarkup } from "@/lib/payments-example";
+import { postsBySlug } from "@/lib/posts";
+import { siteConfig } from "@/lib/site";
 
-const companyRows = [
-  { label: "Founded", value: cdgCompany.founded },
-  { label: "Better Business Bureau", value: cdgCompany.bbb },
-  { label: "Sponsor banks", value: cdgCompany.sponsorBanks },
-  { label: "Support", value: cdgCompany.support },
-  { label: "Gateways", value: cdgCompany.gateways },
-  { label: "Coverage", value: cdgCompany.usOnly },
+/** Send, Collect, Automate: what the product does today, never what it will do. */
+const propositions = [
+  {
+    title: "Send",
+    body: "Invoices, recurring bills, and reminders. A PDF on every email, a public page for every payer, and a record of who opened what.",
+    icon: (
+      <>
+        <rect x="3" y="2" width="14" height="18" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M6 7h8M6 11h8M6 15h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </>
+    ),
+  },
+  {
+    title: "Collect",
+    body: "Bank transfer, card, or your own pay link. Record every payment, partial or full, and see the fee and the net on each rail before you choose one.",
+    icon: (
+      <>
+        <rect x="2" y="5" width="18" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M2 9h18" stroke="currentColor" strokeWidth="1.5" />
+      </>
+    ),
+  },
+  {
+    title: "Automate",
+    body: "Overdue sweeps, scheduled invoices, and an API so a script or an agent can bill on your behalf. Same invoice, same rules.",
+    icon: (
+      <>
+        <path d="M4 6h14M4 11h14M4 16h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="17" cy="16" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+      </>
+    ),
+  },
 ];
 
-const questions = [
-  {
-    q: "Is ClientBilling a payment processor?",
-    a: "No. ClientBilling is an independent publisher. If you choose CDG Commerce, you apply and contract with CDG directly. ClientBilling may earn a commission when you apply through our links, and that does not change the pricing you get.",
-  },
-  {
-    q: "Where do the numbers come from?",
-    a: "Every rate on this site is copied from a CDG Commerce pricing page and dated. Fees CDG does not publish are attributed to the third party that reported them. Confirm current pricing with a quote before you sign anything.",
-  },
-  {
-    q: "What happens after a quote request?",
-    a: "CDG's form asks for your business type, name, email, and phone. A CDG representative calls you, asks about your monthly volume and how you take cards, and sends a rate sheet.",
-  },
-  {
-    q: "Can I skip the call?",
-    a: "Not with CDG. Rates are set per merchant after underwriting, so there is no price you can accept online without a conversation. If you want a self-serve account with no phone call, look elsewhere.",
-  },
-  {
-    q: "Do I have to use CDG to use these guides?",
-    a: "No. The guides explain interchange, markups, chargebacks, and billing in terms that apply to any processor. CDG is the one we cover in detail because we checked its published pricing and partner with it.",
-  },
+/**
+ * The agent copy of the same record the hero and the OG image show, built from
+ * the example invoice so the three views cannot drift from one another.
+ */
+function agentCopy(): string {
+  const { number, to, amountCents } = exampleInvoice;
+  const publicUrl = `${siteConfig.url}/i/6z7grjvgwt2z`;
+  return `GET /api/v1/invoices/inv_01J9X4K2
+
+{
+  "number": "${number}",
+  "status": "sent",
+  "client": { "name": "${to}" },
+  "totalCents": ${amountCents},
+  "paidCents": 0,
+  "balanceCents": ${amountCents},
+  "dueDate": "2026-10-15",
+  "lineItems": [
+    { "description": "Remodel, phase 1 labor", "quantity": 20, "unitPriceCents": 9500 },
+    { "description": "Fixtures and materials", "quantity": 1, "unitPriceCents": 60000 }
+  ],
+  "publicUrl": "${publicUrl}",
+  "pdfUrl": "${publicUrl}/pdf"
+}`;
+}
+
+/**
+ * The three guides the homepage lists (spec #41, story 39: "the three most
+ * useful guides"). Chosen rather than taken by recency, which drops the CDG
+ * review, the guide the proof leads with and the one most readers arrive for.
+ * The proof's own first title has no post and #41 puts writing one out of
+ * scope, so the cost explainer stands in its place. Slugs only: the titles and
+ * dates come from the posts themselves.
+ */
+const guideSlugs = [
+  "cdg-commerce-review-2026-pricing-fees-features",
+  "cdg-commerce-vs-square",
+  "cdg-commerce-pricing-explained",
 ];
 
 export default function HomePage() {
-  const featured = getFeaturedPosts(3);
-  const interchangePlus = cdgPlan("interchangePlus");
+  const featured = postsBySlug(guideSlugs);
+  const markup = exampleAccountMarkup();
+
   return (
     <>
       <Section id="top">
@@ -89,184 +129,194 @@ export default function HomePage() {
         </Container>
       </Section>
 
-      <Section band="field" rule id="volume">
+      {/*
+        One record, three views, one proof (decision 0021, terminology). The
+        three copies exist today. The proof engine is the next phase, so the
+        strip says so in as many words rather than offering a verification the
+        code cannot perform yet (epic #37); 0021's 2026-09-19 amendment took
+        the same line with the hero's subhead. The link goes to the record the
+        API returns, which is what a reader can see today.
+      */}
+      <Section band="sheet" rule density="tight">
         <Container>
-          <Heading level={2}>Start with your monthly volume</Heading>
-          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
-            CDG publishes three plans and the monthly card volume each one is
-            built for. Find your band, then read the rate you would pay on top
-            of interchange or instead of it.
-          </p>
-          <div className="mt-10 grid gap-8 sm:grid-cols-3">
-            {cdgPlans.map((plan) => (
-              <div key={plan.key}>
-                <Heading level={3}>{plan.name}</Heading>
-                <p className="mt-1 text-small text-muted">{plan.band}</p>
-                <RateLockup
-                  figure={plan.rates[0].figure}
-                  label={plan.rates[0].label}
-                  detail={plan.rates[0].detail}
-                  size="md"
-                  className="mt-6"
-                />
-                <p className="mt-4 text-small text-ink-soft">{plan.summary}</p>
-                <Button href="/cdgcommerce#pricing" variant="quiet" className="mt-4">
-                  See the full {plan.name} rate table
-                </Button>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <Heading level={2} size="sm">
+              One record. Three views. One proof.
+            </Heading>
+            <div className="flex flex-wrap items-center gap-2">
+              <CopyLabel kind="client" />
+              <CopyLabel kind="file" />
+              <CopyLabel kind="agent" />
+              <EventLink
+                href="/docs/api"
+                event="proof_strip_click"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-sm text-small text-muted underline-offset-4 hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon"
+              >
+                <RecordMark variant="registration" size={14} />
+                Proof is planned. See the record today.
+              </EventLink>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section id="invoices">
+        <Container>
+          <div className="grid gap-10 sm:grid-cols-3 sm:gap-8">
+            {propositions.map((item) => (
+              <div key={item.title} className="flex flex-col gap-2.5">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 22 22"
+                  fill="none"
+                  aria-hidden="true"
+                  className="text-carbon"
+                >
+                  {item.icon}
+                </svg>
+                <Heading level={2} size="sm">
+                  {item.title}
+                </Heading>
+                <p className="text-pretty text-body text-ink-soft">{item.body}</p>
               </div>
             ))}
           </div>
-          <SourceNote source={cdgSources.pricing} checked={CDG_CHECKED} className="mt-8" />
-          <p className="mt-6 text-small text-ink-soft">
-            Want a volume-based estimate against Stripe, Square, or PayPal public
-            schedules?{" "}
-            <Button href="/tools/fee-calculator" variant="quiet">
-              Open the fee calculator
-            </Button>
-          </p>
-          <div className="mt-10">
-            <DecisionCard
-              title="Create an invoice"
-              actions={
-                <>
-                  <Button href="/invoices" size="lg">
-                    See the invoice tool
-                  </Button>
-                  <Button href="/tools/fee-calculator" variant="secondary">
-                    Fee calculator
-                  </Button>
-                </>
-              }
-              note="Free. Your payment instructions go on every invoice. Card payment through CDG is planned."
-            >
-              Create, send, and track invoices for free. No card data on our
-              servers, ever.
-            </DecisionCard>
-          </div>
         </Container>
       </Section>
 
-      <Section rule id="business-type">
+      {/*
+        Where a merchant decides how to collect, so this is where CDG appears
+        (decision 0021). The claim is the corrected one: rates are easy to
+        publish, applying them to the invoice in front of you is different.
+        Every CDG figure comes from the rates module through payments-example.
+      */}
+      <Section band="sheet" rule id="payments">
         <Container>
-          <Heading level={2}>Which business are you?</Heading>
-          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
-            CDG&apos;s quote form asks this question first, with these six
-            labels. Pick yours to see what the form asks next and which plan
-            usually applies.
-          </p>
-          <ul className="mt-8 flex flex-wrap gap-3">
-            {cdgBusinessTypes.map((type) => (
-              <li key={type}>
-                <Button href="/get-started" variant="secondary">
-                  {type}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </Section>
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+            <div className="flex flex-col gap-4">
+              <Heading level={2} className="text-balance">
+                The rate is applied to the invoice, not buried in a pricing page.
+              </Heading>
+              <p className="text-pretty text-body text-ink-soft">
+                Processing rates are easy to publish. Applying them to the invoice in front of you is
+                different. ClientBilling shows the known cost and expected net before you send, names
+                the source, and tells you when a cost cannot be known in advance.
+              </p>
+              <p className="text-small text-ink-soft">
+                Enter your own bank and card rates in settings, or use published ones. Nothing is
+                estimated silently.
+              </p>
+            </div>
 
-      <Section band="field" rule id="interchange-plus">
-        <Container>
-          <Heading level={2}>Published interchange plus markups</Heading>
-          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
-            On the Interchange Plus plan you pay the card networks&apos;
-            interchange at cost, plus the markup below. Interchange is set by
-            Visa, Mastercard, Discover, and American Express, not by CDG.
-          </p>
-          <div className="mt-10 grid gap-8 sm:grid-cols-3">
-            {interchangePlus.rates.map((rate) => (
-              <RateLockup
-                key={rate.label}
-                figure={rate.figure}
-                label={rate.label}
-                detail={rate.detail}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-baseline justify-between gap-4 border-b border-rule-strong pb-2.5">
+                <span className="text-small text-muted">Monthly invoiced volume, last 90 days</span>
+                <span className="font-mono text-display-sm font-medium text-ink">
+                  {formatCents(exampleAccount.monthlyVolumeCents)}
+                </span>
+              </div>
+              <dl className="flex flex-col">
+                {exampleAccount.mix.map((row, i) => (
+                  <div
+                    key={row.label}
+                    className={`flex items-baseline justify-between gap-4 py-1.5 text-small ${i > 0 ? "border-t border-rule" : ""}`}
+                  >
+                    <dt className="text-ink-soft">{row.label}</dt>
+                    <dd className="font-mono text-ink">{row.percent}%</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <DecisionCard
+                title="Worth comparing?"
+                className="mt-2"
+                actions={<CtaButton cta="compareCosts" position="inline" />}
+                note="ClientBilling may earn a commission if you sign up with CDG. Your pricing does not change."
+              >
+                This example account&apos;s card volume is in the band where CDG Commerce publishes
+                interchange-plus pricing ({markup.band}). At {markup.formula} above interchange, the
+                percentage part of the markup on{" "}
+                <span className="font-mono">{formatCents(markup.cardVolumeCents)}</span> of card
+                payments comes to{" "}
+                <span className="font-mono font-medium">{formatCents(markup.percentMarkupCents)}</span>{" "}
+                a month, plus <span className="font-mono">{formatCents(markup.fixedPerPaymentCents)}</span>{" "}
+                on each payment. Interchange itself varies by card and is not estimated.
+              </DecisionCard>
+
+              <SourceNote
+                source={cdgSources.interchangePlus}
+                checked={CDG_CHECKED}
+                note="The volume and the payment mix above are an example account, not a real one."
               />
-            ))}
+            </div>
           </div>
-          <SourceNote
-            source={interchangePlus.source}
-            checked={CDG_CHECKED}
-            className="mt-8"
-          />
-          <DecisionCard
-            title="Want these rates on your own volume?"
-            className="mt-10"
-            actions={
-              <>
-                <CtaButton cta="quote" position="after_pricing" />
-                <CtaButton cta="fit" position="after_pricing" variant="secondary" />
-              </>
-            }
-          >
-            CDG answers a quote request with a rate sheet and a phone call.
-            Business type and monthly volume are the two questions they ask.
-          </DecisionCard>
         </Container>
       </Section>
 
-      <Section rule id="why-cdg">
+      <Section id="developers">
         <Container>
-          <Heading level={2}>Why CDG</Heading>
-          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
-            These are the facts CDG publishes about itself. We list them so you
-            can check them, not so you take them on faith.
-          </p>
-          <FactRows rows={companyRows} columns={2} className="mt-8" />
-          <SourceNote source={cdgSources.about} checked={CDG_CHECKED} className="mt-6" />
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-16 lg:items-start">
+            <div className="flex flex-col gap-4">
+              <CopyLabel kind="agent" className="self-start" />
+              <Heading level={2} id="agents" className="text-balance">
+                The same invoice, readable by software.
+              </Heading>
+              <p className="text-pretty text-body text-ink-soft">
+                One record, three copies. Your client gets the page and the PDF. Your bookkeeper gets
+                the export. A script or an AI agent gets JSON over a REST API with a personal key, and
+                can create, send, remind, and record payments under the same rules you use.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                <CtaButton cta="apiReference" position="inline" variant="secondary" />
+                <span className="text-caption text-muted">
+                  Planned: webhooks, an MCP server, and a verifiable record of every billing event.
+                </span>
+              </div>
+            </div>
+
+            <div className="relative mb-2.5 mr-2.5 min-w-0">
+              <div aria-hidden className="absolute inset-0 translate-x-2.5 translate-y-2.5 rounded bg-carbon-tint" />
+              <pre className="relative overflow-x-auto rounded bg-ink p-5 font-mono text-caption leading-relaxed text-paper sm:p-6">
+                <code>{agentCopy()}</code>
+              </pre>
+            </div>
+          </div>
         </Container>
       </Section>
 
       <Section band="field" rule id="guides">
         <Container>
-          <Heading level={2}>Featured guides</Heading>
-          <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
-            Reviews and pricing explainers written to help you decide, with
-            every number sourced.
-          </p>
-          <ul className="mt-8 divide-y divide-rule border-y border-rule">
-            {featured.map((post) => (
-              <li key={post.slug}>
-                <PostCard post={post} />
-              </li>
-            ))}
-          </ul>
-          <Button href="/blog" variant="quiet" className="mt-6">
-            All guides
-          </Button>
-        </Container>
-      </Section>
-
-      <Section rule id="questions">
-        <Container width="article">
-          <Heading level={2}>Common questions</Heading>
-          <dl className="mt-8 space-y-8">
-            {questions.map((item) => (
-              <div key={item.q}>
-                <dt className="text-body font-semibold text-ink">{item.q}</dt>
-                <dd className="mt-2 text-body text-ink-soft">{item.a}</dd>
-              </div>
-            ))}
-          </dl>
-        </Container>
-      </Section>
-
-      <Section band="field" rule>
-        <Container width="article">
-          <DecisionCard
-            title="Ready for your own numbers?"
-            headingLevel={2}
-            actions={
-              <>
-                <CtaButton cta="quote" position="end" />
-                <CtaButton cta="apply" position="end" variant="quiet" />
-              </>
-            }
-          >
-            A quote request takes a minute and ends in a phone call with a rate
-            sheet. If you have already decided, you can go straight to the
-            application instead.
-          </DecisionCard>
+          <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
+            <div className="flex flex-col gap-2">
+              <Heading level={2} size="sm">
+                Guides
+              </Heading>
+              <p className="text-small text-ink-soft">
+                Plain reading on what merchant accounts, gateways, and rates actually cost. Every
+                number sourced and dated.
+              </p>
+              <Button href="/blog" variant="quiet" className="mt-2 self-start">
+                All guides
+              </Button>
+            </div>
+            <ul className="lg:col-span-2">
+              {featured.map((post) => (
+                <li key={post.slug} className="border-t border-rule last:border-b">
+                  <Button
+                    href={`/blog/${post.slug}`}
+                    variant="quiet"
+                    className="flex w-full flex-col gap-1 py-3.5 text-left font-normal text-ink no-underline hover:underline sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                  >
+                    <span className="text-body">{post.title}</span>
+                    <span className="shrink-0 font-mono text-caption text-muted">
+                      Updated {formatCheckedDate(post.updated ?? post.date)}
+                    </span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Container>
       </Section>
     </>

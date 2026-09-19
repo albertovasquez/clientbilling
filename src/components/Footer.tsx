@@ -59,7 +59,17 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-6 text-small text-muted sm:flex-row sm:items-center sm:justify-between">
+        {/*
+          The compliance boundary, stated on every page (spec #41, mission
+          compliance-boundary): we are not the processor, not the merchant of
+          record, and card details are never entered here.
+        */}
+        <p className="mt-10 max-w-prose-guide border-t border-rule pt-6 text-caption text-muted">
+          ClientBilling is invoice software. It is not a payment processor and not the merchant of
+          record. Card details are never entered on ClientBilling.
+        </p>
+
+        <div className="mt-6 flex flex-col gap-2 border-t border-rule pt-6 text-small text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             &copy; {year} {siteConfig.name}. All rights reserved.
           </p>
