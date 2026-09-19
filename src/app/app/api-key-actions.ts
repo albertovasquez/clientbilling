@@ -36,7 +36,8 @@ export async function createApiKeyAction(_prev: ApiKeyState, formData: FormData)
     if (!sa) return { error: "Service account not found." };
   }
 
-  const { raw, hash, prefix } = generateApiKey();
+  const kind = String(formData.get("kind") ?? "live") === "test" ? "test" : "live";
+  const { raw, hash, prefix } = generateApiKey(kind);
   await prisma.apiKey.create({
     data: {
       userId: user.id,

@@ -38,6 +38,13 @@ export function ApiKeyForm({
         <Label htmlFor="name">Key name</Label>
         <Input id="name" name="name" required maxLength={60} placeholder="ops agent" />
       </div>
+      <div className="grid gap-1.5">
+        <Label htmlFor="kind">Key kind</Label>
+        <NativeSelect id="kind" name="kind" className="w-full" defaultValue="live">
+          <NativeSelectOption value="live">Live (cb_live_)</NativeSelectOption>
+          <NativeSelectOption value="test">Sandbox (cb_test_, 100 writes/day)</NativeSelectOption>
+        </NativeSelect>
+      </div>
       {serviceAccounts.length > 0 ? (
         <div className="grid gap-1.5">
           <Label htmlFor="serviceAccountId">Service account (optional)</Label>

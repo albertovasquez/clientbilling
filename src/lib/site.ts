@@ -41,15 +41,13 @@ export const siteConfig = {
     wireless: landingUrl("wireless", "explore-mobile"),
   } as const satisfies Record<PartnerChannel, string>,
   /**
-   * The header (decision 0021): the product's parts are the site's parts. For
-   * agents and Developers both land on the API reference until the agent page
-   * of week 5 exists; they are separate items because they are separate
-   * audiences and the agent page is what one of them becomes.
+   * The header (decisions 0021, 0027): the product's parts are the site's parts.
+   * For agents goes to the agent landing; Developers goes to the API reference.
    */
   nav: [
     { href: "/invoices", label: "Invoices" },
     { href: "/payments", label: "Payments" },
-    { href: "/docs/api", label: "For agents" },
+    { href: "/developers/invoicing-api-for-agents", label: "For agents" },
     { href: "/docs/api", label: "Developers" },
     { href: "/blog", label: "Guides" },
     { href: "/app/sign-in", label: "Sign in" },

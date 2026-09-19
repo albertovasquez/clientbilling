@@ -129,6 +129,10 @@ curl -s -X POST https://www.clientbilling.com/api/v1/invoices/INVOICE_ID/payment
   -d '{"amountCents":50000,"method":"check","paidOn":"2026-09-18","note":"Check 1042"}'
 ```
 
+## MCP
+
+`POST`/`GET` `https://www.clientbilling.com/api/mcp` with the same Bearer key. Tools mirror the REST surface: list/get/create invoice, send, remind, record payment, get payment costs, verify record (pending). Write tools take `idempotencyKey`. Agent landing: `/developers/invoicing-api-for-agents`.
+
 ## Not in v1 yet
 
-Updating or deleting invoices and clients, team access, MCP (week 5).
+Updating or deleting invoices and clients, team access, Machine-tier enforcement.

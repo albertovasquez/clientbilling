@@ -5,18 +5,23 @@ import { prisma } from "@/lib/db";
 import { allow } from "@/lib/rate-limit";
 
 /**
- * Personal API keys (decisions 0017, 0026). The raw key is shown once; only its
- * SHA-256 is stored. Keys may bind to a service account for actor identity.
+ * Personal API keys (decisions 0017, 0026, 0027). The raw key is shown once;
+ * only its SHA-256 is stored. Keys may bind to a service account for actor
+ * identity. Live keys use cb_live_; sandbox keys use cb_test_.
  */
-const PREFIX = "cb_live_";
+const LIVE_PREFIX = "cb_live_";
+const TEST_PREFIX = "cb_test_";
+
+export type ApiKeyKind = "live" | "test";
 
 export function hashApiKey(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
 }
 
-export function generateApiKey(): { raw: string; hash: string; prefix: string } {
-  const raw = PREFIX + randomBytes(24).toString("base64url");
-  return { raw, hash: hashApiKey(raw), prefix: raw.slice(0, PREFIX.length + 6) };
+export function generateApiKey(kind: ApiKeyKind = "live"): { raw: string; hash: string; prefix: string } {
+  const prefix = kind === "test" ? TEST_PREFIX : LIVE_PREFIX;
+  const raw = prefix + randomBytes(24).toString("base64url");
+  return { raw, hash: hashApiKey(raw), prefix: raw.slice(0, prefix.length + 6) };
 }
 
 export type ApiAuth =
@@ -35,7 +40,12 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuth> {
   if (!process.env.DATABASE_URL) return { ok: false, status: 503, error: "API not available" };
   const header = req.headers.get("authorization") ?? "";
   const raw = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
-  if (!raw.startsWith(PREFIX) || raw.length < PREFIX.length + 20) {
+  const kind: ApiKeyKind | null = raw.startsWith(LIVE_PREFIX)
+    ? "live"
+    : raw.startsWith(TEST_PREFIX)
+      ? "test"
+      : null;
+  if (!kind || raw.length < (kind === "test" ? TEST_PREFIX.length : LIVE_PREFIX.length) + 20) {
     return { ok: false, status: 401, error: "Missing or malformed API key" };
   }
   const key = await prisma.apiKey.findUnique({
