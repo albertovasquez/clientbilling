@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   createServiceAccountAction,
-  createWebhookEndpointAction,
   revokeApiKeyAction,
   revokeServiceAccountAction,
   revokeWebhookEndpointAction,

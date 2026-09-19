@@ -12,7 +12,6 @@ import { beginIdempotency } from "../src/lib/billing/idempotency";
 import { prisma } from "../src/lib/db";
 import { serializePayment } from "../src/lib/invoices/payments";
 import { deliverDueWebhooks } from "../src/lib/webhooks/deliver";
-import { enqueueWebhook } from "../src/lib/webhooks/enqueue";
 import { generateWebhookSecret } from "../src/lib/webhooks/sign";
 import { agingBuckets, daysPastDue } from "../src/lib/invoices/aging";
 import { nextAutoReminderKind } from "../src/lib/invoices/auto-reminder-kinds";
