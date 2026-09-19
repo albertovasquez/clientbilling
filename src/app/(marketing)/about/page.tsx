@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
 };
 
-const link = "text-action underline-offset-4 hover:underline";
+const link = "text-carbon underline-offset-4 hover:underline";
 
 export default function AboutPage() {
   return (

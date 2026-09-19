@@ -40,7 +40,7 @@ export default function MethodologyPage() {
           <p className="mt-4 text-body text-ink-soft">
             Every score on ClientBilling is a mean of three sub-scores, each
             from 1 to 5, rounded to one decimal. The sub-scores are set by{" "}
-            <Link href={author.path} className="text-action underline-offset-4 hover:underline">
+            <Link href={author.path} className="text-carbon underline-offset-4 hover:underline">
               {author.name}
             </Link>{" "}
             from published rate sheets, terms pages, and independent reviews,

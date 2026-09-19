@@ -17,7 +17,7 @@ export function Footer() {
             <p className="mt-2 max-w-sm text-small text-ink-soft">
               Independent guides to merchant accounts, processing costs, and
               billing operations, written by{" "}
-              <Link href={author.path} className="text-action underline-offset-4 hover:underline">
+              <Link href={author.path} className="text-carbon underline-offset-4 hover:underline">
                 {author.name}
               </Link>
               . We may earn a commission when you apply to CDG Commerce through
@@ -32,14 +32,14 @@ export function Footer() {
                 <li key={item.href + item.label}>
                   <Link
                     href={item.href}
-                    className="text-small text-ink-soft hover:text-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+                    className="text-small text-ink-soft hover:text-carbon focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon"
                   >
                     {item.label}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link href="/methodology" className="text-small text-ink-soft hover:text-action">
+                <Link href="/methodology" className="text-small text-ink-soft hover:text-carbon">
                   How we score
                 </Link>
               </li>

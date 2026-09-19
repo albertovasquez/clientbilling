@@ -28,7 +28,7 @@ type FeeCalculatorProps = {
 };
 
 const fieldClass =
-  "mt-1.5 w-full rounded-lg border border-rule-strong bg-sheet px-3 py-2.5 text-small text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+  "mt-1.5 w-full rounded-lg border border-rule-strong bg-sheet px-3 py-2.5 text-small text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon";
 
 const labelClass = "block text-small font-semibold text-ink";
 
@@ -421,7 +421,7 @@ export function FeeCalculator({ initialProcessor }: FeeCalculatorProps) {
                   At {wholesalePlan.bandShort.toLowerCase()}, CDG also offers{" "}
                   <Link
                     href="/cdgcommerce#pricing"
-                    className="text-action underline-offset-4 hover:underline"
+                    className="text-carbon underline-offset-4 hover:underline"
                   >
                     Wholesale Membership
                   </Link>{" "}

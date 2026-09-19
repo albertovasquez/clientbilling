@@ -38,11 +38,11 @@ export default async function ApiSettingsPage() {
           Keys let a script or an agent create clients and invoices, send and remind, and record
           payments on your behalf. Bind a key to a service account when you want machine actions to
           show that actor. The reference is at{" "}
-          <Link href="/docs/api" className="text-action underline-offset-4 hover:underline">
+          <Link href="/docs/api" className="text-carbon underline-offset-4 hover:underline">
             {siteConfig.domain}/docs/api
           </Link>
           ; OpenAPI is at{" "}
-          <Link href="/docs/api/openapi.json" className="text-action underline-offset-4 hover:underline">
+          <Link href="/docs/api/openapi.json" className="text-carbon underline-offset-4 hover:underline">
             /docs/api/openapi.json
           </Link>
           .

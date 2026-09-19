@@ -26,7 +26,7 @@ export default async function SignInPage({ searchParams }: Props) {
           Open your ClientBilling invoices.
         </p>
         {!process.env.DATABASE_URL ? (
-          <p className="mt-4 rounded-lg border border-verdict-rule bg-verdict-tint p-4 text-small text-ink">
+          <p className="mt-4 rounded-lg border border-rule-due bg-due-tint p-4 text-small text-ink">
             Sign-in is not available on this deployment yet.
           </p>
         ) : null}

@@ -35,7 +35,7 @@ export function RatingBadge({
         <div>
           <p className="leading-none">
             <span
-              className={`font-display font-semibold tabular-nums text-verdict ${overallSize}`}
+              className={`font-display font-semibold tabular-nums text-due ${overallSize}`}
             >
               {rating.overall.toFixed(1)}
             </span>

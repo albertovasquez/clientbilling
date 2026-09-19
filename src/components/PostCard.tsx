@@ -22,13 +22,13 @@ export function PostCard({ post, featured = false }: PostCardProps) {
         <span>{post.readingTime}</span>
       </p>
       <h3
-        className={`mt-2 font-display font-semibold text-ink group-hover:text-action ${
+        className={`mt-2 font-display font-semibold text-ink group-hover:text-carbon ${
           featured ? "text-display-md" : "text-display-sm"
         }`}
       >
         <Link
           href={`/blog/${post.slug}`}
-          className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+          className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon"
         >
           {post.title}
         </Link>
