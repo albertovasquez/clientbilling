@@ -22,6 +22,10 @@ Updated: 2026-09-18. Decisions that shaped this are in `docs/decisions/`.
 9. API: personal keys at `/app/settings/api`, endpoints under `/api/v1/*`, reference at `/docs/api` and `docs/agents/api.md` (decision 0017). Invoice rules live in `src/lib/invoices/service.ts` and `src/lib/invoices/email.ts`, shared by the app and the API.
 8. Concierge Collect: "Enable card payments" on the payments settings page captures business type and volume band, records `collect_requested`, and emails the first `ADMIN_EMAILS` address; the founder follows `docs/agents/runbooks/concierge-collect.md` (decision 0009).
 
+## Vertical kits
+
+Marketing pages at `/for` and `/for/[slug]` for contractors, agencies, consultants, and wholesale. Each reuses sourced CDG plan rates from `src/lib/cdg.ts` and CTA ladder destinations only. No new fee claims or CDG URLs.
+
 ## Measurement
 
 First-party `Event` table (decision 0007). Server events: `signup`, `invoice_created`, `invoice_sent`, `invoice_viewed`, `invoice_paid`, `invoice_void`, `payment_recorded`, `payment_removed`. Browser events through `POST /api/events`: `affiliate_cta_click`, `calculator_complete`. Funnel page at `/app/admin/funnel` for `ADMIN_EMAILS`.

@@ -26,7 +26,7 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | CSV export (shipped 2026-09-18) | Invoices and payments for a bookkeeper. | Yes. | None. |
 | Team roles | Owner, member, read-only. Needed before agencies adopt. | Yes. | None. |
 | Invoice templates and default terms (defaults shipped 2026-09-18; line-item presets later) | Net terms, default notes, line-item presets. | Yes. | None. |
-| Vertical landing kits | Pages for contractors, agencies, consultants, wholesale, each tying the invoice tool to the CDG pricing that fits them. | Yes: content from templates. | Uses existing links. |
+| Vertical landing kits (shipped 2026-09-18 at `/for/*`) | Pages for contractors, agencies, consultants, wholesale, each tying the invoice tool to the CDG pricing that fits them. | Yes: content from templates. | Uses existing links. |
 | MCP server | Same operations as the REST API exposed as tools, so an agent in any client can run the runbooks. | This is the agent surface v2. | None. |
 
 ## P2: later

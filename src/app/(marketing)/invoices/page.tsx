@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Breadcrumb,
   Button,
@@ -97,6 +98,13 @@ export default function InvoicesPage() {
             <li>B2B sellers who need a clean invoice with tax and a due date</li>
             <li>Anyone who wants a free invoice tool without a processor deciding how they get paid</li>
           </ul>
+          <p className="mt-4 text-small text-ink-soft">
+            Vertical guides:{" "}
+            <Link href="/for" className="font-semibold text-action underline-offset-4 hover:underline">
+              contractors, agencies, consultants, and wholesale
+            </Link>
+            .
+          </p>
           <DecisionCard
             title="Start invoicing"
             headingLevel={2}
