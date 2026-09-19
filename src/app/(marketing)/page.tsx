@@ -102,8 +102,15 @@ export default function HomePage() {
     <>
       <Section id="top">
         <Container>
+          {/*
+            A grid item defaults to min-width:auto, so it refuses to shrink
+            below its content's intrinsic minimum and stretches the track
+            instead. The cost table inside the invoice card cannot compress
+            past about 280px, which pushed the whole page wider than a 320px
+            phone. min-w-0 lets both columns shrink to the viewport.
+          */}
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-10">
-            <div className="flex flex-col gap-6">
+            <div className="flex min-w-0 flex-col gap-6">
               <Heading level={1} className="text-balance">
                 Bill clients.
                 <br className="hidden sm:inline" /> Know what getting paid costs.
@@ -120,7 +127,7 @@ export default function HomePage() {
                 <CtaButton cta="signUp" position="hero" size="lg" event="hero_signup_click" />
                 <CtaButton cta="api" position="hero" variant="secondary" size="lg" />
               </div>
-              <p className="font-mono text-caption text-muted">
+              <p className="text-caption text-muted">
                 No card on file. No plan to pick. Your data exports as CSV.
               </p>
             </div>
