@@ -5,6 +5,7 @@ import {
   Container,
   CopyLabel,
   CtaButton,
+  DecisionCard,
   Disclosure,
   Heading,
   RecordMark,
@@ -13,10 +14,11 @@ import {
   formatCheckedDate,
 } from "@/components/ui";
 import { CDG_CHECKED, cdgSources } from "@/lib/cdg";
-import { exampleInvoiceSnapshots } from "@/lib/example-invoice";
+import { exampleInvoice, exampleInvoiceSnapshots } from "@/lib/example-invoice";
 import { formatCents } from "@/lib/money";
 import { exampleAccount, exampleAccountMarkup } from "@/lib/payments-example";
-import { getFeaturedPosts } from "@/lib/posts";
+import { postsBySlug } from "@/lib/posts";
+import { siteConfig } from "@/lib/site";
 
 /** Send, Collect, Automate: what the product does today, never what it will do. */
 const propositions = [
@@ -52,27 +54,48 @@ const propositions = [
   },
 ];
 
-/** The agent copy of the same record the hero shows, as the API returns it. */
-const agentCopy = `GET /api/v1/invoices/inv_01J9X4K2
+/**
+ * The agent copy of the same record the hero and the OG image show, built from
+ * the example invoice so the three views cannot drift from one another.
+ */
+function agentCopy(): string {
+  const { number, to, amountCents } = exampleInvoice;
+  const publicUrl = `${siteConfig.url}/i/6z7grjvgwt2z`;
+  return `GET /api/v1/invoices/inv_01J9X4K2
 
 {
-  "number": "1042",
+  "number": "${number}",
   "status": "sent",
-  "client": { "name": "Harbor Lane Dental" },
-  "totalCents": 250000,
+  "client": { "name": "${to}" },
+  "totalCents": ${amountCents},
   "paidCents": 0,
-  "balanceCents": 250000,
+  "balanceCents": ${amountCents},
   "dueDate": "2026-10-15",
   "lineItems": [
     { "description": "Remodel, phase 1 labor", "quantity": 20, "unitPriceCents": 9500 },
     { "description": "Fixtures and materials", "quantity": 1, "unitPriceCents": 60000 }
   ],
-  "publicUrl": "https://www.clientbilling.com/i/6z7grjvgwt2z",
-  "pdfUrl": "https://www.clientbilling.com/i/6z7grjvgwt2z/pdf"
+  "publicUrl": "${publicUrl}",
+  "pdfUrl": "${publicUrl}/pdf"
 }`;
+}
+
+/**
+ * The three guides the homepage lists (spec #41, story 39: "the three most
+ * useful guides"). Chosen rather than taken by recency, which drops the CDG
+ * review, the guide the proof leads with and the one most readers arrive for.
+ * The proof's own first title has no post and #41 puts writing one out of
+ * scope, so the cost explainer stands in its place. Slugs only: the titles and
+ * dates come from the posts themselves.
+ */
+const guideSlugs = [
+  "cdg-commerce-review-2026-pricing-fees-features",
+  "cdg-commerce-vs-square",
+  "cdg-commerce-pricing-explained",
+];
 
 export default function HomePage() {
-  const featured = getFeaturedPosts(3);
+  const featured = postsBySlug(guideSlugs);
   const markup = exampleAccountMarkup();
 
   return (
@@ -108,11 +131,13 @@ export default function HomePage() {
 
       {/*
         One record, three views, one proof (decision 0021, terminology). The
-        three copies exist today; the proof engine is the next phase, so the
-        strip says planned and its link goes to the record the API returns
-        rather than to a verification page that does not exist yet (epic #37).
+        three copies exist today. The proof engine is the next phase, so the
+        strip says so in as many words rather than offering a verification the
+        code cannot perform yet (epic #37); 0021's 2026-09-19 amendment took
+        the same line with the hero's subhead. The link goes to the record the
+        API returns, which is what a reader can see today.
       */}
-      <Section band="sheet" rule className="py-6 sm:py-6">
+      <Section band="sheet" rule density="tight">
         <Container>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <Heading level={2} size="sm">
@@ -125,10 +150,10 @@ export default function HomePage() {
               <EventLink
                 href="/docs/api"
                 event="proof_strip_click"
-                className="ml-1 inline-flex items-center gap-1.5 rounded-sm text-small font-semibold text-cleared underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-sm text-small text-muted underline-offset-4 hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon"
               >
                 <RecordMark variant="registration" size={14} />
-                See how a record is verified
+                Proof is planned. See the record today.
               </EventLink>
             </div>
           </div>
@@ -186,7 +211,7 @@ export default function HomePage() {
 
             <div className="flex flex-col gap-3">
               <div className="flex items-baseline justify-between gap-4 border-b border-rule-strong pb-2.5">
-                <span className="text-small text-muted">Monthly card volume, last 90 days</span>
+                <span className="text-small text-muted">Monthly invoiced volume, last 90 days</span>
                 <span className="font-mono text-display-sm font-medium text-ink">
                   {formatCents(exampleAccount.monthlyVolumeCents)}
                 </span>
@@ -203,22 +228,21 @@ export default function HomePage() {
                 ))}
               </dl>
 
-              <div className="mt-2 flex flex-col gap-3 rounded border border-rule bg-paper p-5">
-                <p className="text-small text-ink">
-                  This example account&apos;s card volume is in the band where CDG Commerce publishes
-                  interchange-plus pricing ({markup.band}). At {markup.formula} above interchange, the
-                  markup on its card payments would have been{" "}
-                  <span className="font-mono font-medium">{formatCents(markup.markupCents)}</span> a
-                  month. Interchange itself varies by card and is not estimated.
-                </p>
-                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
-                  <CtaButton cta="compareCosts" position="inline" />
-                  <span className="text-caption text-muted">
-                    ClientBilling may earn a commission if you sign up with CDG. Your pricing does not
-                    change.
-                  </span>
-                </div>
-              </div>
+              <DecisionCard
+                title="Worth comparing?"
+                className="mt-2"
+                actions={<CtaButton cta="compareCosts" position="inline" />}
+                note="ClientBilling may earn a commission if you sign up with CDG. Your pricing does not change."
+              >
+                This example account&apos;s card volume is in the band where CDG Commerce publishes
+                interchange-plus pricing ({markup.band}). At {markup.formula} above interchange, the
+                percentage part of the markup on{" "}
+                <span className="font-mono">{formatCents(markup.cardVolumeCents)}</span> of card
+                payments comes to{" "}
+                <span className="font-mono font-medium">{formatCents(markup.percentMarkupCents)}</span>{" "}
+                a month, plus <span className="font-mono">{formatCents(markup.fixedPerPaymentCents)}</span>{" "}
+                on each payment. Interchange itself varies by card and is not estimated.
+              </DecisionCard>
 
               <SourceNote
                 source={cdgSources.interchangePlus}
@@ -244,9 +268,7 @@ export default function HomePage() {
                 can create, send, remind, and record payments under the same rules you use.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-                <Button href="/docs/api" variant="secondary">
-                  Read the API reference
-                </Button>
+                <CtaButton cta="apiReference" position="inline" variant="secondary" />
                 <span className="text-caption text-muted">
                   Planned: webhooks, an MCP server, and a verifiable record of every billing event.
                 </span>
@@ -256,7 +278,7 @@ export default function HomePage() {
             <div className="relative mb-2.5 mr-2.5 min-w-0">
               <div aria-hidden className="absolute inset-0 translate-x-2.5 translate-y-2.5 rounded bg-carbon-tint" />
               <pre className="relative overflow-x-auto rounded bg-ink p-5 font-mono text-caption leading-relaxed text-paper sm:p-6">
-                <code>{agentCopy}</code>
+                <code>{agentCopy()}</code>
               </pre>
             </div>
           </div>

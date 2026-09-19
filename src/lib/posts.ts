@@ -114,6 +114,17 @@ export function getFeaturedPosts(limit = 3): PostMeta[] {
   return getAllPosts().slice(0, limit);
 }
 
+/**
+ * Named posts, in the order asked for. A caller that wants a specific reading
+ * list rather than the most recent ones uses this; an unknown slug is dropped
+ * rather than rendering a broken row, and a missing post is a content change
+ * the caller's own test should catch.
+ */
+export function postsBySlug(slugs: string[]): PostMeta[] {
+  const known = new Set(getAllPostSlugs());
+  return slugs.filter((slug) => known.has(slug)).map(getPostMeta);
+}
+
 export async function getPostBySlug(slug: string): Promise<Post> {
   const { data, content } = readPostFile(slug);
   const processed = await remark()

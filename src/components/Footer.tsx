@@ -66,8 +66,7 @@ export function Footer() {
         */}
         <p className="mt-10 max-w-prose-guide border-t border-rule pt-6 text-caption text-muted">
           ClientBilling is invoice software. It is not a payment processor and not the merchant of
-          record. Card details are never entered on ClientBilling. Links to CDG Commerce are
-          affiliate links; ClientBilling may earn a commission at no cost to you.
+          record. Card details are never entered on ClientBilling.
         </p>
 
         <div className="mt-6 flex flex-col gap-2 border-t border-rule pt-6 text-small text-muted sm:flex-row sm:items-center sm:justify-between">

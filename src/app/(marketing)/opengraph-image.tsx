@@ -59,7 +59,13 @@ export default function OpenGraphImage() {
   // Same calculator and the same rates module as the page, so the card the
   // share shows cannot drift from the invoice the visitor lands on.
   const costs = exampleInvoiceCosts(exampleInvoice.amountCents);
-  const row = (id: string) => costs.find((c) => c.rateId === id);
+  const row = (id: string) => {
+    const found = costs.find((c) => c.rateId === id);
+    // A missing rate would render a $0.00 fee on a share card, which is the
+    // silent estimate decision 0021 forbids. Fail the image instead.
+    if (!found) throw new Error(`opengraph-image: the rate ${id} is missing from the rates module`);
+    return found;
+  };
   const flat = row("cdg_flat_online");
   const icp = row("cdg_interchange_plus_online");
   const ach = row("ach_example");
@@ -143,8 +149,8 @@ export default function OpenGraphImage() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ fontSize: 23, fontWeight: 600, color: token.ink }}>Invoice #1042</div>
-                <div style={{ fontSize: 15, color: token.muted, marginTop: 2 }}>Northgate Plumbing</div>
+                <div style={{ fontSize: 23, fontWeight: 600, color: token.ink }}>{`Invoice #${exampleInvoice.number}`}</div>
+                <div style={{ fontSize: 15, color: token.muted, marginTop: 2 }}>{exampleInvoice.from}</div>
               </div>
               <div
                 style={{
@@ -181,13 +187,9 @@ export default function OpenGraphImage() {
                 What getting paid costs
               </div>
               <div style={{ display: "flex", flexDirection: "column", borderTop: `1px solid ${token.ruleStrong}` }}>
-                <CostRow label={flat?.label ?? "Card, flat rate"} value={formatCents(flat?.knownFeeCents ?? 0)} top={false} />
-                <CostRow
-                  label={icp?.label ?? "Card, interchange-plus"}
-                  value={icp?.variableComponents[0]?.label ?? "varies by card"}
-                  tone="muted"
-                />
-                <CostRow label={ach?.label ?? "ACH bank transfer"} value={formatCents(ach?.knownFeeCents ?? 0)} tone="cleared" />
+                <CostRow label={flat.label} value={formatCents(flat.knownFeeCents)} top={false} />
+                <CostRow label={icp.label} value={icp.variableComponents[0].label} tone="muted" />
+                <CostRow label={ach.label} value={formatCents(ach.knownFeeCents)} tone="cleared" />
               </div>
             </div>
           </div>

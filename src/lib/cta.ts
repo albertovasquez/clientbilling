@@ -17,7 +17,8 @@ export type CtaKey =
   | "compareCosts"
   | "signUp"
   | "createInvoice"
-  | "api";
+  | "api"
+  | "apiReference";
 
 export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore" | "product";
 
@@ -140,6 +141,18 @@ export const ctas: Record<CtaKey, Cta> = {
   api: {
     key: "api",
     label: "See the API",
+    href: "/docs/api",
+    type: "product",
+    external: false,
+  },
+  /**
+   * The homepage Developers section (ticket #45). Same destination as `api`,
+   * worded for a reader who has just seen the JSON and wants the reference
+   * rather than an introduction. The founder specified this label in #45.
+   */
+  apiReference: {
+    key: "apiReference",
+    label: "Read the API reference",
     href: "/docs/api",
     type: "product",
     external: false,

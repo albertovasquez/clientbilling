@@ -60,7 +60,7 @@ Width: `max-w-page` (72rem) for grids, `max-w-article` (44rem) for long-form pag
 
 Shape and depth: buttons radius 6px; documents and sheets radius 4px; badges radius 3px. No drop shadows; the only depth is the offset sheet behind a record. No gradients. No paper texture, perforations, or stamps: the carbon copy is a metaphor, not a look.
 
-Spacing: `Section` gives `py-14 sm:py-20`. Inside a section, stack with `mt-2`, `mt-4`, `mt-6`, `mt-8`, `mt-10`. Grids use `gap-6` or `gap-8`. Numbers right-aligned in columns, always.
+Spacing: `Section` gives `py-14 sm:py-20`, or `py-6` with `density="tight"` for a strip that separates two sections rather than holding one. Inside a section, stack with `mt-2`, `mt-4`, `mt-6`, `mt-8`, `mt-10`. Grids use `gap-6` or `gap-8`. Numbers right-aligned in columns, always.
 
 Motion: color changes on hover only. No entrance animations, no parallax.
 
@@ -70,7 +70,7 @@ All in `src/components/ui`, imported from `@/components/ui`.
 
 | Component | Use it for | Do not use it for |
 | --- | --- | --- |
-| `Section` | every top-level block; alternate `band="field"` to separate topics and `band="sheet"` for a block that reads as a document; `rule` for a hairline | nesting inside another Section |
+| `Section` | every top-level block; alternate `band="field"` to separate topics and `band="sheet"` for a block that reads as a document; `density="tight"` for a strip between two sections; `rule` for a hairline | nesting inside another Section |
 | `Container` | width and gutter inside a Section | anything else |
 | `Heading` | all headings; `level` is semantic, `size` is visual | body text |
 | `Kicker` | one sentence-case line above a heading that carries information (updated date, section) | decorative labels, all caps |
@@ -157,6 +157,7 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 | signUp | Create an invoice, free | /app/sign-up | product |
 | createInvoice | Create an invoice | /app/sign-up | product |
 | api | See the API | /docs/api | product |
+| apiReference | Read the API reference | /docs/api | product |
 
 Placement
 

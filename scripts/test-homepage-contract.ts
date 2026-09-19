@@ -8,6 +8,7 @@
 import { readFileSync } from "node:fs";
 import { browserEventNames } from "../src/lib/browser-events";
 import { cta } from "../src/lib/cta";
+import { postsBySlug } from "../src/lib/posts";
 import { siteConfig } from "../src/lib/site";
 
 let failed = 0;
@@ -63,6 +64,26 @@ assert(
   homepage.includes('event="proof_strip_click"'),
   "the proof strip's verify link records proof_strip_click",
 );
+
+// The API reference button is a rung, not a label typed into the page.
+const apiRef = cta("apiReference");
+assert(apiRef.label === "Read the API reference", `the API rung reads "${apiRef.label}"`);
+assert(apiRef.href === "/docs/api", "the API rung goes to the reference");
+assert(
+  homepage.includes('cta="apiReference"') && !homepage.includes(">\n                  Read the API reference"),
+  "the Developers section uses the rung rather than a hand-written label",
+);
+
+// Product principle 3: copy never runs ahead of what the code does. The proof
+// engine is epic #37, so the strip must not offer a verification today.
+assert(
+  homepage.includes("Proof is planned."),
+  "the proof strip says the proof engine is planned",
+);
+assert(
+  !/how a record is verified|Verified record/.test(homepage),
+  "the strip does not claim a verification the code cannot perform",
+);
 assert(
   homepage.includes('event="hero_signup_click"'),
   "the hero sign-up records hero_signup_click",
@@ -74,7 +95,6 @@ const mustSay = [
   "The rate is applied to the invoice, not buried in a pricing page.",
   "Processing rates are easy to publish.",
   "The same invoice, readable by software.",
-  "Read the API reference",
 ];
 for (const phrase of mustSay) {
   assert(homepage.includes(phrase), `the page says "${phrase.slice(0, 48)}"`);
@@ -82,6 +102,20 @@ for (const phrase of mustSay) {
 for (const label of ["Send", "Collect", "Automate"]) {
   assert(homepage.includes(`title: "${label}"`), `the propositions include ${label}`);
 }
+
+// Spec #41 story 39: three guides, and the CDG review among them. postsBySlug
+// drops an unknown slug silently, so the page would quietly show fewer rows if
+// a post were renamed; assert the three resolve.
+const guides = postsBySlug([
+  "cdg-commerce-review-2026-pricing-fees-features",
+  "cdg-commerce-vs-square",
+  "cdg-commerce-pricing-explained",
+]);
+assert(guides.length === 3, `the three homepage guides all resolve to posts (got ${guides.length})`);
+assert(
+  guides.every((g) => (g.updated ?? g.date).match(/^\d{4}-\d{2}-\d{2}$/)),
+  "every homepage guide has an updated date to show",
+);
 
 // The compliance boundary, on every page through the footer.
 assert(

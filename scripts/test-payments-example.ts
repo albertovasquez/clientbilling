@@ -6,6 +6,7 @@
  */
 import { CDG_CHECKED, cdgPlan } from "../src/lib/cdg";
 import { formatCents } from "../src/lib/money";
+import { percentFeeCents } from "../src/lib/payment-costs";
 import { exampleAccount, exampleAccountMarkup } from "../src/lib/payments-example";
 
 let failed = 0;
@@ -40,17 +41,21 @@ assert(markup.source.name.includes("CDG"), "the markup names CDG as its source")
 // across the example's payment count, the markup is a monthly dollar figure.
 assert(markup.cardVolumeCents === 991_380, `card volume is 41 percent of the total (${formatCents(markup.cardVolumeCents)})`);
 assert(
-  markup.markupCents === Math.floor((991_380 * 35 + 5000) / 10_000) + 15 * exampleAccount.cardPaymentsPerMonth,
-  "markup is the published percentage on card volume plus the fixed part per payment",
+  markup.percentMarkupCents === percentFeeCents(991_380, 35),
+  "the percentage markup is the published rate applied to the card volume",
 );
-assert(formatCents(markup.markupCents) === "$35.30", `markup on the example account is $35.30 (got ${formatCents(markup.markupCents)})`);
-
-// The payment count carries the fixed part of the markup, so it must have a
-// stated basis rather than being picked to reach a figure. It is the card
-// volume divided by the hero's example invoice amount, rounded up.
 assert(
-  exampleAccount.cardPaymentsPerMonth === Math.ceil(markup.cardVolumeCents / 250_000),
-  `the payment count follows from the card volume and the example invoice (${exampleAccount.cardPaymentsPerMonth})`,
+  formatCents(markup.percentMarkupCents) === "$34.70",
+  `percentage markup on the example account is $34.70 (got ${formatCents(markup.percentMarkupCents)})`,
+);
+assert(formatCents(markup.fixedPerPaymentCents) === "$0.15", "the fixed part is the published per-payment fee");
+
+// The fixed part is per payment. Totalling it would need a payment count the
+// example does not have, and inventing one is the silent estimate 0021
+// forbids, so no combined figure may exist on the type at all.
+assert(
+  !("markupCents" in markup) && !("cardPaymentsPerMonth" in exampleAccount),
+  "no combined monthly markup and no invented payment count",
 );
 
 // Nothing in the section may read as a promise about what a merchant will pay.
