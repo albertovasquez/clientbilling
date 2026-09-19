@@ -58,7 +58,7 @@ First-party `Event` table (decision 0007). Server events: `signup`, `invoice_cre
 4. Add `ADMIN_EMAILS` to see the funnel page, and `CRON_SECRET` so the daily overdue sweep runs.
 5. Monthly: delete `Event` rows older than 180 days (`DELETE FROM "Event" WHERE "createdAt" < now() - interval '180 days'`).
 6. Never put Quantum RestrictKeys or gateway passwords in env or the database.
-7. Tests: `npx tsx scripts/test-payment-costs.ts` and `npx tsx scripts/test-example-invoice.ts` (pure, no database) check the payment-cost calculator and the homepage example invoice; `npx tsx scripts/test-navigation.ts` checks the header contract and the CDG link inventory; `DATABASE_URL=... npx tsx scripts/test-db-flows.ts` checks reset tokens, rate limits, numbering, payments, and pay links against a throwaway Postgres. Run the pure checks before a PR that touches invoices, payments, rates, or navigation, and the database check before one that touches invoices or payments.
+7. Tests: `npm run check` runs typecheck, lint, the style check, and then `npm run test:pure` (the payment-cost calculator, the homepage example invoice, and the navigation contract; no database needed). `DATABASE_URL=... npx tsx scripts/test-db-flows.ts` checks reset tokens, rate limits, numbering, payments, and pay links against a throwaway Postgres; run it before a PR that touches invoices or payments.
 
 ## Residual diligence
 

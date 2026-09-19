@@ -5,6 +5,15 @@ import { siteConfig } from "@/lib/site";
 const linkClass =
   "block whitespace-nowrap rounded-md px-3 py-2 text-small font-medium text-ink-soft transition-colors hover:bg-field hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
 
+/** The six items, rendered the same way in the desktop bar and the phone menu. */
+function NavLinks({ keyPrefix }: { keyPrefix: string }) {
+  return siteConfig.nav.map((item) => (
+    <Link key={`${keyPrefix}-${item.href}-${item.label}`} href={item.href} className={linkClass}>
+      {item.label}
+    </Link>
+  ));
+}
+
 /**
  * The header (decision 0021): Invoices, Payments, For agents, Developers,
  * Guides, Sign in, with "Create an invoice" as the button. Six items plus a
@@ -28,11 +37,7 @@ export function Header() {
         </Link>
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-1 lg:flex">
-          {siteConfig.nav.map((item) => (
-            <Link key={`${item.href}-${item.label}`} href={item.href} className={linkClass}>
-              {item.label}
-            </Link>
-          ))}
+          <NavLinks keyPrefix="bar" />
         </nav>
 
         <div className="flex shrink-0 items-center gap-1.5">
@@ -57,13 +62,9 @@ export function Header() {
             </summary>
             <nav
               aria-label="Primary, phone"
-              className="absolute right-0 top-full z-50 mt-2 w-52 rounded-lg border border-rule bg-paper p-1.5 shadow-lg"
+              className="absolute right-0 top-full z-50 mt-2 w-52 rounded border border-rule-strong bg-paper p-1.5"
             >
-              {siteConfig.nav.map((item) => (
-                <Link key={`menu-${item.href}-${item.label}`} href={item.href} className={linkClass}>
-                  {item.label}
-                </Link>
-              ))}
+              <NavLinks keyPrefix="menu" />
             </nav>
           </details>
         </div>

@@ -68,6 +68,7 @@ export default function PaymentsPage() {
             ClientBilling is not a payment processor. It never sees a card number
             and never holds your money.
           </p>
+          <Disclosure className="mt-4" />
         </Container>
       </Section>
 
@@ -161,10 +162,10 @@ export default function PaymentsPage() {
             }
             note="A quote request ends in a phone call from CDG. Card data never touches ClientBilling."
           >
-            Worth your time above roughly $10,000 a month of card volume. Under
-            that, a flat-rate processor is usually the better deal.
+            CDG publishes interchange-plus for {interchangePlus.band.toLowerCase()} of
+            card volume. Below that band, a flat-rate processor is usually the
+            better deal.
           </DecisionCard>
-          <Disclosure className="mt-4" />
         </Container>
       </Section>
     </>

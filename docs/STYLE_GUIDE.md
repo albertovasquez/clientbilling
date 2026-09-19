@@ -128,7 +128,7 @@ The header and footer read their items from `src/lib/site.ts`. A page never writ
 - The header is Invoices, Payments, For agents, Developers, Guides, Sign in, in that order, with the `createInvoice` button (decision 0021). CDG is not a brand in the header; its pages live in the footer and in the guides, keeping their URLs.
 - For agents and Developers both point at `/docs/api` until the agent landing page exists (week 5). They stay separate items because they are separate audiences.
 - Six items plus a button do not fit a 390 px phone, so below `lg` they collapse into a native `details` disclosure. The mark, the site name, and the button stay visible at every width. No JavaScript: the menu must open and take keyboard focus without it.
-- `scripts/test-navigation.ts` holds the contract: the six labels in order, their destinations, no CDG page in the header, the button landing on product context rather than a bare form (decision 0001), and the CDG URL inventory still linked.
+- `scripts/test-navigation.ts` holds the contract and runs inside `npm run check`: the six labels in order, their destinations, no CDG page in the header, the button landing on product context rather than a bare form (decision 0001), and the CDG URL inventory still linked. The footer spreads the same CDG list the inventory is built from, so the two cannot drift.
 
 ### App screens: shadcn/ui
 
