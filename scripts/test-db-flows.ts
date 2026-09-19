@@ -421,19 +421,31 @@ async function main() {
   assert(afterCommit === beforeRollback + 1, "a committed mutation queues its webhook");
 
   // The duplicate case stays tolerated: the same event twice is not an error.
+  // The write after it is the point. On Postgres a failed statement poisons
+  // the transaction, so an implementation that caught the unique violation
+  // instead of skipping it would leave this update silently discarded while
+  // the transaction still appeared to succeed.
   const twice = "evt_duplicate_probe";
   await prisma.$transaction(async (tx) => {
     await enqueueWebhook(tx, user.id, "invoice.sent", { invoiceId: "dup" }, userActor(user.id), twice);
   });
+  const nameBefore = user.name;
   let duplicateThrew = false;
   try {
     await prisma.$transaction(async (tx) => {
       await enqueueWebhook(tx, user.id, "invoice.sent", { invoiceId: "dup" }, userActor(user.id), twice);
+      await tx.user.update({ where: { id: user.id }, data: { name: "survived-the-duplicate" } });
     });
   } catch {
     duplicateThrew = true;
   }
   assert(!duplicateThrew, "a repeated eventId is tolerated, not thrown");
+  const afterDuplicate = await prisma.user.findUnique({ where: { id: user.id }, select: { name: true } });
+  assert(
+    afterDuplicate?.name === "survived-the-duplicate",
+    "a write after a duplicate enqueue still commits (the transaction was not poisoned)",
+  );
+  await prisma.user.update({ where: { id: user.id }, data: { name: nameBefore } });
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

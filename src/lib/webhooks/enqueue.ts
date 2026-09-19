@@ -55,37 +55,25 @@ export async function enqueueWebhook(
     proofStatus: "pending",
   };
   const payload = JSON.stringify(body);
-  let queued = 0;
-  for (const endpoint of endpoints) {
-    try {
-      await db.webhookDelivery.create({
-        data: {
-          endpointId: endpoint.id,
-          eventId,
-          type,
-          payload,
-          status: "pending",
-          nextAttemptAt: new Date(),
-        },
-      });
-      queued += 1;
-    } catch (error) {
-      // A duplicate is the one benign case: this endpoint already has this
-      // event. Anything else (a lost connection, a constraint we did not
-      // anticipate) must not be mistaken for "already queued", so it
-      // propagates and rolls the mutation back with it.
-      if (!isDuplicateDelivery(error)) throw error;
-    }
-  }
-  return queued;
-}
+  const now = new Date();
 
-/** Prisma P2002: unique violation on (endpointId, eventId). */
-function isDuplicateDelivery(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: unknown }).code === "P2002"
-  );
+  // skipDuplicates, not a caught unique violation. On Postgres a failed
+  // statement poisons the whole transaction: every later statement fails with
+  // 25P02 and COMMIT silently rolls back, and Prisma wraps no savepoint to
+  // recover from. Catching P2002 and continuing would therefore discard the
+  // mutation this event describes while the caller still saw success. This
+  // compiles to INSERT ... ON CONFLICT DO NOTHING, which tolerates the repeat
+  // without ever putting the transaction in that state.
+  const { count } = await db.webhookDelivery.createMany({
+    data: endpoints.map((endpoint) => ({
+      endpointId: endpoint.id,
+      eventId,
+      type,
+      payload,
+      status: "pending",
+      nextAttemptAt: now,
+    })),
+    skipDuplicates: true,
+  });
+  return count;
 }
