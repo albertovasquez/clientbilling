@@ -23,7 +23,7 @@ export default async function SignUpPage() {
           data and is not a payment processor.
         </p>
         {!process.env.DATABASE_URL ? (
-          <p className="mt-4 rounded-lg border border-verdict-rule bg-verdict-tint p-4 text-small text-ink">
+          <p className="mt-4 rounded-lg border border-rule-due bg-due-tint p-4 text-small text-ink">
             Sign-up is not available on this deployment yet.
           </p>
         ) : null}

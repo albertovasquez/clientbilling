@@ -50,11 +50,11 @@ export function SignInForm({ nextPath, notice }: { nextPath?: string; notice?: s
       <p className="flex flex-wrap gap-x-4 text-small text-ink-soft">
         <span>
           New here?{" "}
-          <Link href="/app/sign-up" className="font-semibold text-action hover:underline">
+          <Link href="/app/sign-up" className="font-semibold text-carbon hover:underline">
             Create an account
           </Link>
         </span>
-        <Link href="/app/reset" className="font-semibold text-action hover:underline">
+        <Link href="/app/reset" className="font-semibold text-carbon hover:underline">
           Forgot your password?
         </Link>
       </p>
@@ -110,7 +110,7 @@ export function SignUpForm() {
       </p>
       <p className="text-small text-ink-soft">
         Already have an account?{" "}
-        <Link href="/app/sign-in" className="font-semibold text-action hover:underline">
+        <Link href="/app/sign-in" className="font-semibold text-carbon hover:underline">
           Sign in
         </Link>
       </p>

@@ -44,7 +44,7 @@ export default function ForIndexPage() {
               <div>
                 <Link
                   href={`/for/${kit.slug}`}
-                  className="font-display text-display-sm font-semibold text-ink hover:text-action"
+                  className="font-display text-display-sm font-semibold text-ink hover:text-carbon"
                 >
                   {kit.navLabel}
                 </Link>

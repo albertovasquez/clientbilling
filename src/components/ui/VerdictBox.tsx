@@ -23,7 +23,7 @@ export function VerdictBox({
 }: VerdictBoxProps) {
   return (
     <aside
-      className={`rounded-2xl border border-verdict-rule bg-verdict-tint p-6 sm:p-8 ${className}`}
+      className={`rounded-2xl border border-rule-due bg-due-tint p-6 sm:p-8 ${className}`}
     >
       <h2 className="font-display text-display-sm font-semibold text-ink">
         {title}

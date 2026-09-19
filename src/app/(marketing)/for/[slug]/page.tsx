@@ -85,7 +85,7 @@ export default async function VerticalKitPage({ params }: Props) {
           </ul>
           <p className="mt-6 text-small text-ink-soft">
             Unpaid invoices always work. Card fields never appear on ClientBilling.{" "}
-            <Link href="/invoices" className="font-semibold text-action underline-offset-4 hover:underline">
+            <Link href="/invoices" className="font-semibold text-carbon underline-offset-4 hover:underline">
               See how invoicing works
             </Link>
             .
@@ -118,7 +118,7 @@ export default async function VerticalKitPage({ params }: Props) {
           <ProsCons className="mt-6" pros={kit.processingFit} cons={kit.notFit} />
           <p className="mt-6 text-small text-ink-soft">
             More on the channel page:{" "}
-            <Link href={kit.channelHref} className="font-semibold text-action underline-offset-4 hover:underline">
+            <Link href={kit.channelHref} className="font-semibold text-carbon underline-offset-4 hover:underline">
               {kit.channelLabel}
             </Link>
             .
@@ -137,7 +137,7 @@ export default async function VerticalKitPage({ params }: Props) {
               </>
             }
             note={
-              <Link href="/app/sign-up" className="font-semibold text-action underline-offset-4 hover:underline">
+              <Link href="/app/sign-up" className="font-semibold text-carbon underline-offset-4 hover:underline">
                 Or create a free invoice account
               </Link>
             }
@@ -156,7 +156,7 @@ export default async function VerticalKitPage({ params }: Props) {
               <li key={v.slug}>
                 <Link
                   href={`/for/${v.slug}`}
-                  className="text-small font-semibold text-action underline-offset-4 hover:underline"
+                  className="text-small font-semibold text-carbon underline-offset-4 hover:underline"
                 >
                   {v.navLabel}
                 </Link>

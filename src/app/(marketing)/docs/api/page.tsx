@@ -29,7 +29,7 @@ export default async function ApiDocsPage() {
         <p className="mt-4 text-body text-ink-soft">
           For scripts and agents that run an invoicing account on its owner&apos;s behalf. Create a key
           under Settings, API keys in the app. Machine-readable OpenAPI is at{" "}
-          <a href="/docs/api/openapi.json" className="text-action underline-offset-4 hover:underline">
+          <a href="/docs/api/openapi.json" className="text-carbon underline-offset-4 hover:underline">
             /docs/api/openapi.json
           </a>
           .

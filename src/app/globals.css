@@ -22,14 +22,8 @@
   --color-cleared-tint: #E4F3EA;
   --color-due: #B4451D;
   --color-due-tint: #FBEBE4;
-
-  /* Aliases for the retired names, kept for one release (ticket #42; removal tracked separately). */
-  --color-action: #3F3BA6;
-  --color-action-hover: #2C2986;
-  --color-action-tint: #ECEBF8;
-  --color-verdict: #B4451D;
-  --color-verdict-tint: #FBEBE4;
-  --color-verdict-rule: #F1C9B8;
+  /* The due-toned hairline that pairs with due-tint on a callout. */
+  --color-rule-due: #F1C9B8;
 
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
@@ -73,12 +67,12 @@ body {
   max-width: var(--container-prose-guide);
   --tw-prose-body: var(--color-ink-soft);
   --tw-prose-headings: var(--color-ink);
-  --tw-prose-links: var(--color-action);
+  --tw-prose-links: var(--color-carbon);
   --tw-prose-bold: var(--color-ink);
   --tw-prose-quotes: var(--color-ink-soft);
   --tw-prose-quote-borders: var(--color-rule-strong);
   --tw-prose-counters: var(--color-muted);
-  --tw-prose-bullets: var(--color-action);
+  --tw-prose-bullets: var(--color-carbon);
   --tw-prose-hr: var(--color-rule);
   --tw-prose-th-borders: var(--color-rule-strong);
   --tw-prose-td-borders: var(--color-rule);
@@ -91,7 +85,7 @@ body {
 }
 
 .prose-billing :where(a):hover {
-  color: var(--color-action-hover);
+  color: var(--color-carbon-deep);
 }
 
 .prose-billing :where(h2) {
@@ -159,7 +153,7 @@ body {
 
 @layer base {
   /* shadcn components use a bare `border`; default the color like upstream does.
-     Utilities such as border-rule or border-verdict-rule still win. */
+     Utilities such as border-rule or border-rule-due still win. */
   *,
   ::before,
   ::after {

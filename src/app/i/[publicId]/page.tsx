@@ -85,7 +85,7 @@ export default async function PublicInvoicePage({ params }: Props) {
           <Heading level={1} size="md">
             Invoice #{invoice.number}
           </Heading>
-          <p className={`mt-1 text-small font-semibold ${paid ? "text-action" : "text-ink-soft"}`}>
+          <p className={`mt-1 text-small font-semibold ${paid ? "text-carbon" : "text-ink-soft"}`}>
             {statusLabel}
           </p>
         </div>

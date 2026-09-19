@@ -121,7 +121,7 @@ export default function PaymentsPage() {
             <li>
               <Link
                 href="/tools/fee-calculator"
-                className="font-semibold text-action underline-offset-4 hover:underline"
+                className="font-semibold text-carbon underline-offset-4 hover:underline"
               >
                 Fee calculator
               </Link>
@@ -130,7 +130,7 @@ export default function PaymentsPage() {
             <li>
               <Link
                 href="/blog/interchange-plus-vs-flat-rate-payment-processing"
-                className="font-semibold text-action underline-offset-4 hover:underline"
+                className="font-semibold text-carbon underline-offset-4 hover:underline"
               >
                 Interchange-plus compared with flat rate
               </Link>
@@ -139,7 +139,7 @@ export default function PaymentsPage() {
             <li>
               <Link
                 href="/cdgcommerce"
-                className="font-semibold text-action underline-offset-4 hover:underline"
+                className="font-semibold text-carbon underline-offset-4 hover:underline"
               >
                 CDG Commerce review
               </Link>

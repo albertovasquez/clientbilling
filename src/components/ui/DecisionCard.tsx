@@ -11,8 +11,8 @@ type DecisionCardProps = {
 };
 
 const tones = {
-  action: "border-action/30 bg-action-tint",
-  verdict: "border-verdict-rule bg-verdict-tint",
+  action: "border-carbon/30 bg-carbon-tint",
+  verdict: "border-rule-due bg-due-tint",
 } as const;
 
 /**
