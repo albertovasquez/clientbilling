@@ -15,3 +15,5 @@ Read `docs/STYLE_GUIDE.md` before editing any page, component, or post. It defin
 # Mission
 
 Before any change, read `docs/mission/README.md` and follow its reading order. It owns the product thesis, the compliance boundary (no card data, no funds, not merchant of record), the CDG affiliate rules (R=470 on every CDG link), the agent operating manual with its stop-and-ask triggers, and the definition of done. Cite the mission files in a PR that touches Collect, CDG copy, fees, legal pages, auth, or email.
+
+Strategy research lives in `docs/strategy/`. Read `docs/strategy/2026-09-18-research-niche-and-monetization.md` after the mission files to understand where the business is headed: product-first positioning, payment-aware invoicing, an agent billing API, and x402 for machine payments. It is input, not policy. Its editor's notes list where it conflicts with decisions 0001, 0010, and 0014; a decision in `docs/decisions/` wins until a newer one adopts the research.

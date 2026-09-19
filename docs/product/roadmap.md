@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-brief.md`. Each item lists agent-operability (can an agent do it through UI, API, or runbook without improvising policy) and the CDG dependency. Per decision 0014, nothing is asked of CDG; items that would need a CDG integration are not on the roadmap.
+Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-brief.md`; the longer-range direction (product-first homepage, payment optimizer, agent API, x402) is in `docs/strategy/2026-09-18-research-niche-and-monetization.md`, whose editor's notes map its four releases onto this roadmap. Each item lists agent-operability (can an agent do it through UI, API, or runbook without improvising policy) and the CDG dependency. Per decision 0014, nothing is asked of CDG; items that would need a CDG integration are not on the roadmap.
 
 ## P0: next four to six weeks
 
