@@ -42,8 +42,12 @@ export function ApiKeyForm({
         <Label htmlFor="kind">Key kind</Label>
         <NativeSelect id="kind" name="kind" className="w-full" defaultValue="live">
           <NativeSelectOption value="live">Live (cb_live_)</NativeSelectOption>
-          <NativeSelectOption value="test">Sandbox (cb_test_, 100 writes/day)</NativeSelectOption>
+          <NativeSelectOption value="test">Test (cb_test_, 100 writes a day)</NativeSelectOption>
         </NativeSelect>
+        <p className="text-caption text-muted">
+          Test keys act on your real account, not a separate dataset. A send from one reaches the
+          client on file.
+        </p>
       </div>
       {serviceAccounts.length > 0 ? (
         <div className="grid gap-1.5">
