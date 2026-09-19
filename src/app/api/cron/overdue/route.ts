@@ -58,6 +58,13 @@ export async function GET(req: Request) {
     }
   }
 
-  // Report what actually happened, not how many were due.
-  return NextResponse.json({ ok: true, flipped, ...(failed.length ? { failed: failed.length } : {}) });
+  // Report what actually happened, not how many were due. Losing every
+  // invoice means the database went away after the initial read, which a
+  // monitor watching status codes should see rather than read as a quiet
+  // success. Losing some is the resilience this loop is for.
+  const lostEverything = due.length > 0 && failed.length === due.length;
+  return NextResponse.json(
+    { ok: !lostEverything, flipped, ...(failed.length ? { failed: failed.length } : {}) },
+    lostEverything ? { status: 500 } : undefined,
+  );
 }
