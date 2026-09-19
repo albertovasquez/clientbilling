@@ -20,11 +20,12 @@ export type InvoiceForPdf = Invoice & {
   business: BusinessProfile | null;
 };
 
-const ink = "#0f172a";
-const soft = "#334155";
-const muted = "#64748b";
-const rule = "#e2e8f0";
-const action = "#115e59";
+const ink = "#15142B";
+const soft = "#3E3D52";
+const muted = "#6E6C80";
+const rule = "#DDD9CF";
+const action = "#3F3BA6";
+const cleared = "#1E7A4D";
 
 const s = StyleSheet.create({
   page: { paddingTop: 48, paddingBottom: 56, paddingHorizontal: 48, fontFamily: "Helvetica", fontSize: 10, color: soft },
@@ -35,23 +36,23 @@ const s = StyleSheet.create({
   small: { fontSize: 9, color: muted },
   title: { fontSize: 18, fontFamily: "Helvetica-Bold", color: ink, textAlign: "right" },
   status: { fontSize: 10, textAlign: "right", marginTop: 2, color: soft },
-  statusPaid: { color: action, fontFamily: "Helvetica-Bold" },
+  statusPaid: { color: cleared, fontFamily: "Helvetica-Bold" },
   cols: { flexDirection: "row", marginTop: 24, paddingTop: 12, borderTopWidth: 1, borderTopColor: rule },
   col: { flex: 1, paddingRight: 12 },
   label: { fontSize: 8, color: muted, marginBottom: 3, fontFamily: "Helvetica-Bold" },
   table: { marginTop: 24 },
   row: { flexDirection: "row", paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: rule },
-  head: { borderBottomColor: "#cbd5e1", fontFamily: "Helvetica-Bold", color: ink },
+  head: { borderBottomColor: "#C8C4B6", fontFamily: "Helvetica-Bold", color: ink },
   cDesc: { flex: 6 },
   cQty: { flex: 1, textAlign: "right" },
   cPrice: { flex: 2, textAlign: "right" },
   cAmt: { flex: 2, textAlign: "right" },
   totals: { marginTop: 10, alignSelf: "flex-end", width: 220 },
   tRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 3 },
-  tTotal: { borderTopWidth: 1, borderTopColor: "#cbd5e1", marginTop: 4, paddingTop: 6, fontFamily: "Helvetica-Bold", color: ink, fontSize: 12 },
+  tTotal: { borderTopWidth: 1, borderTopColor: "#C8C4B6", marginTop: 4, paddingTop: 6, fontFamily: "Helvetica-Bold", color: ink, fontSize: 12 },
   section: { marginTop: 24 },
   h2: { fontSize: 11, fontFamily: "Helvetica-Bold", color: ink, marginBottom: 4 },
-  pay: { marginTop: 24, padding: 12, backgroundColor: "#f8fafc", borderWidth: 1, borderColor: rule, borderRadius: 6 },
+  pay: { marginTop: 24, padding: 12, backgroundColor: "#F4F3EE", borderWidth: 1, borderColor: rule, borderRadius: 6 },
   link: { color: action },
   footer: { position: "absolute", left: 48, right: 48, bottom: 28, flexDirection: "row", justifyContent: "space-between", fontSize: 8, color: muted, borderTopWidth: 1, borderTopColor: rule, paddingTop: 6 },
 });

@@ -16,10 +16,10 @@ export default function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#ffffff",
+          backgroundColor: "#FBFAF6",
           padding: "64px",
           fontFamily: "Georgia, serif",
-          borderTop: "16px solid #115e59",
+          borderTop: "16px solid #3F3BA6",
         }}
       >
         <div
@@ -27,7 +27,7 @@ export default function OpenGraphImage() {
             display: "flex",
             alignItems: "center",
             gap: "16px",
-            color: "#0f172a",
+            color: "#15142B",
             fontSize: 30,
             fontWeight: 600,
           }}
@@ -37,8 +37,8 @@ export default function OpenGraphImage() {
               width: 48,
               height: 48,
               borderRadius: 12,
-              backgroundColor: "#115e59",
-              color: "#ffffff",
+              backgroundColor: "#3F3BA6",
+              color: "#FBFAF6",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -53,7 +53,7 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div
             style={{
-              color: "#0f172a",
+              color: "#15142B",
               fontSize: 64,
               lineHeight: 1.1,
               fontWeight: 600,
@@ -64,7 +64,7 @@ export default function OpenGraphImage() {
           </div>
           <div
             style={{
-              color: "#64748b",
+              color: "#6E6C80",
               fontSize: 28,
               fontFamily: "system-ui, sans-serif",
               maxWidth: 860,
@@ -75,7 +75,7 @@ export default function OpenGraphImage() {
         </div>
         <div
           style={{
-            color: "#64748b",
+            color: "#6E6C80",
             fontSize: 24,
             fontFamily: "system-ui, sans-serif",
           }}

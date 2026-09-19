@@ -98,7 +98,7 @@ export default async function AppHomePage() {
           <Card>
             <CardHeader>
               <CardDescription className="text-caption text-muted">Paid this month</CardDescription>
-              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-primary">{formatCents(paidThisMonth._sum.amountCents ?? 0)}</CardTitle>
+              <CardTitle className="font-display text-display-sm font-semibold tabular-nums text-cleared">{formatCents(paidThisMonth._sum.amountCents ?? 0)}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-caption text-muted">{paidThisMonth._count} payments</p>

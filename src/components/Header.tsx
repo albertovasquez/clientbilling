@@ -9,7 +9,7 @@ import { siteConfig } from "@/lib/site";
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-rule bg-paper/95 backdrop-blur">
-      <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-3 sm:flex-nowrap sm:gap-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
@@ -26,7 +26,7 @@ export function Header() {
           </span>
         </Link>
 
-        <nav aria-label="Primary" className="flex min-w-0 items-center gap-0.5 sm:gap-2">
+        <nav aria-label="Primary" className="flex min-w-0 flex-wrap items-center gap-0.5 sm:flex-nowrap sm:gap-2">
           {siteConfig.nav.map((item) => (
             <Link
               key={`${item.href}-${item.label}`}
