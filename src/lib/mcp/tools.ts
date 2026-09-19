@@ -14,6 +14,7 @@ import {
 import { percentToBps } from "@/lib/money";
 import { bankTransferSnapshot, cdgOnlineSnapshots, paymentCosts } from "@/lib/payment-costs";
 import { requireMcpAuth } from "@/lib/mcp/auth-context";
+import { fingerprintArgs, withMcpIdempotency } from "@/lib/mcp/idempotent";
 import { CDG_CHECKED } from "@/lib/cdg";
 import { allowSandboxWrite } from "@/lib/mcp/sandbox";
 
@@ -101,37 +102,45 @@ export function registerInvoiceTools(server: McpServer) {
     async (input) => {
       const auth = requireMcpAuth();
       if (!hasScope(auth.scopes, "invoice:write")) return deny("Missing scope invoice:write");
-      const sandbox = await allowSandboxWrite(auth);
+      const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
       if (!sandbox.ok) return deny(sandbox.error);
 
-      const lines = parseLines(
-        input.lines.map((l) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice })),
-      );
-      if (!lines.ok) return deny(lines.error);
+      const { idempotencyKey, ...args } = input;
+      const out = await withMcpIdempotency(auth, "create_invoice", idempotencyKey, fingerprintArgs(args), async () => {
+        const lines = parseLines(
+          input.lines.map((l) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice })),
+        );
+        if (!lines.ok) return { ok: false as const, error: lines.error };
 
-      const result = await createInvoice({
-        userId: auth.userId,
-        clientId: input.clientId ?? null,
-        newClient: input.newClient
-          ? { name: input.newClient.name, email: input.newClient.email?.toLowerCase() ?? null }
-          : null,
-        lines: lines.lines,
-        taxRateBps: percentToBps(input.taxRate ?? 0),
-        dueDate: parseDueDate(input.dueDate),
-        notes: input.notes?.trim().slice(0, 4000) || null,
-        source: "api",
-        actor: auth.actor,
+        const result = await createInvoice({
+          userId: auth.userId,
+          clientId: input.clientId ?? null,
+          newClient: input.newClient
+            ? { name: input.newClient.name, email: input.newClient.email?.toLowerCase() ?? null }
+            : null,
+          lines: lines.lines,
+          taxRateBps: percentToBps(input.taxRate ?? 0),
+          dueDate: parseDueDate(input.dueDate),
+          notes: input.notes?.trim().slice(0, 4000) || null,
+          source: "api",
+          actor: auth.actor,
+        });
+        if (!result.ok) return { ok: false as const, error: result.error };
+        const full = await prisma.invoice.findUniqueOrThrow({
+          where: { id: result.invoice.id },
+          include: { client: { select: { id: true, name: true, email: true } }, lineItems: { orderBy: { sortOrder: "asc" } } },
+        });
+        return {
+          ok: true as const,
+          body: {
+            invoice: serializeInvoice(full),
+            actor: serializeActor(auth.actor),
+            request: { idempotencyKey },
+          },
+        };
       });
-      if (!result.ok) return deny(result.error);
-      const full = await prisma.invoice.findUniqueOrThrow({
-        where: { id: result.invoice.id },
-        include: { client: { select: { id: true, name: true, email: true } }, lineItems: { orderBy: { sortOrder: "asc" } } },
-      });
-      return text({
-        invoice: serializeInvoice(full),
-        actor: serializeActor(auth.actor),
-        request: { idempotencyKey: input.idempotencyKey },
-      });
+      if (!out.ok) return deny(out.error);
+      return text(out.body);
     },
   );
 
@@ -148,11 +157,18 @@ export function registerInvoiceTools(server: McpServer) {
     async ({ id, idempotencyKey }) => {
       const auth = requireMcpAuth();
       if (!hasScope(auth.scopes, "invoice:send")) return deny("Missing scope invoice:send");
-      const sandbox = await allowSandboxWrite(auth);
+      const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
       if (!sandbox.ok) return deny(sandbox.error);
-      const result = await sendInvoiceEmail(auth.userId, id, auth.actor);
-      if (!result.ok) return deny(result.error);
-      return text({ ok: true, to: result.to, actor: serializeActor(auth.actor), request: { idempotencyKey } });
+      const out = await withMcpIdempotency(auth, "send_invoice", idempotencyKey, fingerprintArgs({ id }), async () => {
+        const result = await sendInvoiceEmail(auth.userId, id, auth.actor);
+        if (!result.ok) return { ok: false as const, error: result.error };
+        return {
+          ok: true as const,
+          body: { ok: true, to: result.to, actor: serializeActor(auth.actor), request: { idempotencyKey } },
+        };
+      });
+      if (!out.ok) return deny(out.error);
+      return text(out.body);
     },
   );
 
@@ -169,11 +185,18 @@ export function registerInvoiceTools(server: McpServer) {
     async ({ id, idempotencyKey }) => {
       const auth = requireMcpAuth();
       if (!hasScope(auth.scopes, "reminder:send")) return deny("Missing scope reminder:send");
-      const sandbox = await allowSandboxWrite(auth);
+      const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
       if (!sandbox.ok) return deny(sandbox.error);
-      const result = await sendInvoiceReminder(auth.userId, id, auth.actor);
-      if (!result.ok) return deny(result.error);
-      return text({ ok: true, to: result.to, actor: serializeActor(auth.actor), request: { idempotencyKey } });
+      const out = await withMcpIdempotency(auth, "send_reminder", idempotencyKey, fingerprintArgs({ id }), async () => {
+        const result = await sendInvoiceReminder(auth.userId, id, auth.actor);
+        if (!result.ok) return { ok: false as const, error: result.error };
+        return {
+          ok: true as const,
+          body: { ok: true, to: result.to, actor: serializeActor(auth.actor), request: { idempotencyKey } },
+        };
+      });
+      if (!out.ok) return deny(out.error);
+      return text(out.body);
     },
   );
 
@@ -194,26 +217,34 @@ export function registerInvoiceTools(server: McpServer) {
     async (input) => {
       const auth = requireMcpAuth();
       if (!hasScope(auth.scopes, "payment:record")) return deny("Missing scope payment:record");
-      const sandbox = await allowSandboxWrite(auth);
+      const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
       if (!sandbox.ok) return deny(sandbox.error);
-      const result = await recordPayment(
-        auth.userId,
-        input.invoiceId,
-        {
-          amountCents: input.amountCents,
-          method: input.method ?? null,
-          paidOn: input.paidOn ?? null,
-          note: input.note ?? null,
-        },
-        "api",
-        auth.actor,
-      );
-      if (!result.ok) return deny(result.error);
-      return text({
-        payment: serializePayment(result.payment),
-        actor: serializeActor(auth.actor),
-        request: { idempotencyKey: input.idempotencyKey },
+      const { idempotencyKey, ...args } = input;
+      const out = await withMcpIdempotency(auth, "record_payment", idempotencyKey, fingerprintArgs(args), async () => {
+        const result = await recordPayment(
+          auth.userId,
+          input.invoiceId,
+          {
+            amountCents: input.amountCents,
+            method: input.method ?? null,
+            paidOn: input.paidOn ?? null,
+            note: input.note ?? null,
+          },
+          "api",
+          auth.actor,
+        );
+        if (!result.ok) return { ok: false as const, error: result.error };
+        return {
+          ok: true as const,
+          body: {
+            payment: serializePayment(result.payment),
+            actor: serializeActor(auth.actor),
+            request: { idempotencyKey },
+          },
+        };
       });
+      if (!out.ok) return deny(out.error);
+      return text(out.body);
     },
   );
 

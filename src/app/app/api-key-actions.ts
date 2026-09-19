@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { generateApiKey } from "@/lib/api-keys";
-import { ALL_SCOPES_STRING, API_SCOPES, parseScopes } from "@/lib/api-scopes";
+import { ALL_SCOPES_STRING, parseScopes } from "@/lib/api-scopes";
 import { assertDatabase, prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { requireUser } from "@/lib/session";
@@ -96,8 +96,6 @@ export async function revokeWebhookEndpointAction(formData: FormData) {
   });
   revalidatePath("/app/settings/api");
 }
-
-export { API_SCOPES };
 
 export async function revokeApiKeyAction(formData: FormData) {
   const user = await requireUser();

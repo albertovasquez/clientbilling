@@ -42,6 +42,11 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
     },
   });
   if (!invoice) notFound();
+  const billingEvents = await prisma.billingEvent.findMany({
+    where: { userId: user.id, aggregateType: "invoice", aggregateId: invoice.id },
+    orderBy: { sequence: "desc" },
+    take: 25,
+  });
   const balance = balanceCents(invoice);
   const canTakePayment = invoice.status !== "void" && balance > 0;
   // Server component; today's date seeds the payment form.
@@ -257,6 +262,33 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
               </div>
             </div>
           ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <Heading level={2}>Billing activity</Heading>
+        </CardHeader>
+        <CardContent>
+          {billingEvents.length === 0 ? (
+            <p className="text-small text-ink-soft">No billing events yet.</p>
+          ) : (
+            <Table>
+              <TableBody>
+                {billingEvents.map((event) => (
+                  <TableRow key={event.id}>
+                    <TableCell className="font-semibold text-ink">{event.type}</TableCell>
+                    <TableCell className="text-caption text-muted">
+                      {event.actorType}
+                      {event.actorType === "service_account" ? ` ${event.actorId}` : ""}
+                      {" · "}
+                      {event.occurredAt.toISOString().slice(0, 19).replace("T", " ")} UTC
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

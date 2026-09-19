@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
 import type { Actor } from "@/lib/billing/actor";
 import { serializeActor } from "@/lib/billing/actor";
+import type { ApiKeyKind } from "@/lib/api-keys";
 import {
   beginIdempotency,
   parseRawJson,
   readRawBody,
   storeIdempotency,
 } from "@/lib/billing/idempotency";
+import { allowSandboxWrite } from "@/lib/mcp/sandbox";
 
 export type ApiAuthOk = {
   ok: true;
   userId: string;
   keyId: string;
   actor: Actor;
+  keyKind: ApiKeyKind;
 };
 
 /**
@@ -28,6 +31,11 @@ export async function withIdempotency<T extends Record<string, unknown>>(
     rawBody: string;
   }) => Promise<{ status: number; body: T } | { error: string; status: number }>,
 ): Promise<NextResponse> {
+  const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
+  if (!sandbox.ok) {
+    return NextResponse.json({ error: sandbox.error }, { status: sandbox.status });
+  }
+
   const rawBody = await readRawBody(req);
   const begun = await beginIdempotency(auth.userId, req, rawBody);
   if (!begun.ok) return begun.response;

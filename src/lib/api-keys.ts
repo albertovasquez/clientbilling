@@ -32,6 +32,7 @@ export type ApiAuth =
       scopes: Set<ApiScope>;
       serviceAccountId: string | null;
       actor: Actor;
+      keyKind: ApiKeyKind;
     }
   | { ok: false; status: number; error: string };
 
@@ -69,7 +70,15 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuth> {
   const actor: Actor = bound
     ? { type: "service_account", id: bound, authorizationId: key.id }
     : { type: "api_key", id: key.id, authorizationId: key.id };
-  return { ok: true, userId: key.userId, keyId: key.id, scopes, serviceAccountId: bound, actor };
+  return {
+    ok: true,
+    userId: key.userId,
+    keyId: key.id,
+    scopes,
+    serviceAccountId: bound,
+    actor,
+    keyKind: kind,
+  };
 }
 
 export function requireScope(auth: Extract<ApiAuth, { ok: true }>, required: ApiScope): ApiAuth {
