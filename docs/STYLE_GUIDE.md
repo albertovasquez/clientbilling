@@ -159,6 +159,7 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 | createInvoice | Create an invoice | /app/sign-up | product |
 | api | See the API | /docs/api | product |
 | apiReference | Read the API reference | /docs/api | product |
+| apiKey | Create an API key | /app/settings/api | product |
 
 Placement
 
