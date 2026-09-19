@@ -50,6 +50,9 @@ jobs:
         env:
           CI: "true"
           CHROME_PATH: /usr/bin/google-chrome
+      - name: Server log
+        if: failure()
+        run: cat /tmp/next-start.log
 
   test-db:
     name: Database flow tests

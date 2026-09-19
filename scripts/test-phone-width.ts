@@ -18,6 +18,8 @@ import { join } from "node:path";
 const origin = process.argv[2] ?? "http://localhost:3311";
 /** Tailwind's lg: above it the nav is a bar, below it a details disclosure. */
 const LG_BREAKPOINT = 1024;
+/** The header CTA, from the createInvoice rung in src/lib/cta.ts. */
+const BUTTON_LABEL = "Create an invoice";
 const widths = [320, 390];
 const paths = ["/", "/payments", "/invoices"];
 
@@ -39,6 +41,7 @@ type Measurement = {
   offenders: Overflow[];
   markVisible: boolean;
   nameVisible: boolean;
+  buttonFound: boolean;
   nameTruncated: boolean;
   nameText: string;
   buttonVisible: boolean;
@@ -79,7 +82,7 @@ function measureSource(openMenu: boolean): string {
     // visible at every width, and a truncated wordmark is not the site name.
     const nameEl = document.querySelector("header a[aria-label] span");
     const btnEl = [...document.querySelectorAll("header a")].find((a) =>
-      /Create an invoice/.test(a.textContent || ""),
+      (a.textContent || "").includes(${JSON.stringify(BUTTON_LABEL)}),
     );
     const markEl = document.querySelector("header a[aria-label] svg");
     const onScreen = (el) => {
@@ -95,6 +98,7 @@ function measureSource(openMenu: boolean): string {
       offenders: offenders.slice(0, 12),
       markVisible: onScreen(markEl),
       nameVisible: onScreen(nameEl),
+      buttonFound: !!btnEl,
       nameTruncated: nameEl ? nameEl.scrollWidth > nameEl.clientWidth + 0.5 : false,
       nameText: (nameEl?.textContent || "").trim(),
       buttonVisible: onScreen(btnEl),
@@ -276,8 +280,9 @@ async function main() {
             console.log(`ok: ${where} has no horizontal overflow`);
           }
 
-          // Header integrity, checked once per page and width with the menu closed.
-          if (!openMenu) {
+          // Header integrity, in both menu states: the open panel is absolutely
+          // positioned and should never push the row, so assert rather than assume.
+          if (m.buttonFound) {
             const missing = [
               m.markVisible ? null : "the mark",
               m.nameVisible ? null : "the site name",
@@ -292,6 +297,11 @@ async function main() {
             } else {
               console.log(`ok: ${where} shows the mark, "${m.nameText}", and the button in full`);
             }
+          } else {
+            // Say what is actually wrong rather than blaming the layout.
+            failures.push(
+              `FAIL ${where}: no header button matching ${BUTTON_LABEL} was found; update this check if the CTA label changed`,
+            );
           }
         }
       }

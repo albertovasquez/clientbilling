@@ -18,7 +18,10 @@ function amountText(cents: number): string {
 /**
  * Swaps hyphens for non-breaking ones (U+2011), so a wrapped rail name breaks
  * at its space rather than mid-word. The glyph is the same; only the break
- * opportunity changes.
+ * opportunity changes. Display only: the labels in payment-costs.ts stay ASCII
+ * because tests match them and the API will serialize them. The tradeoff is
+ * that copied text and find-in-page carry U+2011, so they will not match a
+ * typed "interchange-plus".
  */
 function nonBreakingHyphens(text: string): string {
   return text.replace(/-/g, "‑");
