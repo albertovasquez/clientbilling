@@ -17,3 +17,17 @@ Read `docs/STYLE_GUIDE.md` before editing any page, component, or post. It defin
 Before any change, read `docs/mission/README.md` and follow its reading order. It owns the product thesis, the compliance boundary (no card data, no funds, not merchant of record), the CDG affiliate rules (R=470 on every CDG link), the agent operating manual with its stop-and-ask triggers, and the definition of done. Cite the mission files in a PR that touches Collect, CDG copy, fees, legal pages, auth, or email.
 
 Strategy research lives in `docs/strategy/`. Read `docs/strategy/2026-09-18-research-profitable-differentiated-product.md` (the current plan) and `docs/strategy/2026-09-18-research-niche-and-monetization.md` after the mission files to understand where the business is headed: product-first positioning, payment-aware invoicing, an agent billing API, and x402 for machine payments. It is input, not policy. Their editor's notes say what decisions 0021 and 0022 adopted and what remains open (reopening 0014 is the founder's call); a decision in `docs/decisions/` wins.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues in this repo via `gh`; work is grouped under milestones with epics and blocking edges. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical roles with their default names. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the root; decisions are the numbered records in `docs/decisions/`, which stand in for `docs/adr/`. See `docs/agents/domain.md`.
