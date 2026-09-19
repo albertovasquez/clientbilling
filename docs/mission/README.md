@@ -13,7 +13,7 @@ Reading order
 7. `../agents/definition-of-done.md`: what "shipped" means here. `../agents/api.md`: the API an agent uses to operate an account.
 8. `../decisions/`: the record of choices already made. Newer supersedes older.
 9. `../STYLE_GUIDE.md`: tokens, primitives, voice, CTA ladder.
-10. `../brand/brief.md`: the Carbon Copy identity and the three proofs it must pass (decision 0021).
+10. `../brand/brief.md`: the Carbon Copy identity and the three proofs it must pass (decision 0021); `../brand/proofs/` holds the approved artboards; `../STYLE_GUIDE.md` section 2 holds the target tokens.
 11. `../strategy/`: research and briefs. Read `2026-09-18-research-profitable-differentiated-product.md` (the current plan: competitive landscape, two revenue engines, proof architecture, eight-week roadmap) and, for the longer horizon, `2026-09-18-research-niche-and-monetization.md`. Both carry editor's notes; decisions override them.
 
 Ownership

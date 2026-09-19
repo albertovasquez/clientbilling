@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ClientBilling homepage, desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#FBFAF6;color:#15142B;font-family:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#3F3BA6;text-decoration:none}a:hover{color:#2C2986}
+</style>
+</helmet>
+<div style="width: 1280px; height: 2640px; box-sizing: border-box; background: #FBFAF6; display: flex; flex-direction: column; overflow: hidden;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 22px 80px; border-bottom: 1px solid #E6E3DA;">
+    <a href="#top" style="display: flex; align-items: center; gap: 10px; color: #15142B;">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="7" y="7" width="16" height="18" rx="1.5" fill="#ECEBF8"/><rect x="4" y="4" width="16" height="18" rx="1.5" fill="#ECEBF8"/><rect x="1" y="1" width="16" height="18" rx="1.5" fill="#FFFFFF" stroke="#3F3BA6" stroke-width="1.5"/><rect x="4" y="5" width="10" height="2" fill="#3F3BA6"/></svg>
+      <span style="font-size: 18px; font-weight: 600; letter-spacing: -0.01em;">ClientBilling</span>
+    </a>
+    <nav aria-label="Main" style="display: flex; align-items: center; gap: 28px; font-size: 15px; font-weight: 500;">
+      <a href="#invoices" style="color: #3E3D52;">Invoices</a>
+      <a href="#payments" style="color: #3E3D52;">Payments</a>
+      <a href="#agents" style="color: #3E3D52;">For agents</a>
+      <a href="#developers" style="color: #3E3D52;">Developers</a>
+      <a href="#guides" style="color: #3E3D52;">Guides</a>
+      <a href="#signin" style="color: #3E3D52;">Sign in</a>
+      <a href="#new" style="background: #3F3BA6; color: #FFFFFF; padding: 11px 16px; border-radius: 6px; font-weight: 600;">Create an invoice</a>
+    </nav>
+  </header>
+
+  <section id="top" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; padding: 96px 80px 80px; align-items: center;">
+    <div style="grid-column: span 6; display: flex; flex-direction: column; gap: 28px; padding-right: 24px;">
+      <h1 style="margin: 0; font-size: 60px; line-height: 1.05; letter-spacing: -0.025em; font-weight: 600; text-wrap: balance;">Bill clients.<br>Know what getting paid costs.</h1>
+      <p style="margin: 0; font-size: 19px; line-height: 1.55; color: #3E3D52; max-width: 34em; text-wrap: pretty;">Free invoicing that applies payment costs to the invoice before you send it. Every number has a source. Every important version can be verified.</p>
+      <p style="margin: -12px 0 0; font-size: 15px; color: #6E6C80;">For people, software, and agents. Same invoice. Same rules.</p>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="#new" style="background: #3F3BA6; color: #FFFFFF; padding: 15px 22px; border-radius: 6px; font-size: 16px; font-weight: 600;">Create an invoice, free</a>
+        <a href="#developers" style="color: #3F3BA6; padding: 15px 18px; border: 1px solid #C8C4B6; border-radius: 6px; font-size: 16px; font-weight: 600; background: #FFFFFF;">See the API</a>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #6E6C80; font-family: 'IBM Plex Mono', monospace;">No card on file. No plan to pick. Your data exports as CSV.</p>
+    </div>
+
+    <div style="grid-column: span 6; position: relative; height: 560px;">
+      <div style="position: absolute; left: 24px; top: 24px; width: 520px; height: 520px; background: #ECEBF8; border-radius: 4px;"></div>
+      <div style="position: absolute; left: 12px; top: 12px; width: 520px; height: 520px; background: #ECEBF8; border-radius: 4px; opacity: 0.6;"></div>
+      <article aria-label="Example invoice, file copy" style="position: absolute; left: 0; top: 0; width: 520px; height: 520px; box-sizing: border-box; background: #FFFFFF; border: 1px solid #E6E3DA; border-radius: 4px; padding: 28px 32px; display: flex; flex-direction: column; gap: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">Invoice <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">#1042</span></div>
+            <div style="font-size: 13px; color: #6E6C80;">Northgate Plumbing to Harbor Lane Dental</div>
+          </div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3F3BA6; border: 1px solid #3F3BA6; border-radius: 3px; padding: 3px 7px;">File copy</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid #E6E3DA; padding-top: 14px;">
+          <span style="font-size: 14px; color: #6E6C80;">Total due</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; letter-spacing: -0.02em;">{{total}}</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0;">
+          <div style="font-size: 13px; font-weight: 600; color: #15142B; padding-bottom: 8px;">What getting paid costs</div>
+          <div style="display: grid; grid-template-columns: 1fr auto auto; column-gap: 20px; row-gap: 0; font-size: 13.5px; border-top: 1px solid #C8C4B6;">
+            <div style="padding: 9px 0; color: #6E6C80; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.02em;">Rail</div>
+            <div style="padding: 9px 0; color: #6E6C80; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-align: right;">Fee</div>
+            <div style="padding: 9px 0; color: #6E6C80; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-align: right;">You receive</div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA;">Card, flat rate <span style="color: #6E6C80;">3.50% + $0.30</span></div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; text-align: right; font-family: 'IBM Plex Mono', monospace;">{{flatFee}}</div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; text-align: right; font-family: 'IBM Plex Mono', monospace;">{{flatNet}}</div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA;">Card, interchange-plus <span style="color: #6E6C80;">0.35% + $0.15</span></div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; text-align: right; font-family: 'IBM Plex Mono', monospace;">{{icpFee}} + interchange</div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; text-align: right; font-family: 'IBM Plex Mono', monospace; color: #6E6C80;">varies by card</div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; background: #E4F3EA; margin: 0 -8px; padding-left: 8px; border-radius: 3px 0 0 3px;">ACH <span style="color: #6E6C80;">your bank, example $1.00</span></div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; text-align: right; font-family: 'IBM Plex Mono', monospace; background: #E4F3EA;">{{achFee}}</div>
+            <div style="padding: 9px 0; border-top: 1px solid #E6E3DA; text-align: right; font-family: 'IBM Plex Mono', monospace; background: #E4F3EA; margin-right: -8px; padding-right: 8px; border-radius: 0 3px 3px 0; color: #1E7A4D; font-weight: 600;">{{achNet}}</div>
+          </div>
+        </div>
+        <p style="margin: auto 0 0; font-size: 11.5px; line-height: 1.5; color: #6E6C80;">Card rates: CDG Commerce published online pricing, checked 2026-09-17. ACH: the fee you entered in Payments settings. Interchange varies by card and is not estimated.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-label="One record, three views, one proof" style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 80px; border-top: 1px solid #E6E3DA; background: #FFFFFF;">
+    <div style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em;">One record. Three views. One proof.</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3F3BA6; border: 1px solid #3F3BA6; border-radius: 3px; padding: 3px 8px;">Client copy</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3F3BA6; border: 1px solid #3F3BA6; border-radius: 3px; padding: 3px 8px;">File copy</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3F3BA6; border: 1px solid #3F3BA6; border-radius: 3px; padding: 3px 8px;">Agent copy</span>
+      <span style="display: flex; align-items: center; gap: 6px; margin-left: 12px; font-size: 13px; color: #1E7A4D; font-weight: 600;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="#1E7A4D" stroke-width="1"/><path d="M7 0v14M0 7h14" stroke="#1E7A4D" stroke-width="1"/></svg>Verified record</span>
+    </div>
+  </section>
+
+  <section id="invoices" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px; padding: 48px 80px 80px;">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><rect x="3" y="2" width="14" height="18" rx="1.5" stroke="#3F3BA6" stroke-width="1.5"/><path d="M6 7h8M6 11h8M6 15h5" stroke="#3F3BA6" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Send</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #3E3D52; text-wrap: pretty;">Invoices, recurring bills, and reminders. A PDF on every email, a public page for every payer, and a record of who opened what.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="1.5" stroke="#3F3BA6" stroke-width="1.5"/><path d="M2 9h18" stroke="#3F3BA6" stroke-width="1.5"/></svg></div>
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Collect</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #3E3D52; text-wrap: pretty;">Bank transfer, card, or your own pay link. Record every payment, partial or full, and see the fee and the net on each rail before you choose one.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M4 6h14M4 11h14M4 16h9" stroke="#3F3BA6" stroke-width="1.5" stroke-linecap="round"/><circle cx="17" cy="16" r="2.5" stroke="#3F3BA6" stroke-width="1.5"/></svg></div>
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Automate</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #3E3D52; text-wrap: pretty;">Overdue sweeps, scheduled invoices, and an API so a script or an agent can bill on your behalf. Same invoice, same rules.</p>
+    </div>
+  </section>
+
+  <section id="payments" style="padding: 72px 80px; background: #FFFFFF; border-top: 1px solid #E6E3DA; border-bottom: 1px solid #E6E3DA; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+    <div style="grid-column: span 5; display: flex; flex-direction: column; gap: 16px;">
+      <h2 style="margin: 0; font-size: 36px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 600; text-wrap: balance;">The rate is applied to the invoice, not buried in a pricing page.</h2>
+      <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3E3D52; text-wrap: pretty;">Processing rates are easy to publish. Applying them to the invoice in front of you is different. ClientBilling shows the known cost and expected net before you send, names the source, and tells you when a cost cannot be known in advance.</p>
+      <p style="margin: 0; font-size: 15px; color: #3E3D52;">Enter your own ACH and card rates in settings, or use published ones. Nothing is estimated silently.</p>
+    </div>
+    <div style="grid-column: 7 / span 6; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: grid; grid-template-columns: 1fr auto; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid #C8C4B6;">
+        <span style="font-size: 14px; color: #6E6C80;">Monthly card volume, last 90 days</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500;">$24,180</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr auto; padding: 6px 0; font-size: 15px;">
+        <span style="color: #3E3D52;">Paid by card</span><span style="font-family: 'IBM Plex Mono', monospace;">41%</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr auto; padding: 6px 0; font-size: 15px; border-top: 1px solid #E6E3DA;">
+        <span style="color: #3E3D52;">Paid by bank transfer</span><span style="font-family: 'IBM Plex Mono', monospace;">52%</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr auto; padding: 6px 0; font-size: 15px; border-top: 1px solid #E6E3DA;">
+        <span style="color: #3E3D52;">Paid by check or cash</span><span style="font-family: 'IBM Plex Mono', monospace;">7%</span>
+      </div>
+      <div style="margin-top: 10px; padding: 18px 20px; background: #FBFAF6; border: 1px solid #E6E3DA; border-radius: 4px; display: flex; flex-direction: column; gap: 10px;">
+        <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #15142B;">Your card volume is in the band where CDG Commerce publishes interchange-plus pricing (<span style="font-family: 'IBM Plex Mono', monospace;">$10K to $200K</span> a month). At 0.35% + $0.15 above interchange, the markup on last quarter's card payments would have been about <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">$85</span> a month.</p>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <a href="#quote" style="background: #3F3BA6; color: #FFFFFF; padding: 11px 16px; border-radius: 6px; font-size: 15px; font-weight: 600;">Compare your card costs</a>
+          <span style="font-size: 12.5px; color: #6E6C80;">ClientBilling may earn a commission if you sign up with CDG. Your pricing does not change.</span>
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #6E6C80; font-family: 'IBM Plex Mono', monospace;">Figures above are an example account. Rates: CDG published pricing, checked 2026-09-17.</p>
+    </div>
+  </section>
+
+  <section id="developers" style="padding: 72px 80px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start;">
+    <div style="grid-column: span 5; display: flex; flex-direction: column; gap: 16px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3F3BA6; border: 1px solid #3F3BA6; border-radius: 3px; padding: 3px 7px; width: fit-content;">Agent copy</div>
+      <h2 id="agents" style="margin: 0; font-size: 36px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 600; text-wrap: balance;">The same invoice, readable by software.</h2>
+      <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3E3D52; text-wrap: pretty;">One record, three copies. Your client gets the page and the PDF. Your bookkeeper gets the export. A script or an AI agent gets JSON over a REST API with a personal key, and can create, send, remind, and record payments under the same rules you use.</p>
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <a href="#docs" style="color: #3F3BA6; padding: 12px 16px; border: 1px solid #C8C4B6; border-radius: 6px; font-size: 15px; font-weight: 600; background: #FFFFFF;">Read the API reference</a>
+        <span style="font-size: 13px; color: #6E6C80;">Next: webhooks, an MCP server, and a verifiable record of every billing event.</span>
+      </div>
+    </div>
+    <div style="grid-column: 7 / span 6; position: relative; height: 380px;">
+      <div style="position: absolute; left: 10px; top: 10px; right: -10px; bottom: -10px; background: #ECEBF8; border-radius: 4px;"></div>
+      <pre style="position: absolute; inset: 0; margin: 0; box-sizing: border-box; padding: 22px 24px; background: #15142B; color: #FBFAF6; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.6; overflow: hidden;">GET /api/v1/invoices/inv_01J9X4K2
+
+{
+  "number": "1042",
+  "status": "sent",
+  "client": { "name": "Harbor Lane Dental" },
+  "totalCents": 250000,
+  "paidCents": 0,
+  "balanceCents": 250000,
+  "dueDate": "2026-10-15",
+  "lineItems": [
+    { "description": "Remodel, phase 1 labor", "quantity": 20, "unitPriceCents": 9500 },
+    { "description": "Fixtures and materials", "quantity": 1, "unitPriceCents": 60000 }
+  ],
+  "publicUrl": "https://www.clientbilling.com/i/6z7grjvgwt2z",
+  "pdfUrl": "https://www.clientbilling.com/i/6z7grjvgwt2z/pdf"
+}</pre>
+    </div>
+  </section>
+
+  <section id="guides" style="padding: 56px 80px 72px; border-top: 1px solid #E6E3DA; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+    <div style="grid-column: span 4; display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Guides</h2>
+      <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #3E3D52;">Plain reading on what merchant accounts, gateways, and rates actually cost. Every number sourced and dated.</p>
+    </div>
+    <ul style="grid-column: 6 / span 7; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;">
+      <li style="display: grid; grid-template-columns: 1fr auto; padding: 14px 0; border-top: 1px solid #E6E3DA; font-size: 16px;"><a href="#g1" style="color: #15142B;">What a merchant account costs at $10K, $50K, and $200K a month</a><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #6E6C80;">Updated 2026-09-17</span></li>
+      <li style="display: grid; grid-template-columns: 1fr auto; padding: 14px 0; border-top: 1px solid #E6E3DA; font-size: 16px;"><a href="#g2" style="color: #15142B;">CDG Commerce review: interchange-plus, published</a><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #6E6C80;">Updated 2026-09-17</span></li>
+      <li style="display: grid; grid-template-columns: 1fr auto; padding: 14px 0; border-top: 1px solid #E6E3DA; border-bottom: 1px solid #E6E3DA; font-size: 16px;"><a href="#g3" style="color: #15142B;">CDG vs Square for invoicing businesses</a><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #6E6C80;">Updated 2026-09-17</span></li>
+    </ul>
+  </section>
+
+  <footer style="margin-top: auto; padding: 28px 80px 36px; border-top: 1px solid #E6E3DA; display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; font-size: 13px; color: #6E6C80;">
+    <p style="margin: 0; max-width: 60em; line-height: 1.5;">ClientBilling is invoice software. It is not a payment processor and not the merchant of record. Card details are never entered on ClientBilling. Links to CDG Commerce are affiliate links; ClientBilling may earn a commission at no cost to you.</p>
+    <nav aria-label="Footer" style="display: flex; gap: 18px; white-space: nowrap;"><a href="#terms" style="color: #6E6C80;">Terms</a><a href="#privacy" style="color: #6E6C80;">Privacy</a><a href="#disclosure" style="color: #6E6C80;">Affiliate disclosure</a></nav>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"amountCents":{"editor":"int","default":250000,"min":100,"max":100000000,"step":100,"section":"Example invoice"},"achFeeCents":{"editor":"int","default":100,"min":0,"max":5000,"step":25,"section":"Example invoice"},"$preview":{"width":1280,"height":2640}}'>
+class Component extends DCLogic {
+  money(c) { const n = Math.abs(c) / 100; return (c < 0 ? '-' : '') + '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  renderVals() {
+    // CDG published online rates, checked 2026-09-17 (src/lib/cdg.ts): flat 3.50% + $0.30; interchange-plus 0.35% + $0.15 above interchange.
+    const amount = Math.round(this.props.amountCents ?? 250000);
+    const ach = Math.round(this.props.achFeeCents ?? 100);
+    const flatFee = Math.round(amount * 0.035) + 30;
+    const icpFee = Math.round(amount * 0.0035) + 15;
+    return {
+      total: this.money(amount),
+      flatFee: this.money(flatFee),
+      flatNet: this.money(amount - flatFee),
+      icpFee: this.money(icpFee),
+      achFee: this.money(ach),
+      achNet: this.money(amount - ach),
+    };
+  }
+}
+</script>
+</body>
+</html>

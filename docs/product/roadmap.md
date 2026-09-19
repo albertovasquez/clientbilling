@@ -28,6 +28,8 @@ Merchant-processing integration and x402 stay out of the critical path. The goal
 | 7 | Productized verification: public verify page, PDF seal, file-copy detail, mainnet flag, KMS and security tests | A PDF record ID yields a plain-English verified or mismatch result | PDF renderer |
 | 8 | Launch and measure: homepage release, developer and SEO pages, guide redirects, referral instrumentation | Usage shows which of economics, API, and proof pulls users | Style check, deploy pipeline |
 
+Progress is tracked in the GitHub milestone "Carbon Copy launch": one epic issue per week with its blocking edges, split into tracer-bullet tickets as each week starts.
+
 Gates: CDG revenue is forecast at zero until written terms exist; the agent surface ships primitives, not a platform; the proof layer anchors hashes, never data, and the app works without the chain; x402 waits for demand (0021).
 
 ## P1: after CDG answers, or in parallel where independent
