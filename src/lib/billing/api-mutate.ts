@@ -37,7 +37,10 @@ export async function withIdempotency<T extends Record<string, unknown>>(
   const result = await run({ body, actor, rawBody });
   if ("error" in result) {
     const payload = { error: result.error };
-    await storeIdempotency(auth.userId, begun.key, begun.fingerprint, result.status, payload);
+    // Do not lock auth failures under the idempotency key.
+    if (result.status !== 401 && result.status !== 403) {
+      await storeIdempotency(auth.userId, begun.key, begun.fingerprint, result.status, payload);
+    }
     return NextResponse.json(payload, { status: result.status });
   }
 

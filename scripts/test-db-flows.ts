@@ -339,27 +339,64 @@ async function main() {
   });
   assert(saEvent?.actorType === "service_account" && saEvent.actorId === sa.id, "service-account actor on billing event");
 
-  const endpoint = await prisma.webhookEndpoint.create({
-    data: { userId: user.id, url: "https://example.com/hooks/cb-test", secret: generateWebhookSecret() },
+  // Create → mark sent → observe via local webhook receiver (epic #34 exit).
+  const http = await import("node:http");
+  const received: { type?: string; raw: string; signature?: string }[] = [];
+  const server = http.createServer((req, res) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      const raw = Buffer.concat(chunks).toString("utf8");
+      let type: string | undefined;
+      try {
+        type = JSON.parse(raw).type;
+      } catch {
+        type = undefined;
+      }
+      received.push({ type, raw, signature: req.headers["clientbilling-signature"] as string | undefined });
+      res.writeHead(200);
+      res.end("ok");
+    });
   });
-  const queued = await enqueueWebhook(
-    user.id,
-    "invoice.sent",
-    { invoiceId: saCreated.invoice.id },
-    { type: "service_account", id: sa.id, authorizationId: saKey.id },
-    `evt_test_${Date.now()}`,
-  );
-  assert(queued === 1, "webhook delivery queued for active endpoint");
-  const delivery = await prisma.webhookDelivery.findFirst({ where: { endpointId: endpoint.id } });
-  assert(delivery?.status === "pending" && delivery.type === "invoice.sent", "pending invoice.sent delivery");
-  // Delivery against example.com will fail HTTP; assert attempt bookkeeping.
-  const delivered = await deliverDueWebhooks(10);
-  assert(delivered.attempted >= 1, "webhook cron attempts delivery");
-  const deliveryAfter = await prisma.webhookDelivery.findUniqueOrThrow({ where: { id: delivery!.id } });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const addr = server.address();
+  if (!addr || typeof addr === "string") throw new Error("no listen port");
+  const hookUrl = `http://127.0.0.1:${addr.port}/hooks`;
+  const secret = generateWebhookSecret();
+  const endpoint = await prisma.webhookEndpoint.create({
+    data: { userId: user.id, url: hookUrl, secret },
+  });
+  // createInvoice already enqueued invoice.created when saCreated ran before the endpoint existed.
+  const observe = await createInvoice({
+    userId: user.id,
+    clientId: client.id,
+    lines: [{ description: "Observe", quantity: 1, unitPriceCents: 2500 }],
+    taxRateBps: 0,
+    dueDate: null,
+    notes: null,
+    source: "api",
+    actor: { type: "service_account", id: sa.id, authorizationId: saKey.id },
+  });
+  assert(observe.ok, "observe invoice created");
+  if (!observe.ok) throw new Error("unreachable");
+  const sent = await setInvoiceStatus(user.id, observe.invoice.id, "sent", "api", null, {
+    type: "service_account",
+    id: sa.id,
+    authorizationId: saKey.id,
+  });
+  assert(sent.ok, "observe invoice marked sent");
+  const pending = await prisma.webhookDelivery.count({
+    where: { endpointId: endpoint.id, status: "pending" },
+  });
+  assert(pending >= 2, "created and sent webhooks queued");
+  const delivered = await deliverDueWebhooks(20);
+  assert(delivered.delivered >= 2, "webhook deliveries succeeded against local receiver");
   assert(
-    deliveryAfter.attempts >= 1 && (deliveryAfter.status === "pending" || deliveryAfter.status === "failed"),
-    "failed delivery is retried or failed",
+    received.some((r) => r.type === "invoice.created") && received.some((r) => r.type === "invoice.sent"),
+    "receiver saw invoice.created and invoice.sent",
   );
+  assert(received.every((r) => typeof r.signature === "string" && r.signature.includes("v1=")), "deliveries were signed");
+  server.close();
 
   await prisma.user.delete({ where: { id: user.id } });
   console.log("all checks passed");

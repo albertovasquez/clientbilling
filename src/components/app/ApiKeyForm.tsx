@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/shadcn/alert";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
+import { NativeSelect, NativeSelectOption } from "@/components/shadcn/native-select";
 import { API_SCOPES } from "@/lib/api-scopes";
 
 const initial: ApiKeyState = {};
@@ -40,19 +41,14 @@ export function ApiKeyForm({
       {serviceAccounts.length > 0 ? (
         <div className="grid gap-1.5">
           <Label htmlFor="serviceAccountId">Service account (optional)</Label>
-          <select
-            id="serviceAccountId"
-            name="serviceAccountId"
-            className="flex h-9 w-full rounded-md border border-rule bg-sheet px-3 text-small text-ink"
-            defaultValue=""
-          >
-            <option value="">Act as API key</option>
+          <NativeSelect id="serviceAccountId" name="serviceAccountId" className="w-full" defaultValue="">
+            <NativeSelectOption value="">Act as API key</NativeSelectOption>
             {serviceAccounts.map((sa) => (
-              <option key={sa.id} value={sa.id}>
+              <NativeSelectOption key={sa.id} value={sa.id}>
                 {sa.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
+          </NativeSelect>
         </div>
       ) : null}
       <fieldset className="grid gap-2">

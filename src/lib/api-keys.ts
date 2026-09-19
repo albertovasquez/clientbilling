@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import type { Actor } from "@/lib/billing/actor";
-import { ALL_SCOPES_STRING, hasScope, parseScopes, scopeError, type ApiScope } from "@/lib/api-scopes";
+import { hasScope, parseScopes, scopeError, type ApiScope } from "@/lib/api-scopes";
 import { prisma } from "@/lib/db";
 import { allow } from "@/lib/rate-limit";
 
@@ -38,7 +38,10 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuth> {
   if (!raw.startsWith(PREFIX) || raw.length < PREFIX.length + 20) {
     return { ok: false, status: 401, error: "Missing or malformed API key" };
   }
-  const key = await prisma.apiKey.findUnique({ where: { keyHash: hashApiKey(raw) } });
+  const key = await prisma.apiKey.findUnique({
+    where: { keyHash: hashApiKey(raw) },
+    include: { serviceAccount: { select: { id: true, revokedAt: true } } },
+  });
   if (!key || key.revokedAt) {
     return { ok: false, status: 401, error: "Invalid or revoked API key" };
   }
@@ -48,12 +51,15 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuth> {
   if (!key.lastUsedAt || Date.now() - key.lastUsedAt.getTime() > 60_000) {
     prisma.apiKey.update({ where: { id: key.id }, data: { lastUsedAt: new Date() } }).catch(() => undefined);
   }
-  const scopes = parseScopes(key.scopes || ALL_SCOPES_STRING);
-  const serviceAccountId = key.serviceAccountId;
-  const actor: Actor = serviceAccountId
-    ? { type: "service_account", id: serviceAccountId, authorizationId: key.id }
+  const scopes = parseScopes(key.scopes);
+  const bound = key.serviceAccount && !key.serviceAccount.revokedAt ? key.serviceAccount.id : null;
+  if (key.serviceAccountId && !bound) {
+    return { ok: false, status: 401, error: "API key is bound to a revoked service account" };
+  }
+  const actor: Actor = bound
+    ? { type: "service_account", id: bound, authorizationId: key.id }
     : { type: "api_key", id: key.id, authorizationId: key.id };
-  return { ok: true, userId: key.userId, keyId: key.id, scopes, serviceAccountId, actor };
+  return { ok: true, userId: key.userId, keyId: key.id, scopes, serviceAccountId: bound, actor };
 }
 
 export function requireScope(auth: Extract<ApiAuth, { ok: true }>, required: ApiScope): ApiAuth {
