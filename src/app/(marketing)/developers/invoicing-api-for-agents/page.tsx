@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumb, Button, Container, CtaButton, Heading, Kicker, Section } from "@/components/ui";
+import { Breadcrumb, Container, CtaButton, Heading, Kicker, Section } from "@/components/ui";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -32,9 +32,7 @@ export default function InvoicingApiForAgentsPage() {
             invoice the merchant sees in the dashboard is the object your agent writes.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button href="/app/settings/api" size="lg">
-              Create an API key
-            </Button>
+            <CtaButton cta="apiKey" position="hero" size="lg" />
             <CtaButton cta="apiReference" position="inline" size="lg" />
           </div>
         </Container>
@@ -63,7 +61,7 @@ export default function InvoicingApiForAgentsPage() {
           <p className="mt-4 text-body text-ink-soft">
             Tools: <code>list_invoices</code>, <code>get_invoice</code>, <code>create_invoice</code>,{" "}
             <code>send_invoice</code>, <code>send_reminder</code>, <code>record_payment</code>,{" "}
-            <code>get_payment_costs</code>, <code>verify_record</code> (pending until the proof engine
+            <code>get_payment_costs</code>, <code>verify_record</code> (planned, until the proof engine
             ships). There are no tools that charge a card, refund, or move funds.
           </p>
         </Container>

@@ -278,7 +278,7 @@ export function registerInvoiceTools(server: McpServer) {
     "verify_record",
     {
       title: "Verify record",
-      description: "Verify an invoice billing record. Anchoring ships later; returns pending until then.",
+      description: "Verify an invoice billing record. Anchoring is planned; the status reads pending until it ships.",
       inputSchema: z.object({
         invoiceId: z.string().min(1),
       }),

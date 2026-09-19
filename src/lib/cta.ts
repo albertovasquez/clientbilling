@@ -18,7 +18,8 @@ export type CtaKey =
   | "signUp"
   | "createInvoice"
   | "api"
-  | "apiReference";
+  | "apiReference"
+  | "apiKey";
 
 export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore" | "product";
 
@@ -154,6 +155,14 @@ export const ctas: Record<CtaKey, Cta> = {
     key: "apiReference",
     label: "Read the API reference",
     href: "/docs/api",
+    type: "product",
+    external: false,
+  },
+  /** The agents landing's primary action: a key is what a developer needs first. */
+  apiKey: {
+    key: "apiKey",
+    label: "Create an API key",
+    href: "/app/settings/api",
     type: "product",
     external: false,
   },
