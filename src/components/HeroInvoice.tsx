@@ -132,7 +132,8 @@ export function HeroInvoice({ snapshots }: Props) {
         <table className="w-full border-collapse text-small">
           <caption className="pb-2 text-left text-small font-semibold text-ink">What getting paid costs</caption>
           <thead>
-            <tr className="border-t border-rule-strong font-mono text-caption font-normal text-muted">
+            {/* Column labels, not values: Plex Sans, per the type table. */}
+            <tr className="border-t border-rule-strong text-caption font-normal text-muted">
               <th scope="col" className="py-2 text-left font-normal">
                 Rail
               </th>
