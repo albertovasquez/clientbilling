@@ -22,8 +22,14 @@ function text(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
 }
 
+/**
+ * A refused call. `isError` is how a client detects failure over MCP, the way
+ * a status code does over REST: without it a missing scope, an exhausted
+ * sandbox allowance, and an idempotency conflict all arrive looking like
+ * successful writes. The body still names the reason so it stays readable.
+ */
 function deny(message: string) {
-  return text({ error: message });
+  return { ...text({ error: message }), isError: true as const };
 }
 
 /**
