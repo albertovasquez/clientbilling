@@ -271,7 +271,7 @@ async function main() {
     });
   const paymentsBefore = await prisma.payment.count({ where: { invoiceId: billed.invoice.id } });
   const firstRes = await withIdempotency(
-    { ok: true, userId: user.id, keyId: apiKey.id, actor: userActor(user.id) },
+    { ok: true, userId: user.id, keyId: apiKey.id, actor: userActor(user.id), keyKind: "live" as const },
     idemReq(keyA, idemBody),
     async ({ body, actor }) => {
     const result = await recordPayment(
@@ -287,7 +287,7 @@ async function main() {
   );
   assert(firstRes.status === 201, "first idempotent payment succeeds");
   const replayRes = await withIdempotency(
-    { ok: true, userId: user.id, keyId: apiKey.id, actor: userActor(user.id) },
+    { ok: true, userId: user.id, keyId: apiKey.id, actor: userActor(user.id), keyKind: "live" as const },
     idemReq(keyA, idemBody),
     async () => {
     throw new Error("handler must not run on replay");

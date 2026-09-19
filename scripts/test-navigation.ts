@@ -29,8 +29,15 @@ assert(
 const href = (label: string) => siteConfig.nav.find((item) => item.label === label)?.href;
 assert(href("Invoices") === "/invoices", "Invoices goes to the invoice product page");
 assert(href("Payments") === "/payments", "Payments goes to the payments guide hub");
-assert(href("For agents") === "/docs/api", "For agents goes to the API reference for now");
-assert(href("Developers") === "/docs/api", "Developers goes to the API reference for now");
+assert(
+  href("For agents") === "/developers/invoicing-api-for-agents",
+  "For agents goes to the agent landing",
+);
+assert(href("Developers") === "/docs/api", "Developers goes to the API reference");
+assert(
+  href("For agents") !== href("Developers"),
+  "For agents and Developers are distinct destinations",
+);
 assert(href("Guides") === "/blog", "Guides goes to the posts index");
 assert(href("Sign in") === "/app/sign-in", "Sign in goes to the app");
 

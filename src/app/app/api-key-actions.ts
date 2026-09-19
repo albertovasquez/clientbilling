@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { generateApiKey } from "@/lib/api-keys";
-import { ALL_SCOPES_STRING, API_SCOPES, parseScopes } from "@/lib/api-scopes";
+import { ALL_SCOPES_STRING, parseScopes } from "@/lib/api-scopes";
 import { assertDatabase, prisma } from "@/lib/db";
 import { recordEvent } from "@/lib/events";
 import { requireUser } from "@/lib/session";
@@ -36,7 +36,8 @@ export async function createApiKeyAction(_prev: ApiKeyState, formData: FormData)
     if (!sa) return { error: "Service account not found." };
   }
 
-  const { raw, hash, prefix } = generateApiKey();
+  const kind = String(formData.get("kind") ?? "live") === "test" ? "test" : "live";
+  const { raw, hash, prefix } = generateApiKey(kind);
   await prisma.apiKey.create({
     data: {
       userId: user.id,
@@ -95,8 +96,6 @@ export async function revokeWebhookEndpointAction(formData: FormData) {
   });
   revalidatePath("/app/settings/api");
 }
-
-export { API_SCOPES };
 
 export async function revokeApiKeyAction(formData: FormData) {
   const user = await requireUser();
