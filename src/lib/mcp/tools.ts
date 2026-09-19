@@ -16,7 +16,7 @@ import { bankTransferSnapshot, cdgOnlineSnapshots, paymentCosts } from "@/lib/pa
 import { requireMcpAuth } from "@/lib/mcp/auth-context";
 import { fingerprintArgs, withMcpIdempotency } from "@/lib/mcp/idempotent";
 import { CDG_CHECKED } from "@/lib/cdg";
-import { allowSandboxWrite } from "@/lib/mcp/sandbox";
+import { allowSandboxEmail, allowSandboxWrite } from "@/lib/mcp/sandbox";
 
 function text(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
@@ -163,6 +163,9 @@ export function registerInvoiceTools(server: McpServer) {
     async ({ id, idempotencyKey }) => {
       const auth = requireMcpAuth();
       if (!hasScope(auth.scopes, "invoice:send")) return deny("Missing scope invoice:send");
+      // Before the write allowance: a refused send should not spend quota.
+      const email = allowSandboxEmail(auth.keyKind);
+      if (!email.ok) return deny(email.error);
       const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
       if (!sandbox.ok) return deny(sandbox.error);
       const out = await withMcpIdempotency(auth, "send_invoice", idempotencyKey, fingerprintArgs({ id }), async () => {
@@ -191,6 +194,9 @@ export function registerInvoiceTools(server: McpServer) {
     async ({ id, idempotencyKey }) => {
       const auth = requireMcpAuth();
       if (!hasScope(auth.scopes, "reminder:send")) return deny("Missing scope reminder:send");
+      // Before the write allowance: a refused send should not spend quota.
+      const email = allowSandboxEmail(auth.keyKind);
+      if (!email.ok) return deny(email.error);
       const sandbox = await allowSandboxWrite(auth.userId, auth.keyKind);
       if (!sandbox.ok) return deny(sandbox.error);
       const out = await withMcpIdempotency(auth, "send_reminder", idempotencyKey, fingerprintArgs({ id }), async () => {
