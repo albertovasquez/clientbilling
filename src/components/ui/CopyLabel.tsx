@@ -20,7 +20,7 @@ type CopyLabelProps = {
 export function CopyLabel({ kind, className = "" }: CopyLabelProps) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-sm border border-carbon px-1.5 py-0.5 font-mono text-[0.75rem] leading-tight text-carbon ${className}`}
+      className={`inline-flex shrink-0 items-center rounded-sm border border-carbon px-1.5 py-0.5 font-mono text-caption leading-tight text-carbon ${className}`}
     >
       {labels[kind]}
     </span>

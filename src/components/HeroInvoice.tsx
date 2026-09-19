@@ -1,8 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { CopyLabel } from "@/components/ui";
-import { formatCheckedDate } from "@/components/ui/SourceNote";
+import { CopyLabel, formatCheckedDate } from "@/components/ui";
 import { AMOUNT_MAX_CENTS, AMOUNT_MIN_CENTS, exampleInvoice, parseAmountInput } from "@/lib/example-invoice";
 import { sendBrowserEvent } from "@/lib/browser-events";
 import { formatCents } from "@/lib/money";
@@ -10,18 +9,30 @@ import { paymentCosts, type PaymentCost, type RateSnapshot } from "@/lib/payment
 
 type Props = {
   snapshots: RateSnapshot[];
-  cardCheckedAt: string;
 };
 
 function amountText(cents: number): string {
   return formatCents(cents).replace(/^\$/, "");
 }
 
-function receive(row: PaymentCost): { text: string; known: boolean } {
-  if (row.netCents === null) {
-    return { text: row.variableComponents.map((v) => v.label).join(", "), known: false };
-  }
-  return { text: formatCents(row.netCents), known: true };
+/** How one cost row reads on the table: the bank row is the highlighted, cheapest rail. */
+function rowView(row: PaymentCost) {
+  const bank = row.rail === "bank_transfer";
+  const unknown = row.variableComponents.map((v) => v.type).join(", ");
+  const net = row.netCents === null ? null : formatCents(row.netCents);
+  return {
+    key: row.rateId,
+    label: bank ? "ACH" : row.label,
+    detail: bank ? `your bank, example ${formatCents(row.knownFeeCents)}` : row.formula,
+    fee: formatCents(row.knownFeeCents),
+    feeSuffix: unknown ? ` + ${unknown}` : "",
+    receive: net ?? row.variableComponents.map((v) => v.label).join(", "),
+    receiveShort: net ? `net ${net}` : row.variableComponents.map((v) => v.label).join(", "),
+    rowClass: bank ? "bg-cleared-tint" : "",
+    labelClass: bank ? "pl-2" : "",
+    receiveClass: net === null ? "text-muted" : bank ? "whitespace-nowrap font-semibold text-cleared" : "whitespace-nowrap text-ink",
+    receiveShortClass: net && bank ? "font-medium text-cleared" : "text-muted",
+  };
 }
 
 /**
@@ -29,14 +40,15 @@ function receive(row: PaymentCost): { text: string; known: boolean } {
  * on the server with the default amount; the amount input recalculates the
  * cost table from the calculator in the browser.
  */
-export function HeroInvoice({ snapshots, cardCheckedAt }: Props) {
+export function HeroInvoice({ snapshots }: Props) {
   const [amountCents, setAmountCents] = useState<number>(exampleInvoice.amountCents);
   const [text, setText] = useState(amountText(exampleInvoice.amountCents));
   const [invalid, setInvalid] = useState(false);
-  const [reported, setReported] = useState(false);
+  const [editEventSent, setEditEventSent] = useState(false);
   const inputId = useId();
   const hintId = useId();
-  const rows = paymentCosts(amountCents, snapshots);
+  const rows = paymentCosts(amountCents, snapshots).map(rowView);
+  const cardCheckedAt = snapshots.find((s) => s.rail === "card")?.source.checkedAt;
 
   function onChange(value: string) {
     setText(value);
@@ -47,8 +59,9 @@ export function HeroInvoice({ snapshots, cardCheckedAt }: Props) {
     }
     setInvalid(false);
     setAmountCents(cents);
-    if (!reported) {
-      setReported(true);
+    // One cost_table_edit per page view: the funnel counts visitors who touched the table, not keystrokes.
+    if (!editEventSent) {
+      setEditEventSent(true);
       sendBrowserEvent("cost_table_edit");
     }
   }
@@ -107,7 +120,7 @@ export function HeroInvoice({ snapshots, cardCheckedAt }: Props) {
         <table className="w-full border-collapse text-small">
           <caption className="pb-2 text-left text-small font-semibold text-ink">What getting paid costs</caption>
           <thead>
-            <tr className="border-t border-rule-strong font-mono text-[0.6875rem] font-normal tracking-wide text-muted">
+            <tr className="border-t border-rule-strong font-mono text-caption font-normal text-muted">
               <th scope="col" className="py-2 text-left font-normal">
                 Rail
               </th>
@@ -120,42 +133,30 @@ export function HeroInvoice({ snapshots, cardCheckedAt }: Props) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
-              const net = receive(row);
-              const bank = row.rail === "bank_transfer";
-              const rowTint = bank ? "bg-cleared-tint" : "";
-              return (
-                <tr key={row.rateId} className={`border-t border-rule ${rowTint}`}>
-                  <th scope="row" className={`py-2 pr-3 text-left font-normal text-ink ${bank ? "pl-2" : ""}`}>
-                    <span className="whitespace-nowrap">{bank ? "ACH" : row.label}</span>
-                    <span className="block text-caption text-muted">
-                      {bank ? `your bank, example ${formatCents(row.knownFeeCents)}` : row.formula}
-                    </span>
-                  </th>
-                  <td className="py-2 pl-3 text-right font-mono text-ink">
-                    <span className="whitespace-nowrap">{formatCents(row.knownFeeCents)}</span>
-                    {row.netCents === null ? <> + {row.variableComponents.map((v) => v.type).join(", ")}</> : null}
-                    <span className={`block text-caption sm:hidden ${net.known && bank ? "font-medium text-cleared" : "text-muted"}`}>
-                      {net.known ? `net ${net.text}` : net.text}
-                    </span>
-                  </td>
-                  <td
-                    className={`hidden py-2 pl-3 text-right font-mono sm:table-cell ${
-                      !net.known ? "text-muted" : bank ? "whitespace-nowrap font-semibold text-cleared" : "whitespace-nowrap text-ink"
-                    }`}
-                  >
-                    {net.text}
-                  </td>
-                </tr>
-              );
-            })}
+            {rows.map((row) => (
+              <tr key={row.key} className={`border-t border-rule ${row.rowClass}`}>
+                <th scope="row" className={`py-2 pr-3 text-left font-normal text-ink ${row.labelClass}`}>
+                  <span className="whitespace-nowrap">{row.label}</span>
+                  <span className="block text-caption text-muted">{row.detail}</span>
+                </th>
+                <td className="py-2 pl-3 text-right font-mono text-ink">
+                  <span className="whitespace-nowrap">{row.fee}</span>
+                  {row.feeSuffix}
+                  <span className={`block text-caption sm:hidden ${row.receiveShortClass}`}>{row.receiveShort}</span>
+                </td>
+                <td className={`hidden py-2 pl-3 text-right font-mono sm:table-cell ${row.receiveClass}`}>
+                  {row.receive}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
         <p className="text-caption text-muted">
-          Card rates: CDG Commerce published online pricing, checked {formatCheckedDate(cardCheckedAt)}. ACH: an
-          example fee of {formatCents(exampleInvoice.achFeeCents)}; your own bank&apos;s fee replaces it.
-          Interchange varies by card and is not estimated.
+          Card rates: CDG Commerce published online pricing
+          {cardCheckedAt ? `, checked ${formatCheckedDate(cardCheckedAt)}` : ""}. ACH: an example fee of{" "}
+          {formatCents(exampleInvoice.achFeeCents)}; your own bank&apos;s fee replaces it. Interchange varies by
+          card and is not estimated.
         </p>
       </article>
     </div>

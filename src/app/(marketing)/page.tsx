@@ -20,8 +20,7 @@ import {
   cdgPlans,
   cdgSources,
 } from "@/lib/cdg";
-import { exampleInvoice } from "@/lib/example-invoice";
-import { bankTransferSnapshot, cdgOnlineSnapshots } from "@/lib/payment-costs";
+import { exampleInvoiceSnapshots } from "@/lib/example-invoice";
 import { getFeaturedPosts } from "@/lib/posts";
 
 const companyRows = [
@@ -59,11 +58,6 @@ const questions = [
 export default function HomePage() {
   const featured = getFeaturedPosts(3);
   const interchangePlus = cdgPlan("interchangePlus");
-  const heroSnapshots = [
-    ...cdgOnlineSnapshots(),
-    bankTransferSnapshot(exampleInvoice.achFeeCents, { example: true, asOf: CDG_CHECKED }),
-  ];
-
   return (
     <>
       <Section id="top">
@@ -74,13 +68,14 @@ export default function HomePage() {
                 Bill clients.
                 <br className="hidden sm:inline" /> Know what getting paid costs.
               </Heading>
-              <p className="max-w-prose-guide text-pretty text-body text-ink-soft sm:text-[1.1875rem]">
-                Free invoicing for client businesses. Every invoice shows what each way of getting
-                paid will cost you, before you send it, and every number has a source.
+              <p className="max-w-prose-guide text-pretty text-body text-ink-soft">
+                Free invoicing that applies payment costs to the invoice before you send it. Every
+                number has a source.
               </p>
               <p className="-mt-2 text-small text-muted">
                 For people, software, and agents. Same invoice. Same rules.
               </p>
+              <Disclosure className="-mt-2" />
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <CtaButton cta="signUp" position="hero" size="lg" event="hero_signup_click" />
                 <CtaButton cta="api" position="hero" variant="secondary" size="lg" />
@@ -89,7 +84,7 @@ export default function HomePage() {
                 No card on file. No plan to pick. Your data exports as CSV.
               </p>
             </div>
-            <HeroInvoice snapshots={heroSnapshots} cardCheckedAt={CDG_CHECKED} />
+            <HeroInvoice snapshots={exampleInvoiceSnapshots()} />
           </div>
         </Container>
       </Section>
@@ -97,7 +92,6 @@ export default function HomePage() {
       <Section band="field" rule id="volume">
         <Container>
           <Heading level={2}>Start with your monthly volume</Heading>
-          <Disclosure className="mt-3" />
           <p className="mt-4 max-w-prose-guide text-body text-ink-soft">
             CDG publishes three plans and the monthly card volume each one is
             built for. Find your band, then read the rate you would pay on top

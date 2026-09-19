@@ -15,7 +15,7 @@ export function Header() {
           className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
           aria-label={siteConfig.name}
         >
-          <RecordMark size={26} />
+          <RecordMark />
           <span className="hidden font-display text-display-sm font-semibold text-ink group-hover:text-action sm:inline">
             {siteConfig.name}
           </span>

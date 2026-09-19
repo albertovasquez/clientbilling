@@ -1,5 +1,11 @@
 import { CDG_CHECKED } from "@/lib/cdg";
-import { bankTransferSnapshot, cdgOnlineSnapshots, paymentCosts, type PaymentCost } from "@/lib/payment-costs";
+import {
+  bankTransferSnapshot,
+  cdgOnlineSnapshots,
+  paymentCosts,
+  type PaymentCost,
+  type RateSnapshot,
+} from "@/lib/payment-costs";
 
 /**
  * The example invoice on the homepage (spec #41, ticket #44). Fictional
@@ -32,9 +38,14 @@ export function parseAmountInput(text: string): number | null {
   return cents;
 }
 
-export function exampleInvoiceCosts(amountCents: number): PaymentCost[] {
-  return paymentCosts(amountCents, [
+/** CDG's published online card rates plus the example ACH fee. */
+export function exampleInvoiceSnapshots(): RateSnapshot[] {
+  return [
     ...cdgOnlineSnapshots(),
     bankTransferSnapshot(exampleInvoice.achFeeCents, { example: true, asOf: CDG_CHECKED }),
-  ]);
+  ];
+}
+
+export function exampleInvoiceCosts(amountCents: number): PaymentCost[] {
+  return paymentCosts(amountCents, exampleInvoiceSnapshots());
 }
