@@ -14,43 +14,53 @@ Why it exists: the site's job is to earn a reader's trust on a money decision an
 
 ## 2. Tokens
 
-Defined in `src/app/globals.css` under `@theme`. Pages use only the semantic utilities. Raw palette classes (`teal-800`, `slate-600`) are allowed only in `src/components/ui/`.
+The identity is Carbon Copy (`docs/brand/brief.md`, decision 0021). Tokens are defined in `src/app/globals.css` under `@theme`; pages use only the semantic utilities. Raw palette classes are allowed only in `src/components/ui/`. The values below are the target system; the code migrates to them in the first ticket of the Carbon Copy milestone, and until it lands the old teal values are what `globals.css` holds.
 
 | Token | Value | Utilities | Use |
 | --- | --- | --- | --- |
-| ink | #0f172a | `text-ink` | headings, primary text |
-| ink-soft | #334155 | `text-ink-soft` | body and list text |
-| muted | #64748b | `text-muted` | captions, meta, source notes |
-| paper | #ffffff | `bg-paper`, `text-paper` | page and card surface, button text |
-| field | #f8fafc | `bg-field` | alternating section band, footer |
-| rule | #e2e8f0 | `border-rule`, `divide-rule` | hairlines |
-| rule-strong | #cbd5e1 | `border-rule-strong` | secondary button border, table header rule |
-| action | #115e59 | `bg-action`, `text-action` | primary button, links, focus |
-| action-hover | #0f766e | `hover:bg-action-hover` | hover |
-| action-tint | #f0fdfa | `bg-action-tint` | DecisionCard surface only |
-| verdict | #b45309 | `text-verdict` | score and best-for text |
-| verdict-tint | #fffbeb | `bg-verdict-tint` | VerdictBox surface only |
-| verdict-rule | #fde68a | `border-verdict-rule` | VerdictBox border only |
+| paper | #FBFAF6 | `bg-paper` | page background, warm white |
+| sheet | #FFFFFF | `bg-sheet`, `text-sheet` | documents, inputs, the invoice itself, button text |
+| ink | #15142B | `text-ink` | headings, primary text, totals |
+| ink-soft | #3E3D52 | `text-ink-soft` | body and list text |
+| muted | #6E6C80 | `text-muted` | captions, labels, meta, source notes |
+| field | #F4F3EE | `bg-field` | alternating section band, app background |
+| rule | #E6E3DA | `border-rule`, `divide-rule` | hairlines |
+| rule-strong | #C8C4B6 | `border-rule-strong` | table heads, totals rule, secondary button border |
+| rule-print | #DDD9CF | PDF only | ledger and invoice lines on paper |
+| carbon | #3F3BA6 | `bg-carbon`, `text-carbon` | the one accent: primary button, links, the mark, copy labels |
+| carbon-deep | #2C2986 | `hover:bg-carbon-deep` | hover and pressed |
+| carbon-tint | #ECEBF8 | `bg-carbon-tint` | selected states, the offset sheet behind a record |
+| cleared | #1E7A4D | `text-cleared` | paid, settled, received, verified |
+| cleared-tint | #E4F3EA | `bg-cleared-tint` | paid badge ground, the recommended rail row |
+| due | #B4451D | `text-due` | overdue, errors, void |
+| due-tint | #FBEBE4 | `bg-due-tint` | overdue badge ground |
+
+The old names `action`, `verdict`, and their tints map onto `carbon` and `due`; the migration ticket renames them and keeps aliases for one release so posts do not break.
 
 Type
 
+One family, three roles: IBM Plex.
+
 | Utility | Face | Size / line | Use |
 | --- | --- | --- | --- |
-| `text-display-xl` | Source Serif 4, 600 | 3rem / 1.1 | page h1 (falls to lg on mobile) |
-| `text-display-lg` | Source Serif 4, 600 | 2.25rem / 1.15 | section h2 |
-| `text-display-md` | Source Serif 4, 600 | 1.75rem / 1.2 | rate figures, prose h2 |
-| `text-display-sm` | Source Serif 4, 600 | 1.375rem / 1.3 | h3, card titles |
-| `text-body` | Source Sans 3 | 1.0625rem / 1.6 | default |
-| `text-small` | Source Sans 3 | 0.9375rem / 1.5 | secondary text, buttons, rows |
-| `text-caption` | Source Sans 3 | 0.8125rem / 1.5 | meta, source notes, disclosure |
+| `text-display-xl` | Plex Sans 600, tracking -0.025em | 3.5rem / 1.05 | page h1 (falls to lg on mobile) |
+| `text-display-lg` | Plex Sans 600, tracking -0.02em | 2.25rem / 1.15 | section h2 |
+| `text-display-md` | Plex Sans 600, tracking -0.02em | 1.75rem / 1.2 | prose h2, card titles |
+| `text-display-sm` | Plex Sans 600, tracking -0.01em | 1.375rem / 1.3 | h3 |
+| `text-body` | Plex Sans 400 | 1.0625rem / 1.55 | default |
+| `text-small` | Plex Sans 400 | 0.9375rem / 1.5 | secondary text, buttons, rows |
+| `text-caption` | Plex Sans 400 | 0.8125rem / 1.5 | meta, source notes, disclosure |
+| `font-mono` | Plex Mono 400 or 500 | inherits | money, percentages, dates, invoice numbers, record IDs, rate formulas, API output |
 
-Use `font-display` for anything in the serif. Figures are tabular by default on `body`.
+`font-display` is Plex Sans semibold; there is no serif. Plex Mono is for values from the record, not for labels, names, or status words. Figures are tabular by default on `body`.
+
+The mark is the stacked record: three sheets offset by 3 px, the front sheet white with a carbon rule at its head, the two behind in carbon tint; wordmark in Plex Sans semibold, one weight. The registration mark (thin circle with a cross) marks the proof seal and nothing else, at most one per view. See `docs/brand/proofs/Specimen.dc.html`.
 
 Width: `max-w-page` (72rem) for grids, `max-w-article` (44rem) for long-form pages, `max-w-prose-guide` (68ch) for running text. Use the `Container` component rather than the utilities directly.
 
-Shape and depth: buttons radius 0.5rem; DecisionCard and VerdictBox radius 1rem; nothing else is rounded or boxed. No drop shadows. No gradients. No decorative background shapes.
+Shape and depth: buttons radius 6px; documents and sheets radius 4px; badges radius 3px. No drop shadows; the only depth is the offset sheet behind a record. No gradients. No paper texture, perforations, or stamps: the carbon copy is a metaphor, not a look.
 
-Spacing: `Section` gives `py-14 sm:py-20`. Inside a section, stack with `mt-2`, `mt-4`, `mt-6`, `mt-8`, `mt-10`. Grids use `gap-6` or `gap-8`.
+Spacing: `Section` gives `py-14 sm:py-20`. Inside a section, stack with `mt-2`, `mt-4`, `mt-6`, `mt-8`, `mt-10`. Grids use `gap-6` or `gap-8`. Numbers right-aligned in columns, always.
 
 Motion: color changes on hover only. No entrance animations, no parallax.
 
@@ -144,6 +154,8 @@ Placement
 `position` values: `hero`, `after_pricing`, `inline`, `verdict`, `end`, `footer`, `nav`, `card`. They flow into the `affiliate_cta_click` event.
 
 ## 5. Voice
+
+Four rules from the brand brief come first: state the number; state its source; admit uncertainty; never imply savings you cannot calculate. Never claim a competitor hides what it publishes.
 
 - Second person, active verbs, sentence case. "You pay interchange at cost" not "Merchants are charged interchange".
 - Short sentences. One idea each. No exclamation marks. No rhetorical questions as headings.

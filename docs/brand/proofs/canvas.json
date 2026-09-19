@@ -1,0 +1,95 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "HomePhone.dc.html": {
+      "h": 1420,
+      "title": "Homepage, phone 390",
+      "w": 390,
+      "x": 1360,
+      "y": 0
+    },
+    "Invoice.dc.html": {
+      "h": 1056,
+      "paper": "letter",
+      "title": "Invoice 1042, client copy",
+      "w": 816,
+      "x": 0,
+      "y": 2880
+    },
+    "InvoiceFileCopy.dc.html": {
+      "h": 1056,
+      "paper": "letter",
+      "title": "Invoice 1042, file copy with economics",
+      "w": 816,
+      "x": 896,
+      "y": 2880
+    },
+    "Main.dc.html": {
+      "guides": [
+        {
+          "count": 12,
+          "gutter": 24,
+          "hidden": true,
+          "kind": "columns",
+          "margin": 80
+        }
+      ],
+      "h": 2640,
+      "title": "Homepage, desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Specimen.dc.html": {
+      "h": 1560,
+      "title": "Component specimen",
+      "w": 1280,
+      "x": 0,
+      "y": 4176
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-18T22:40:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "row1": {
+      "kind": "title1",
+      "maxW": 1750,
+      "text": "1. Homepage: free invoicing obvious, the cost table recalculates from the Tweaks amount, one record three views one proof",
+      "w": 240,
+      "x": 0,
+      "y": -280
+    },
+    "row2": {
+      "kind": "title1",
+      "maxW": 1712,
+      "text": "2. One record, two views on paper: the client copy and the file copy with the economics block and event record",
+      "w": 240,
+      "x": 0,
+      "y": 2600
+    },
+    "row3": {
+      "kind": "title1",
+      "maxW": 1280,
+      "text": "3. Component specimen: can the identity become a product system",
+      "w": 240,
+      "x": 0,
+      "y": 3896
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "HomePhone.dc.html",
+    "Invoice.dc.html",
+    "InvoiceFileCopy.dc.html",
+    "Specimen.dc.html"
+  ],
+  "pages": [],
+  "title": "ClientBilling Carbon Copy"
+}
