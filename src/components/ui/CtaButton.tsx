@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { EventLink } from "@/components/EventLink";
 import { TrackedAffiliateLink } from "@/components/TrackedAffiliateLink";
+import type { BrowserEventName } from "@/lib/browser-events";
 import { cta, type CtaKey, type CtaPosition } from "@/lib/cta";
 import { buttonClass, type ButtonSize, type ButtonVariant } from "./Button";
 
@@ -9,6 +11,8 @@ type CtaButtonProps = {
   variant?: ButtonVariant;
   size?: ButtonSize;
   articleSlug?: string;
+  /** For internal rungs: a browser event to record on click. Affiliate rungs record their own. */
+  event?: BrowserEventName;
   className?: string;
 };
 
@@ -22,10 +26,19 @@ export function CtaButton({
   variant = "primary",
   size = "md",
   articleSlug,
+  event,
   className = "",
 }: CtaButtonProps) {
   const item = cta(key);
   const cls = buttonClass(variant, size, className);
+
+  if (!item.external && event) {
+    return (
+      <EventLink href={item.href} event={event} className={cls} data-cta-position={position}>
+        {item.label}
+      </EventLink>
+    );
+  }
 
   if (item.external) {
     return (

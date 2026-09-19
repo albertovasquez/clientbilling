@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { browserEventNames } from "@/lib/browser-events";
 import { recordEvent } from "@/lib/events";
 import { allow, ipFromHeaders } from "@/lib/rate-limit";
 
-const allowedNames = new Set(["affiliate_cta_click", "calculator_complete", "payer_pay_link_click"]);
+const allowedNames = new Set<string>(browserEventNames);
 
 /** Browser event sink (decision 0007). Accepts a small allowlist of event names. */
 export async function POST(req: Request) {

@@ -88,6 +88,10 @@ All in `src/components/ui`, imported from `@/components/ui`.
 | `Button` | internal navigation styled as a button | outbound affiliate links |
 | `Breadcrumb` | posts and channel pages | the homepage |
 | `AuthorCard` | end of every post | the hub or homepage |
+| `RecordMark` | the stacked-record mark as the logo (header, favicon, PDF corner); `variant="registration"` as the corner mark of a document or section rule, at most one per view | decoration, bullets |
+| `CopyLabel` | top right of a document view: `client`, `file`, or `agent` | badges, status words, tags |
+
+The homepage hero's example invoice (`HeroInvoice`) is the file copy: `CopyLabel kind="file"`, a real table with column headers, and a source line naming CDG and the checked date. Its figures come from `src/lib/payment-costs.ts` through `src/lib/example-invoice.ts`; do not type numbers into it.
 
 Example of a money section:
 
@@ -140,10 +144,13 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 | apply | Start a CDG application | CDG secure application, agent 470 | apply |
 | exploreOnline, exploreRetail, exploreMobile | Explore CDG online / in-person / mobile payments | CDG solution pages, agent 470 | explore |
 | exploreRecurring, exploreB2b | Read the recurring billing / B2B payments guide | internal | explore |
+| signUp | Create an invoice, free | /app/sign-up | product |
+| api | See the API | /docs/api | product |
 
 Placement
 
-- Hero of any page: `compare` primary and `quote` secondary. Never `apply` in a hero.
+- Homepage hero: `signUp` primary with `event="hero_signup_click"` and `api` secondary (decision 0021). No CDG rung in the homepage hero.
+- Hero of a CDG page: `compare` primary and `quote` secondary. Never `apply` in a hero.
 - After the first pricing content (RateLockup group or CompareTable): `quote` primary, `fit` or `compare` secondary, inside a DecisionCard.
 - End of review, hub, and comparison pages: VerdictBox with `quote` primary and `apply` secondary.
 - End of other pages: DecisionCard with `quote` primary and `apply` as a quiet link.
@@ -151,7 +158,7 @@ Placement
 - Articles: nothing clickable before the first pricing content except the disclosure link.
 - One primary per section. Two buttons per group. Third action is `variant="quiet"`.
 
-`position` values: `hero`, `after_pricing`, `inline`, `verdict`, `end`, `footer`, `nav`, `card`. They flow into the `affiliate_cta_click` event.
+`position` values: `hero`, `after_pricing`, `inline`, `verdict`, `end`, `footer`, `nav`, `card`. They flow into the `affiliate_cta_click` event. Product rungs record the browser event named in `event`, from the allowlist in `src/lib/browser-events.ts`.
 
 ## 5. Voice
 
