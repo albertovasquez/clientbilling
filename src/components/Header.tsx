@@ -3,7 +3,7 @@ import { CtaButton, RecordMark } from "@/components/ui";
 import { siteConfig } from "@/lib/site";
 
 const linkClass =
-  "block whitespace-nowrap rounded-md px-3 py-2 text-small font-medium text-ink-soft transition-colors hover:bg-field hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+  "block whitespace-nowrap rounded-md px-3 py-2 text-small font-medium text-ink-soft transition-colors hover:bg-field hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon";
 
 /** The six items, rendered the same way in the desktop bar and the phone menu. */
 function NavLinks({ keyPrefix }: { keyPrefix: string }) {
@@ -27,7 +27,7 @@ export function Header() {
       <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action sm:gap-2.5"
+          className="group flex shrink-0 items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon sm:gap-2.5"
           aria-label={siteConfig.name}
         >
           <RecordMark />
@@ -39,7 +39,7 @@ export function Header() {
             wordmark's own size below 360px. The button keeps text-small,
             which is the size the type scale gives buttons.
           */}
-          <span className="whitespace-nowrap font-display text-body font-semibold text-ink group-hover:text-action max-[360px]:text-small sm:text-display-sm">
+          <span className="whitespace-nowrap font-display text-body font-semibold text-ink group-hover:text-carbon max-[360px]:text-small sm:text-display-sm">
             {siteConfig.name}
           </span>
         </Link>
@@ -56,7 +56,7 @@ export function Header() {
           />
           <details className="group relative lg:hidden">
             <summary
-              className="flex cursor-pointer list-none items-center rounded-md p-2 text-ink-soft hover:bg-field hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+              className="flex cursor-pointer list-none items-center rounded-md p-2 text-ink-soft hover:bg-field hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon"
               aria-label="Menu"
             >
               <svg

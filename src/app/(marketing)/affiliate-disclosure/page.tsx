@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/affiliate-disclosure" },
 };
 
-const link = "text-action underline-offset-4 hover:underline";
+const link = "text-carbon underline-offset-4 hover:underline";
 
 export default function AffiliateDisclosurePage() {
   return (

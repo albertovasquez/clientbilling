@@ -40,11 +40,11 @@ export default function AuthorPage() {
           <Disclosure compact className="mt-4" />
           <p className="mt-4 text-small text-muted">
             Read{" "}
-            <Link href="/methodology" className="text-action underline-offset-4 hover:underline">
+            <Link href="/methodology" className="text-carbon underline-offset-4 hover:underline">
               how scores are set
             </Link>{" "}
             and the{" "}
-            <Link href="/affiliate-disclosure" className="text-action underline-offset-4 hover:underline">
+            <Link href="/affiliate-disclosure" className="text-carbon underline-offset-4 hover:underline">
               affiliate disclosure
             </Link>
             .
@@ -60,7 +60,7 @@ export default function AuthorPage() {
               <li key={post.slug} className="py-4">
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="font-display text-display-sm font-semibold text-ink hover:text-action"
+                  className="font-display text-display-sm font-semibold text-ink hover:text-carbon"
                 >
                   {post.title}
                 </Link>

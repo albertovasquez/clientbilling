@@ -100,7 +100,7 @@ export default function InvoicesPage() {
           </ul>
           <p className="mt-4 text-small text-ink-soft">
             Vertical guides:{" "}
-            <Link href="/for" className="font-semibold text-action underline-offset-4 hover:underline">
+            <Link href="/for" className="font-semibold text-carbon underline-offset-4 hover:underline">
               contractors, agencies, consultants, and wholesale
             </Link>
             .

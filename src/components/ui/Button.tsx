@@ -5,13 +5,13 @@ export type ButtonVariant = "primary" | "secondary" | "quiet";
 export type ButtonSize = "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+  "inline-flex items-center justify-center font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carbon";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "rounded-lg bg-action text-paper hover:bg-action-hover",
+  primary: "rounded-lg bg-carbon text-paper hover:bg-carbon-deep",
   secondary:
     "rounded-lg border border-rule-strong bg-paper text-ink hover:border-muted hover:bg-field",
-  quiet: "text-action underline-offset-4 hover:underline",
+  quiet: "text-carbon underline-offset-4 hover:underline",
 };
 
 const sizes: Record<ButtonSize, string> = {

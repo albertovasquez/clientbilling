@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-const link = "text-action underline-offset-4 hover:underline";
+const link = "text-carbon underline-offset-4 hover:underline";
 
 export default function TermsPage() {
   return (
