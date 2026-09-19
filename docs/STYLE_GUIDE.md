@@ -125,10 +125,10 @@ Example of a money section:
 
 The header and footer read their items from `src/lib/site.ts`. A page never writes a nav item, and the header button is a CTA rung (`siteConfig.headerCta`), never a label typed into the header.
 
-- The header is Invoices, Payments, For agents, Developers, Guides, Sign in, in that order, with the `createInvoice` button (decision 0021). CDG is not a brand in the header; its pages live in the footer and in the guides, keeping their URLs.
+- The header is Invoices, Payments, For agents, Developers, Guides, Sign in, in that order, with the `createInvoice` button (decision 0021). The button goes to sign-up and the Invoices item to the product page, so the two never share a destination. CDG is not a brand in the header; its pages live in the footer and in the guides, keeping their URLs.
 - For agents and Developers both point at `/docs/api` until the agent landing page exists (week 5). They stay separate items because they are separate audiences.
 - Six items plus a button do not fit a 390 px phone, so below `lg` they collapse into a native `details` disclosure. The mark, the site name, and the button stay visible at every width. No JavaScript: the menu must open and take keyboard focus without it.
-- `scripts/test-navigation.ts` holds the contract and runs inside `npm run check`: the six labels in order, their destinations, no CDG page in the header, the button landing on product context rather than a bare form (decision 0001), and the CDG URL inventory still linked. The footer spreads the same CDG list the inventory is built from, so the two cannot drift.
+- `scripts/test-navigation.ts` holds the contract and runs inside `npm run check`: the six labels in order, their destinations, no CDG page in the header, the button going to sign-up without repeating a nav destination, and the CDG URL inventory still linked. The footer spreads the same CDG list the inventory is built from, so the two cannot drift.
 
 ### App screens: shadcn/ui
 
@@ -154,7 +154,7 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 | exploreOnline, exploreRetail, exploreMobile | Explore CDG online / in-person / mobile payments | CDG solution pages, agent 470 | explore |
 | exploreRecurring, exploreB2b | Read the recurring billing / B2B payments guide | internal | explore |
 | signUp | Create an invoice, free | /app/sign-up | product |
-| createInvoice | Create an invoice | /invoices | product |
+| createInvoice | Create an invoice | /app/sign-up | product |
 | api | See the API | /docs/api | product |
 
 Placement
@@ -164,7 +164,7 @@ Placement
 - After the first pricing content (RateLockup group or CompareTable): `quote` primary, `fit` or `compare` secondary, inside a DecisionCard.
 - End of review, hub, and comparison pages: VerdictBox with `quote` primary and `apply` secondary.
 - End of other pages: DecisionCard with `quote` primary and `apply` as a quiet link.
-- Header: `createInvoice` (decision 0021). It goes to `/invoices`, never to `/app/sign-up`, because navigation never lands on a bare form (decision 0001). Footer: `quote` secondary and `apply` quiet.
+- Header: `createInvoice` (decision 0021). It goes to `/app/sign-up`, whose heading and product paragraph sit above the form (#46); 0021 superseded 0001's navigation clause. The Invoices item carries the product page, so the button never repeats it. Footer: `quote` secondary and `apply` quiet.
 - Articles: nothing clickable before the first pricing content except the disclosure link.
 - One primary per section. Two buttons per group. Third action is `variant="quiet"`.
 

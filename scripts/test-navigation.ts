@@ -40,11 +40,17 @@ assert(
   "no header item names CDG or points at a CDG page",
 );
 
-// Decision 0001: navigation never lands on a bare form.
+// Decision 0021 and ticket #46: the button goes to sign-up, which carries a
+// heading and a product paragraph above the form, and it does not repeat a
+// destination the nav already has.
 const headerCta = cta(siteConfig.headerCta);
 assert(headerCta.label === "Create an invoice", `header button reads "Create an invoice" (got "${headerCta.label}")`);
-assert(headerCta.href === "/invoices", "header button lands on the product page, not /app/sign-up");
+assert(headerCta.href === "/app/sign-up", "header button goes to sign-up");
 assert(!headerCta.external, "header button is internal navigation");
+assert(
+  !siteConfig.nav.some((item) => item.href === headerCta.href),
+  "header button does not duplicate a nav item's destination",
+);
 
 // The CDG pages keep their URLs and stay linked from the footer or the hub.
 const footerHrefs = new Set<string>(siteConfig.footerNav.map((item) => item.href));

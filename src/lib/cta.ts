@@ -110,14 +110,15 @@ export const ctas: Record<CtaKey, Cta> = {
     external: false,
   },
   /**
-   * The header button (decision 0001: navigation never lands on a bare form).
-   * It goes to the product page, which carries the context and its own sign-up
-   * action, not to /app/sign-up.
+   * The header button (decision 0021, ticket #46). It goes to sign-up, whose
+   * heading and product paragraph sit above the form, so the click still lands
+   * on context. 0021 superseded 0001's navigation clause; the Invoices nav item
+   * is what carries the product page.
    */
   createInvoice: {
     key: "createInvoice",
     label: "Create an invoice",
-    href: "/invoices",
+    href: "/app/sign-up",
     type: "product",
     external: false,
   },
