@@ -31,10 +31,10 @@ export default async function Image({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#ffffff",
+          backgroundColor: "#FBFAF6",
           padding: "64px",
           fontFamily: "Georgia, serif",
-          borderTop: "16px solid #115e59",
+          borderTop: "16px solid #3F3BA6",
         }}
       >
         <div
@@ -42,7 +42,7 @@ export default async function Image({
             display: "flex",
             alignItems: "center",
             gap: "16px",
-            color: "#0f172a",
+            color: "#15142B",
             fontSize: 30,
             fontWeight: 600,
           }}
@@ -52,8 +52,8 @@ export default async function Image({
               width: 48,
               height: 48,
               borderRadius: 12,
-              backgroundColor: "#115e59",
-              color: "#ffffff",
+              backgroundColor: "#3F3BA6",
+              color: "#FBFAF6",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -69,7 +69,7 @@ export default async function Image({
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div
             style={{
-              color: "#0f172a",
+              color: "#15142B",
               fontSize: titleSize,
               lineHeight: 1.1,
               fontWeight: 600,
@@ -80,12 +80,12 @@ export default async function Image({
           </div>
           {post.rating ? (
             <div style={{ display: "flex", alignItems: "flex-end", gap: 12 }}>
-              <div style={{ color: "#b45309", fontSize: 56, fontWeight: 600, lineHeight: 1 }}>
+              <div style={{ color: "#B4451D", fontSize: 56, fontWeight: 600, lineHeight: 1 }}>
                 {post.rating.overall.toFixed(1)}
               </div>
               <div
                 style={{
-                  color: "#64748b",
+                  color: "#6E6C80",
                   fontSize: 24,
                   fontFamily: "system-ui, sans-serif",
                   paddingBottom: 6,
@@ -101,7 +101,7 @@ export default async function Image({
           style={{
             display: "flex",
             justifyContent: "space-between",
-            color: "#64748b",
+            color: "#6E6C80",
             fontSize: 24,
             fontFamily: "system-ui, sans-serif",
           }}

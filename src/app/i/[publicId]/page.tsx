@@ -219,7 +219,7 @@ export default async function PublicInvoicePage({ params }: Props) {
       ) : null}
 
       {!paid ? (
-        <section className="mt-10 rounded-2xl border border-rule bg-field p-6 print:border-0 print:bg-paper print:p-0">
+        <section className="mt-10 rounded-2xl border border-rule bg-field p-6 print:border-0 print:bg-sheet print:p-0">
           <h2 className="font-display text-display-sm font-semibold text-ink">How to pay</h2>
           {payLink ? <PayLinkButton href={payLink} merchantName={merchantName} /> : null}
           {instructions ? (

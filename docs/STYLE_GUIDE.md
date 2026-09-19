@@ -14,7 +14,7 @@ Why it exists: the site's job is to earn a reader's trust on a money decision an
 
 ## 2. Tokens
 
-The identity is Carbon Copy (`docs/brand/brief.md`, decision 0021). Tokens are defined in `src/app/globals.css` under `@theme`; pages use only the semantic utilities. Raw palette classes are allowed only in `src/components/ui/`. The values below are the target system; the code migrates to them in the first ticket of the Carbon Copy milestone, and until it lands the old teal values are what `globals.css` holds.
+The identity is Carbon Copy (`docs/brand/brief.md`, decision 0021). Tokens are defined in `src/app/globals.css` under `@theme`; pages use only the semantic utilities. Raw palette classes are allowed only in `src/components/ui/`. The code holds these values since ticket #42; the retired names `action`, `action-hover`, `action-tint`, `verdict`, `verdict-tint`, and `verdict-rule` are aliases of `carbon`, `carbon-deep`, `carbon-tint`, `due`, `due-tint`, and a due-toned rule for one release (removal is issue #49).
 
 | Token | Value | Utilities | Use |
 | --- | --- | --- | --- |
@@ -35,7 +35,7 @@ The identity is Carbon Copy (`docs/brand/brief.md`, decision 0021). Tokens are d
 | due | #B4451D | `text-due` | overdue, errors, void |
 | due-tint | #FBEBE4 | `bg-due-tint` | overdue badge ground |
 
-The old names `action`, `verdict`, and their tints map onto `carbon` and `due`; the migration ticket renames them and keeps aliases for one release so posts do not break.
+New code uses the new names. Existing pages and posts keep working through the aliases until #49 removes them.
 
 Type
 
