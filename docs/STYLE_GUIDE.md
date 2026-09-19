@@ -159,6 +159,7 @@ Labels and destinations live in `src/lib/cta.ts`. Pages pick a rung and a positi
 | createInvoice | Create an invoice | /app/sign-up | product |
 | api | See the API | /docs/api | product |
 | apiReference | Read the API reference | /docs/api | product |
+| apiKey | Create an API key | /app/settings/api | product |
 
 Placement
 
@@ -198,7 +199,7 @@ Banned in visitor-facing copy (the check script fails on these): "as CDG states"
 - When CDG's own pages disagree, cite the more specific page and say there is a conflict.
 - Never aggregate other sites' ratings into ours. Our score is ours; see `/methodology`.
 
-Disclosure: the `Disclosure` component, directly under every h1. Outbound affiliate anchors carry `rel="noopener noreferrer sponsored"` (handled by `TrackedAffiliateLink`).
+Disclosure: the `Disclosure` component, directly under the h1 of every page covered by this section, which is every page that shows a CDG number or a CDG CTA (the scope in section 3's table). A page with neither, such as the agents landing, has nothing to disclose and carries no `Disclosure`; adding one there would claim a commercial relationship the page does not have. Outbound affiliate anchors carry `rel="noopener noreferrer sponsored"` (handled by `TrackedAffiliateLink`).
 
 ## 7. Posts
 

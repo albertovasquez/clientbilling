@@ -6,7 +6,8 @@
  * CDG URL that the site linked before is still reachable.
  * Run: npx tsx scripts/test-navigation.ts   (no database needed)
  */
-import { cta } from "../src/lib/cta";
+import { readFileSync } from "node:fs";
+import { cta, ctas } from "../src/lib/cta";
 import { cdgPageUrls, siteConfig } from "../src/lib/site";
 
 let failed = 0;
@@ -67,6 +68,16 @@ for (const url of cdgPageUrls) {
 }
 assert(footerHrefs.has("/tools/fee-calculator"), "the calculator is still linked from the footer");
 assert(footerHrefs.has("/payments"), "the payments hub is linked from the footer");
+
+// The style guide's CTA table is the ladder a reader is told to pick from, so
+// a rung that exists only in code is a rung nobody knows to use. Adding one
+// without its row is easy to miss, and nothing caught it before this check.
+const styleGuide = readFileSync(new URL("../docs/STYLE_GUIDE.md", import.meta.url), "utf8");
+for (const key of Object.keys(ctas)) {
+  // Rungs sharing a row are listed comma-separated, so match the key itself.
+  const listed = new RegExp(`^\\|[^|]*\\b${key}\\b`, "m").test(styleGuide);
+  assert(listed, `the CTA ladder table lists the ${key} rung`);
+}
 
 if (failed) {
   console.error(`\n${failed} check(s) failed`);
