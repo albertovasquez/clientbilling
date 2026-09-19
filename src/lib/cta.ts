@@ -15,6 +15,7 @@ export type CtaKey =
   | "exploreRecurring"
   | "exploreB2b"
   | "signUp"
+  | "createInvoice"
   | "api";
 
 export type CtaType = "compare" | "fit" | "quote" | "apply" | "explore" | "product";
@@ -105,6 +106,18 @@ export const ctas: Record<CtaKey, Cta> = {
     key: "signUp",
     label: "Create an invoice, free",
     href: "/app/sign-up",
+    type: "product",
+    external: false,
+  },
+  /**
+   * The header button (decision 0001: navigation never lands on a bare form).
+   * It goes to the product page, which carries the context and its own sign-up
+   * action, not to /app/sign-up.
+   */
+  createInvoice: {
+    key: "createInvoice",
+    label: "Create an invoice",
+    href: "/invoices",
     type: "product",
     external: false,
   },

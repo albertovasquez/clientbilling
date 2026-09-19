@@ -28,14 +28,28 @@ export const siteConfig = {
     retail: landingUrl("retail", "explore-retail"),
     wireless: landingUrl("wireless", "explore-mobile"),
   } as const satisfies Record<PartnerChannel, string>,
+  /**
+   * The header (decision 0021): the product's parts are the site's parts. For
+   * agents and Developers both land on the API reference until the agent page
+   * of week 5 exists; they are separate items because they are separate
+   * audiences and the agent page is what one of them becomes.
+   */
   nav: [
     { href: "/invoices", label: "Invoices" },
-    { href: "/cdgcommerce", label: "CDG Commerce" },
-    { href: "/tools/fee-calculator", label: "Fee calculator" },
+    { href: "/payments", label: "Payments" },
+    { href: "/docs/api", label: "For agents" },
+    { href: "/docs/api", label: "Developers" },
     { href: "/blog", label: "Guides" },
-    { href: "/about", label: "About" },
+    { href: "/app/sign-in", label: "Sign in" },
   ],
+  /** The header button. A CTA rung, never a label written in the header. */
+  headerCta: "createInvoice",
   footerNav: [
+    { href: "/invoices", label: "Invoice tool" },
+    { href: "/payments", label: "What getting paid costs" },
+    { href: "/docs/api", label: "API reference" },
+    { href: "/tools/fee-calculator", label: "Fee calculator" },
+    { href: "/blog", label: "All guides" },
     { href: "/cdgcommerce", label: "CDG Commerce review" },
     { href: "/cdgcommerce/online-payments", label: "Online payments" },
     { href: "/cdgcommerce/retail", label: "In-person and POS" },
@@ -43,11 +57,21 @@ export const siteConfig = {
     { href: "/cdgcommerce/recurring-billing", label: "Recurring billing" },
     { href: "/cdgcommerce/b2b", label: "B2B payments" },
     { href: "/get-started", label: "Get started" },
-    { href: "/invoices", label: "Invoice tool" },
-    { href: "/tools/fee-calculator", label: "Fee calculator" },
-    { href: "/blog", label: "All guides" },
     { href: "/about", label: "About" },
   ],
 } as const;
+
+/**
+ * The CDG guide pages. Decision 0021 keeps their URLs and their links when CDG
+ * leaves the header, so the inventory is checked rather than remembered.
+ */
+export const cdgPageUrls = [
+  "/cdgcommerce",
+  "/cdgcommerce/online-payments",
+  "/cdgcommerce/retail",
+  "/cdgcommerce/wireless",
+  "/cdgcommerce/recurring-billing",
+  "/cdgcommerce/b2b",
+] as const satisfies readonly string[];
 
 export type SiteConfig = typeof siteConfig;

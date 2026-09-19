@@ -21,6 +21,7 @@ const STATIC: {
   { path: "/blog", updated: "2026-09-17", priority: 0.9, changeFrequency: "weekly" },
   { path: "/tools/fee-calculator", updated: "2026-09-18", priority: 0.9, changeFrequency: "weekly" },
   { path: "/invoices", updated: "2026-09-18", priority: 0.85, changeFrequency: "weekly" },
+  { path: "/payments", updated: "2026-09-18", priority: 0.85, changeFrequency: "weekly" },
   { path: "/for", updated: "2026-09-18", priority: 0.8, changeFrequency: "weekly" },
   { path: "/for/contractors", updated: "2026-09-18", priority: 0.8, changeFrequency: "monthly" },
   { path: "/for/agencies", updated: "2026-09-18", priority: 0.8, changeFrequency: "monthly" },
