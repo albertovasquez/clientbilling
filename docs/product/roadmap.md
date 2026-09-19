@@ -13,6 +13,23 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | Concierge Collect (shipped 2026-09-18) | "Enable card payments" in the app captures business type and monthly volume (CDG's own labels), records the request, emails the founder, and shows the merchant the CDG quote link. The founder walks the merchant through CDG by hand. | Partly: capture is automated, the walk is human. | Uses existing R=470 links only. |
 | Agent surface v1 (shipped 2026-09-18; no webhooks or updates yet) | Personal API keys; REST endpoints for clients, invoices, send, status; a runbook in `docs/agents/runbooks/` for "create and send", "chase unpaid", "open collect". | This is the item that makes everything else agent-operable. | None. |
 
+## The next eight weeks (decisions 0021 and 0022, from the 2026-09-18 report)
+
+Merchant-processing integration and x402 stay out of the critical path. The goal is a defensible identity, a credible automation layer, a working proof primitive, and instrumentation that says which of the three pulls users.
+
+| Week | Milestone | Exit criterion | Already in place |
+| --- | --- | --- | --- |
+| 1 | Positioning: Carbon Copy homepage, instrumentation, corrected competitor language; CDG email is the founder's call | Invoicing is unmistakably the product; analytics live | Events table and funnel page |
+| 2 | Payment-aware invoice: rate-source registry with checked dates, known versus variable fee model, fee and net panel, rate snapshots | The $2,500 example and any merchant-entered rate calculate without inventing interchange | `src/lib/cdg.ts`, payment records with method |
+| 3 | Billing record: append-only events with actor and authorization, invoice versions, idempotency keys | Duplicate requests cannot duplicate financial actions; every mutation has an actor | `InvoiceEvent` (no actor yet), transactions in services |
+| 4 | Machine API: scoped keys, OpenAPI, signed webhooks with retry log | An external script creates, sends, and observes an invoice end to end | API keys, v1 REST for clients, invoices, status, send, remind, payments |
+| 5 | Agent surface: MCP over the services, developer landing, sandbox | An MCP client creates an invoice under a service-account identity | Shared services in `src/lib/invoices/` |
+| 6 | Proof engine: canonicalization, nonces, event hashes, Merkle batching, Fuji anchoring, behind a flag | A test invoice version verifies against an anchored root | Nothing |
+| 7 | Productized verification: public verify page, PDF seal, file-copy detail, mainnet flag, KMS and security tests | A PDF record ID yields a plain-English verified or mismatch result | PDF renderer |
+| 8 | Launch and measure: homepage release, developer and SEO pages, guide redirects, referral instrumentation | Usage shows which of economics, API, and proof pulls users | Style check, deploy pipeline |
+
+Gates: CDG revenue is forecast at zero until written terms exist; the agent surface ships primitives, not a platform; the proof layer anchors hashes, never data, and the app works without the chain; x402 waits for demand (0021).
+
 ## P1: after CDG answers, or in parallel where independent
 
 | Item | Why | Agent-operable | CDG dependency |

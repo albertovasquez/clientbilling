@@ -4,9 +4,9 @@ Status: Draft for the founder's judgment, 2026-09-18. Governs the homepage conce
 
 ## What the brand is for
 
-ClientBilling is the system of record for what a client owes. The invoice is the human-readable copy of that record. The API is the machine-readable copy. The cryptographic record, fingerprinted and independently timestamped, is the copy that survives on its own (decision 0021, next phase). One record, three copies, every one of them honest about what getting paid costs.
+ClientBilling is the system of record for what a client owes. The invoice is the human-readable copy of that record. The API is the machine-readable copy. The bookkeeper's file copy is the third view. One record, three views, every one of them honest about what getting paid costs. The proof seal, a fingerprint independently timestamped (decision 0021, next phase), runs through all three; it is the registration mark, not a fourth copy.
 
-The carbon copy was always a record that outlived the original. That is the brand's claim: a billing record you can prove.
+One record. Three views. One proof. The carbon copy was always a record that outlived the original. That is the brand's claim: a billing record you can prove.
 
 The line: **Bill clients. Know what getting paid costs.**
 
@@ -42,6 +42,7 @@ We do not take: paper texture, typewriter faces, perforations, torn edges, rubbe
 | cleared-tint | #E4F3EA | paid badge ground |
 | due | #B4451D | overdue, errors, void |
 | due-tint | #FBEBE4 | overdue badge ground |
+| rule-print | #DDD9CF | ledger and invoice lines on the PDF, where a lighter hairline vanishes on paper |
 
 One accent. Green and rust are states, never decoration. No gradients. No shadows heavier than the offset sheet.
 
@@ -50,7 +51,7 @@ One accent. Green and rust are states, never decoration. No gradients. No shadow
 One family, three roles. IBM Plex.
 
 - **Plex Sans** for headings and body. Headings semibold, tracking -0.02em at display sizes. Body 17px/1.55 on marketing, 15px/1.5 in the app.
-- **Plex Mono** for every number that is money, a count, a date, an ID, a rate, or code. Tabular by nature. This is the single most important rule in the system: a number set in Plex Mono means "this is a value from the record".
+- **Plex Mono** for money, percentages, dates, invoice numbers, record IDs, rate formulas, and API output. Tabular by nature. A value set in Plex Mono means "this is a value from the record". Not every non-prose token: labels, names, and status words stay in Sans, so the app never turns into a developer console.
 - No third face. No italic display. No all-caps labels with tracking.
 
 Scale (marketing): 56/44/32/24 display, 17 body, 15 small, 13 caption. App: 28/22/18 headings, 15 body, 13 caption.
@@ -69,9 +70,11 @@ Numbers right-aligned in columns, always. Status words as small badges with a ti
 
 ## Copy labels
 
-A document says which copy it is, top right, in caption Plex Mono: `Client copy`, `File copy`, `Agent copy`. The client copy shows how to pay. The file copy adds the economics block: what each rail costs and what the merchant nets, and the event record with its actor and anchor. The agent copy is the JSON. Every copy carries the verified-record footer: record id, version, fingerprint, timestamp, and a Verify link. The registration mark is that footer's mark. Same record, three readers, one proof.
+A document says which copy it is, top right, in caption Plex Mono: `Client copy`, `File copy`, `Agent copy`. The client copy shows how to pay. The file copy adds the economics block: what each rail costs and what the merchant nets, and the event record with its actor and anchor. The agent copy is the JSON. Every view carries the proof seal. On the client copy it is quiet: "Verified record CB-7F2A-91C8 v1. This invoice version is independently anchored. No names, amounts, email addresses, or invoice text are written to the public chain. Verify record." Fingerprints, anchors, Merkle detail, and actor history belong on the file copy and the verification page, never beside "Amount due". The registration mark is the seal's mark. Same record, three views, one proof.
 
 ## Voice
+
+Four rules. State the number: "Card fee: $87.80." State its source: "CDG Commerce published rate, checked Sep 17, 2026." Admit uncertainty: "$8.90 plus interchange. Final cost varies by card." Never imply savings you cannot calculate: "Compare card costs", not "Save hundreds". Never claim a competitor hides what it publishes.
 
 Plain, numerate, candid. Sentence case. No exclamation marks. Verbs that say what happens: "Record payment", "Send invoice", "Compare your card costs". Every number on a page has a source or is the merchant's own. Nothing is "planned" unless it has a decision. The disclosure about CDG stays explicit wherever a CDG link appears.
 

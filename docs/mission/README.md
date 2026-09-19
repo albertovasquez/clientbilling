@@ -14,7 +14,7 @@ Reading order
 8. `../decisions/`: the record of choices already made. Newer supersedes older.
 9. `../STYLE_GUIDE.md`: tokens, primitives, voice, CTA ladder.
 10. `../brand/brief.md`: the Carbon Copy identity and the three proofs it must pass (decision 0021).
-11. `../strategy/`: research and briefs. `2026-09-18-research-niche-and-monetization.md` is the current direction (product first, payment optimizer, agent API, x402). Read its editor's notes; decisions override it until they adopt it.
+11. `../strategy/`: research and briefs. Read `2026-09-18-research-profitable-differentiated-product.md` (the current plan: competitive landscape, two revenue engines, proof architecture, eight-week roadmap) and, for the longer horizon, `2026-09-18-research-niche-and-monetization.md`. Both carry editor's notes; decisions override them.
 
 Ownership
 
