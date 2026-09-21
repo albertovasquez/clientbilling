@@ -22,6 +22,16 @@ Per decision 0014 (2026-09-18), the integration questions are not being asked. T
 
 Decision 0024 (2026-09-19) reopens this narrowly: the five economics and attribution rows above are being asked, because they decide whether the U.S. monetization thesis has recurring economics. The inquiry carries no API discussion, no feature request, and no integration commitment. Until an answer arrives in writing, recurring CDG revenue is modelled at $0 (0022). The integration-permission and Quantum pay-method rows stay closed.
 
+## Inquiry status
+
+The five economics and attribution questions were sent to CDG on 2026-09-19 (issue #58). No reply as of 2026-09-21.
+
+Two days is not a non-response, and nothing should be concluded from it yet. What makes the silence worth tracking is that the questions decide whether the referral engine has recurring economics at all, and the answer cannot be inferred from anything CDG publishes.
+
+**When silence becomes an answer.** If no reply has arrived by 2026-10-17, four weeks after sending, treat the economics as unanswerable through this channel and record that in the table above as "asked 2026-09-19, no reply in four weeks". That is a finding, not a failure: a partner who will not put residual terms in writing has effectively answered question 1. Decision 0022 already models recurring CDG revenue at $0, so nothing in the plan changes when that happens.
+
+A reply that answers some questions and not others updates only the rows it answers.
+
 ## Allowed destinations
 
 All CDG URLs live in `src/lib/site.ts` and are reached through the CTA ladder in `src/lib/cta.ts`. The rungs and their audiences:
