@@ -54,6 +54,29 @@ assert(paymentCosts(Number.NaN, [flat])[0].knownFeeCents === 30, "non-numeric am
 assert(parseFigure("Cost + $0.15") !== null && parseFigure("Cost + $0.15")!.percentBps === 0, "a figure without a percent parses to fixed only");
 assert(parseFigure("None published") === null, "a figure without numbers returns null");
 
+/**
+ * Published rates go stale, and a stale number is a wrong number. CDG does not
+ * tell us when it changes its pricing, so the only guard is the date we last
+ * checked. Warn at 90 days, fail at 180: long enough not to nag, short enough
+ * that the site never publishes figures nobody has looked at in half a year.
+ * Rechecking means visiting the source URLs in src/lib/cdg.ts and updating
+ * CDG_CHECKED, whether or not the numbers moved.
+ */
+const STALE_WARN_DAYS = 90;
+const STALE_FAIL_DAYS = 180;
+const checkedAge = Math.floor((Date.now() - Date.parse(CDG_CHECKED)) / 86_400_000);
+if (Number.isNaN(checkedAge)) {
+  console.error(`CDG_CHECKED is not a readable date: ${CDG_CHECKED}`);
+  failed += 1;
+} else if (checkedAge >= STALE_FAIL_DAYS) {
+  console.error(`CDG rates were last checked ${checkedAge} days ago (${CDG_CHECKED}). Recheck the sources in src/lib/cdg.ts and update CDG_CHECKED.`);
+  failed += 1;
+} else if (checkedAge >= STALE_WARN_DAYS) {
+  console.warn(`warning: CDG rates were last checked ${checkedAge} days ago (${CDG_CHECKED}). Recheck before they reach ${STALE_FAIL_DAYS} days.`);
+} else {
+  console.log(`ok: CDG rates checked ${checkedAge} day(s) ago`);
+}
+
 if (failed) {
   console.error(`${failed} check(s) failed`);
   process.exit(1);
