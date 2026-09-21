@@ -44,3 +44,15 @@ The founder's second report (`docs/strategy/2026-09-18-research-profitable-diffe
 ## Amended 2026-09-19
 
 The shipped hero (ticket #44) carries the subhead without its last sentence, "Every important version can be verified", because the proof engine is the next phase and the homepage does not claim what it cannot yet do. The sentence returns with the verification page (week 7).
+
+## Amended 2026-09-21
+
+The four-weeks-before half of the measurement clause cannot be honoured, and this records why rather than quietly dropping it.
+
+The clause asks for CDG click-through and quote clicks for four weeks after the new homepage against the four weeks before. No such "before" period exists. The funnel events were added in the same epic as the new homepage (#31), so nothing was counting CDG clicks four weeks earlier, and the site had no visitor traffic to count. When the database moved to `us-east-1` on 2026-09-21 (decision 0005, issue #72) the old project was deleted with the founder's agreement; it held 26 events spanning two days, of which 2 were `affiliate_cta_click`, all from the founder's own testing.
+
+So the honest baseline is zero, and it is zero because there was never traffic to measure, not because data was lost. The deletion removed a trace of testing, not a measurement.
+
+The comparison is therefore restated: **the four-week window starts 2026-09-21**, when the Event table on the new database began from empty with the new homepage already live. The first four weeks are the baseline, and the test for a weaker hero moves to the four weeks after that. Until real visitors arrive, both halves are zero and the clause decides nothing.
+
+The rest of the clause stands: if referrals fall by more than a third with no rise in sign-ups, the hero gets a stronger Collect moment, not a return to the old hero.
