@@ -41,7 +41,7 @@ First-party `Event` table (decision 0007). Server events: `signup`, `invoice_cre
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `DATABASE_URL` | Yes for /app and /i | Neon pooled connection string (`-pooler` host). |
-| `DIRECT_URL` | Yes in production | Neon direct connection string, used only by migrations. Falls back to `DATABASE_URL` if unset. |
+| `DIRECT_URL` | Yes | Neon direct connection string, used only by migrations. Set in all three environments since 2026-09-21. When unset, `scripts/migrate-if-db.mjs` derives it by rewriting the `-pooler` host out of `DATABASE_URL`, because a pooled URL cannot run migrations; decision 0005 asks for it explicitly rather than relying on that. |
 | `AUTH_SECRET` | Yes | `openssl rand -base64 32`. |
 | `AUTH_URL` / `NEXTAUTH_URL` | Yes | `https://www.clientbilling.com`. |
 | `RESEND_API_KEY` | For email | Without it, the app offers copy link only. |
@@ -52,7 +52,7 @@ First-party `Event` table (decision 0007). Server events: `signup`, `invoice_cre
 
 ## Ops checklist
 
-1. Move the Neon project to `us-east-1` (decision 0005): create a new project there, restore from the São Paulo project (Neon branch restore or `pg_dump` / `pg_restore`), set `DATABASE_URL` (pooled) and `DIRECT_URL` (direct) in Vercel, redeploy, verify `/app` works, delete the old project.
+1. The database is in `us-east-1`, next to the `iad1` functions (decision 0005). Moved 2026-09-21; the São Paulo project is deleted. Round trips went from 164 ms to 87 ms and cold connections from 1673 ms to 856 ms (issue #72). Steps for a future region move are in `docs/agents/runbooks/move-database-region.md`.
 2. Migrations run at build (`scripts/migrate-if-db.mjs` before `next build`). Test a migration against a Neon branch before merging.
 3. Set `RESEND_FROM` to a verified domain sender before setting `RESEND_API_KEY` in production.
 4. Add `ADMIN_EMAILS` to see the funnel page, and `CRON_SECRET` so the daily overdue sweep runs.
