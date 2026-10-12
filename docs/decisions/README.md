@@ -26,3 +26,4 @@ Format: `NNNN-short-title.md` with sections Status, Context, Decision, Reasons, 
 | 0018 | Recurring schedules generate drafts daily; auto-send is opt-in; missed runs catch up one per day | Accepted 2026-09-18 |
 | 0019 | Payment records with partial payments; marking paid records a payment; balance due on the document | Accepted 2026-09-18 |
 | 0020 | Collections is a separate, B2B-only, first-party service; no funds, approval on every message | Accepted 2026-10-12 |
+| 0021 | Collections technology, flows as data, and the learning loop | Accepted 2026-10-12 |
