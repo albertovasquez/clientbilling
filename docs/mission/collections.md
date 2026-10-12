@@ -16,7 +16,18 @@ A considerate collections assistant for small businesses, offered separately fro
 6. **Always an AI, always a person available.** Every message says an AI assistant is writing for the user, and offers a person.
 7. **Disputes go to the user.** A disputed account is paused and the assistant does not negotiate it.
 8. **No calls, voice, or SMS.** Email and a web page only.
-9. **No contingency fee** until an attorney approves it. Flat subscription by default.
+9. **Price is never tied to the amount recovered.** No contingency, success fee, or percentage of collected funds. Flat plans by active accounts and agent emails (decision 0020).
+
+## Pricing
+
+| Plan | Price | Active accounts | Agent emails per month |
+| --- | --- | --- | --- |
+| Starter | $4.99/mo | 3 | 100 |
+| Pro | $19.99/mo | 25 | 1,000 |
+| Business | $79.99/mo | 150 | 6,000 |
+| Unlimited* | $499/mo | Fair use: 5,000 | Fair use: 100,000 |
+
+*Above fair use, custom pricing. Overage on any plan: $0.50 per additional active account per month and $0.03 per additional agent email. An account is **active** only while it is being worked. It stops counting once it is paid, settled, or paused.
 
 ## Voice
 

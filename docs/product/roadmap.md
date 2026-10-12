@@ -39,7 +39,8 @@ A separate service from free invoicing. B2B only, first-party, approval on every
 | Week 2: policy engine and drafted emails | Deterministic offer rules from the questionnaire; the agent drafts emails in the user's name that wait for approval; opt-out, send windows, frequency caps, AI disclosure. | Yes. | None. |
 | Week 3: debtor page, agreement, pay link | A page where the debtor sees the balance, chats, picks an offer inside policy, signs, and pays through the user's own link; handoff queue. | Yes. | None. |
 | Week 4: dashboards and pilot | Recovered amount by age, pipeline, audit export; pilot with three to five friendly businesses. | Yes. | None. |
-| Attorney review | Success-fee question, B2B confirmation, California SB 1286 guarantor cases. Blocks any contingency pricing. | No: founder. | None. |
+| Plans and usage metering | Starter $4.99 (3 accounts, 100 emails), Pro $19.99 (25, 1,000), Business $79.99 (150, 6,000), Unlimited* $499 (fair use 5,000, 100k). Overage $0.50 per active account per month, $0.03 per email. Count active accounts (being worked, not paid, settled, or paused) and agent emails per month; never price on recoveries. | Yes. | None. |
+| Attorney review | B2B confirmation, California SB 1286 guarantor cases, review of the flat plans. Contingency pricing is off the table (decision 0020). | No: founder. | None. |
 
 ## P2: later
 
