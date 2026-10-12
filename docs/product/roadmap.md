@@ -29,6 +29,18 @@ Updated 2026-09-18. The full reasoning is in `docs/strategy/2026-09-18-product-b
 | Vertical landing kits | Pages for contractors, agencies, consultants, wholesale, each tying the invoice tool to the CDG pricing that fits them. | Yes: content from templates. | Uses existing links. |
 | MCP server | Same operations as the REST API exposed as tools, so an agent in any client can run the runbooks. | This is the agent surface v2. | None. |
 
+## Collections service (decision 0020)
+
+A separate service from free invoicing. B2B only, first-party, approval on every message, no funds. Research: `docs/research/collections-pivot.md`.
+
+| Item | Why | Agent-operable | CDG dependency |
+| --- | --- | --- | --- |
+| Week 1: import and questionnaire (in progress, `feat/collections-week1`) | CSV import with business-debt confirmation; per-account relationship, disputes, minimum settlement, longest plan, tone, escalation. No outbound messages. | Yes: pure parsers, server actions. | None. |
+| Week 2: policy engine and drafted emails | Deterministic offer rules from the questionnaire; the agent drafts emails in the user's name that wait for approval; opt-out, send windows, frequency caps, AI disclosure. | Yes. | None. |
+| Week 3: debtor page, agreement, pay link | A page where the debtor sees the balance, chats, picks an offer inside policy, signs, and pays through the user's own link; handoff queue. | Yes. | None. |
+| Week 4: dashboards and pilot | Recovered amount by age, pipeline, audit export; pilot with three to five friendly businesses. | Yes. | None. |
+| Attorney review | Success-fee question, B2B confirmation, California SB 1286 guarantor cases. Blocks any contingency pricing. | No: founder. | None. |
+
 ## P2: later
 
 | Item | Why | Agent-operable | CDG dependency |

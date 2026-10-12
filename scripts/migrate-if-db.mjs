@@ -22,6 +22,13 @@ if (!url) {
   process.exit(0);
 }
 
+// Only production deploys migrate. Vercel preview builds of a feature branch must
+// never apply that branch's migrations to a shared or production database.
+if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
+  console.log(`[migrate] VERCEL_ENV=${process.env.VERCEL_ENV}; skipping migrations outside production.`);
+  process.exit(0);
+}
+
 const env = { ...process.env };
 if (!env.DIRECT_URL) {
   env.DIRECT_URL = url.includes("-pooler.") ? url.replace("-pooler.", ".") : url;

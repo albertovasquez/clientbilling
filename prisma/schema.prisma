@@ -35,13 +35,15 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  business BusinessProfile?
-  clients  Client[]
-  invoices Invoice[]
-  accounts Account[]
-  sessions Session[]
-  apiKeys  ApiKey[]
-  schedules RecurringSchedule[]
+  business           BusinessProfile?
+  clients            Client[]
+  invoices           Invoice[]
+  accounts           Account[]
+  sessions           Session[]
+  apiKeys            ApiKey[]
+  schedules          RecurringSchedule[]
+  collectionImports  CollectionImport[]
+  collectionAccounts CollectionAccount[]
 }
 
 model Account {
@@ -81,19 +83,19 @@ model VerificationToken {
 }
 
 model BusinessProfile {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  name      String
-  email     String
-  phone     String?
-  address1  String?
-  address2  String?
-  city      String?
-  state     String?
-  postalCode String?
-  country   String   @default("US")
-  logoUrl   String?
-  nextInvoiceNumber Int @default(1001)
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  name              String
+  email             String
+  phone             String?
+  address1          String?
+  address2          String?
+  city              String?
+  state             String?
+  postalCode        String?
+  country           String  @default("US")
+  logoUrl           String?
+  nextInvoiceNumber Int     @default(1001)
 
   /// Shown to payers in the Pay section of the public invoice (decision 0008).
   paymentInstructions String? @db.Text
@@ -114,53 +116,53 @@ model BusinessProfile {
 }
 
 model Client {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  email     String?
-  phone     String?
-  company   String?
-  address1  String?
-  city      String?
-  state     String?
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  email      String?
+  phone      String?
+  company    String?
+  address1   String?
+  city       String?
+  state      String?
   postalCode String?
-  notes     String?  @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  notes      String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  invoices Invoice[]
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoices  Invoice[]
   schedules RecurringSchedule[]
 
   @@index([userId])
 }
 
 model Invoice {
-  id             String        @id @default(cuid())
-  publicId       String        @unique
-  userId         String
-  clientId       String
-  number         String
-  status         InvoiceStatus @default(draft)
-  issueDate      DateTime      @default(now())
-  dueDate        DateTime?
-  currency       String        @default("USD")
-  notes          String?       @db.Text
-  taxRateBps     Int           @default(0) // basis points, e.g. 825 = 8.25%
-  subtotalCents  Int           @default(0)
-  taxCents       Int           @default(0)
-  totalCents     Int           @default(0)
-  sentAt         DateTime?
-  viewedAt       DateTime?
-  paidAt         DateTime?
-  voidedAt       DateTime?
+  id                  String        @id @default(cuid())
+  publicId            String        @unique
+  userId              String
+  clientId            String
+  number              String
+  status              InvoiceStatus @default(draft)
+  issueDate           DateTime      @default(now())
+  dueDate             DateTime?
+  currency            String        @default("USD")
+  notes               String?       @db.Text
+  taxRateBps          Int           @default(0) // basis points, e.g. 825 = 8.25%
+  subtotalCents       Int           @default(0)
+  taxCents            Int           @default(0)
+  totalCents          Int           @default(0)
+  sentAt              DateTime?
+  viewedAt            DateTime?
+  paidAt              DateTime?
+  voidedAt            DateTime?
   recurringScheduleId String?
-  paidCents      Int           @default(0) // sum of Payment.amountCents, kept in step by the payments service
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  paidCents           Int           @default(0) // sum of Payment.amountCents, kept in step by the payments service
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  client    Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client    Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   schedule  RecurringSchedule? @relation(fields: [recurringScheduleId], references: [id], onDelete: SetNull)
   lineItems InvoiceLineItem[]
   events    InvoiceEvent[]
@@ -175,20 +177,20 @@ model Invoice {
 
 /// Recurring invoice schedules (decision 0018). linesJson holds NewLine[] as JSON.
 model RecurringSchedule {
-  id         String            @id @default(cuid())
+  id         String           @id @default(cuid())
   userId     String
   clientId   String
-  cadence    RecurringCadence  @default(monthly)
+  cadence    RecurringCadence @default(monthly)
   nextRunAt  DateTime
-  dueInDays  Int               @default(14)
-  taxRateBps Int               @default(0)
-  notes      String?           @db.Text
-  linesJson  String            @db.Text
-  autoSend   Boolean           @default(false)
-  active     Boolean           @default(true)
+  dueInDays  Int              @default(14)
+  taxRateBps Int              @default(0)
+  notes      String?          @db.Text
+  linesJson  String           @db.Text
+  autoSend   Boolean          @default(false)
+  active     Boolean          @default(true)
   lastRunAt  DateTime?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
@@ -199,12 +201,12 @@ model RecurringSchedule {
 }
 
 model InvoiceLineItem {
-  id          String @id @default(cuid())
-  invoiceId   String
-  description String
-  quantity    Decimal @db.Decimal(12, 4)
+  id             String  @id @default(cuid())
+  invoiceId      String
+  description    String
+  quantity       Decimal @db.Decimal(12, 4)
   unitPriceCents Int
-  sortOrder   Int     @default(0)
+  sortOrder      Int     @default(0)
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
@@ -285,4 +287,78 @@ model Payment {
 
   @@index([invoiceId])
   @@index([userId, paidOn])
+}
+
+/// Collections service (decision 0020). B2B only; no outbound messages in week 1.
+enum CollectionRelationship {
+  active
+  ended
+  one_off
+}
+
+enum CollectionTone {
+  warm
+  neutral
+  firm
+}
+
+enum CollectionEscalation {
+  owner_follow_up
+  pause
+  write_off
+}
+
+enum CollectionAccountStatus {
+  needs_review
+  ready
+  paused
+}
+
+model CollectionImport {
+  id                 String   @id @default(cuid())
+  userId             String
+  fileName           String?
+  rowCount           Int
+  businessDebtAttest Boolean
+  attestedAt         DateTime
+  createdAt          DateTime @default(now())
+
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accounts CollectionAccount[]
+
+  @@index([userId])
+}
+
+model CollectionAccount {
+  id          String                  @id @default(cuid())
+  userId      String
+  importId    String?
+  debtorName  String
+  company     String
+  email       String
+  amountCents Int
+  currency    String                  @default("USD")
+  invoiceDate DateTime?
+  ageDays     Int?
+  description String?
+  status      CollectionAccountStatus @default(needs_review)
+
+  relationship        CollectionRelationship?
+  disputed            Boolean?
+  disputeNotes        String?
+  minSettlementPct    Int?
+  maxPlanMonths       Int?
+  tone                CollectionTone?
+  escalation          CollectionEscalation?
+  escalationNotes     String?
+  questionnaireDoneAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceFile CollectionImport? @relation(fields: [importId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([importId])
 }

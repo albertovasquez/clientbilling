@@ -7,7 +7,8 @@ Reading order
 1. `north-star.md`: what we are building, what we will never be, and the R=470 rule.
 2. `compliance-boundary.md`: the hard lines on card data, funds, and merchant-of-record status. Violations are rejected, not negotiated.
 3. `affiliate-cdg.md`: how CDG is presented, which links are allowed, and what is still unconfirmed.
-4. `product-principles.md`: how we decide what to build and how it should feel.
+4. `collections.md`: the separate collections service, its limits, and what it will never do (decision 0020).
+5. `product-principles.md`: how we decide what to build and how it should feel.
 5. `../product/invoice-mvp.md`: what exists today. `../product/roadmap.md`: what comes next and why.
 6. `../agents/operating-manual.md`: what an agent may change on its own, and when it must stop and ask.
 7. `../agents/definition-of-done.md`: what "shipped" means here. `../agents/api.md`: the API an agent uses to operate an account.

@@ -8,6 +8,7 @@ const nav = [
   { href: "/app/clients", label: "Clients" },
   { href: "/app/invoices/new", label: "New invoice" },
   { href: "/app/recurring", label: "Recurring" },
+  { href: "/app/collections", label: "Collections" },
   { href: "/app/settings", label: "Business" },
   { href: "/app/settings/payments", label: "Getting paid" },
   { href: "/app/settings/api", label: "API" },
